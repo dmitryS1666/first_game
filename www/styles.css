@@ -1,0 +1,70 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    background: url('res/splash2.png') no-repeat center center fixed; /* Фоновое изображение */
+    background-size: cover; /* Масштабирование фона */
+}
+
+canvas {
+    display: block;
+    background: transparent; /* Сделаем фон прозрачным, чтобы фоновое изображение было видно */
+}
+
+#score, #timer {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    pointer-events: none;
+}
+
+#score {
+    top: 10px;
+    right: 10px;
+}
+
+#timer {
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#gameOverScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    display: none;
+}
+
+#gameOverScreen button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#gameOverScreen #menuButton {
+    margin-top: 10px;
+}
+
+#mainMenu {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+#mainMenu button {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#lastScore {
+    font-size: 18px;
+    color: #555;
+    margin-top: 10px;
+}
