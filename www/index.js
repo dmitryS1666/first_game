@@ -5,20 +5,38 @@ let basketWidth, basketHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
 const eggInterval = 1000; // milliseconds
 const gameDuration = 150; // seconds
+const flashDuration = 100; // Duration of the flash in milliseconds
+let flashes = []; // Array to keep track of flashes
+let tracks = []; // Массив для хранения следов
 
-const colors = ['yellow', 'blue', 'green', 'red', 'orange', 'purple', 'pink', 'brown', 'cyan', 'magenta'];
+const colors = ['blue', 'brown', 'yellow', 'earth', 'green', 'indigo', 'orange', 'purple', 'pink', 'red'];
 const colorProperties = {
-    yellow: {score: 10},
     blue: {score: 5},
+    brown: {score: 15},
+    yellow: {score: 10},
+    earth: {score: 25},
     green: {score: 2},
-    red: {score: 0, gameOver: true},
+    indigo: {score: 0},
     orange: {score: -5},
     purple: {score: -10},
     pink: {score: -2},
-    brown: {score: 15},
-    cyan: {score: 8},
-    magenta: {score: 0, gameOver: true},
+    red: {score: 0, gameOver: true},
 };
+
+// Image references
+const ballImages = {};
+const ballImageNames = [
+    'blue_ball.png',
+    'brown_ball.png',
+    'yellow_ball.png',
+    'earth_ball.png',
+    'green_ball.png',
+    'indigo_ball.png',
+    'orange_ball.png',
+    'pink_ball.png',
+    'purple_ball.png',
+    'red_ball.png'
+];
 
 // Game state
 let basketX;
@@ -29,6 +47,17 @@ let gameOver = false;
 let highestScore = 0;
 
 let basketImage = new Image();
+let flashImage = new Image();
+flashImage.src = "res/flash.png";
+
+let trackImage = new Image();
+trackImage.src = "res/track.png";
+
+let touchFlag = false; // Флаг касания
+let flashFlag = false; // Флаг вспышки
+
+const trackWidth = 30; // Задайте ширину трека
+const trackHeight = 80; // Задайте высоту трека
 
 // Initialize game
 function setupGame() {
@@ -52,6 +81,14 @@ function setupGame() {
     basketSpeed = canvasWidth * 0.02;
     eggSpeedBase = canvasHeight * 0.005;
     eggSpeedVariance = canvasHeight * 0.003;
+
+    // Load ball images
+    ballImageNames.forEach((fileName) => {
+        const color = fileName.split('_')[0];
+        const img = new Image();
+        img.src = `res/balls/${fileName}`;
+        ballImages[color] = img;
+    });
 
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
@@ -90,6 +127,7 @@ function startGame() {
     basketX = (canvasWidth - basketWidth) / 2;
     eggs = [];
     updateScoreDisplay();
+    timerDisplay('block');
     startTimer();
     document.getElementById('gameOverScreen').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'none';
@@ -101,6 +139,7 @@ function startGame() {
 // End the game
 function endGame() {
     canvas.style.display = 'none';
+    timerDisplay('none');
     document.getElementById('finalScore').textContent = `Final Score: ${score}`;
     saveHighestScore(score);
     document.getElementById('gameOverScreen').style.display = 'block';
@@ -111,18 +150,26 @@ function endGame() {
 // Start the game timer
 function startTimer() {
     let timeRemaining = gameDuration;
-    document.getElementById('timer').textContent = `Time: ${timeRemaining}`;
+    document.getElementById('seconds').textContent = `${timeRemaining}`;
     timer = setInterval(() => {
         timeRemaining--;
-        document.getElementById('timer').textContent = `Time: ${timeRemaining}`;
+        document.getElementById('seconds').textContent = `${timeRemaining}`;
         if (timeRemaining <= 0) {
             endGame();
         }
     }, 1000);
 }
 
+function addTrack(x, y) {
+    tracks.push({ x, y, startTime: Date.now() });
+}
+
+function addFlash(x, y) {
+    flashes.push({ x, y, startTime: Date.now() });
+}
+
 function drawBasket() {
-    basketImage.src = "res/new_platform.png"
+    basketImage.src = "res/new_platform.png";
     // Проверяем, что изображение загружено
     if (basketImage.complete) {
         ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight, basketWidth, basketHeight);
@@ -132,31 +179,53 @@ function drawBasket() {
     }
 }
 
-// Draw all falling eggs
-function drawEggs() {
-    // let eggImage = new Image();
+function drawFlashes() {
+    if (flashFlag) {
+        ctx.globalAlpha = 1;
+        ctx.drawImage(flashImage, basketX, canvasHeight - basketHeight - 50, basketWidth, basketHeight); // Отображаем вспышку
+        setTimeout(() => {
+            flashFlag = false; // Сбрасываем флаг после короткого времени
+        }, 100); // Время отображения вспышки
+    }
+}
 
-    eggs.forEach(egg => {
-        ctx.beginPath();
-        ctx.arc(egg.x, egg.y, 10, 0, Math.PI * 2);
-        ctx.fillStyle = egg.color;
-        ctx.fill();
+function drawTracks() {
+    const currentTime = Date.now();
+    ctx.globalAlpha = 0.1; // Устанавливаем полупрозрачность трека
+    tracks.forEach(track => {
+        const elapsed = currentTime - track.startTime;
+        if (elapsed < 200 && !flashFlag) { // Проверяем флаг вспышки
+            ctx.drawImage(trackImage, track.x - trackWidth / 2, track.y - trackHeight / 2, trackWidth, trackHeight);
+        }
     });
+    ctx.globalAlpha = 1; // Сброс прозрачности
+    if (flashFlag) {
+        tracks = []; // Очищаем следы, если была вспышка
+    } else {
+        tracks = tracks.filter(track => (currentTime - track.startTime) < 200); // Удаляем старые следы
+    }
+}
 
-    // basketImage.src = "res/new_platform.png"
-    // // Проверяем, что изображение загружено
-    // if (basketImage.complete) {
-    //     ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight, basketWidth, basketHeight);
-    // } else {
-    //     // Если изображение еще не загружено, выводим отладочное сообщение
-    //     console.error('Basket image is not loaded yet.');
-    // }
+function drawEggs() {
+    eggs.forEach(egg => {
+        const img = ballImages[egg.color];
+        if (img) {
+            ctx.drawImage(img, egg.x - 25, egg.y - 25, 50, 50); // Рисуем шар
+        } else {
+            // Резервный случай
+            ctx.beginPath();
+            ctx.arc(egg.x, egg.y, 25, 0, Math.PI * 2);
+            ctx.fillStyle = egg.color;
+            ctx.fill();
+        }
+    });
 }
 
 // Update the position of all eggs
 function updateEggs() {
     eggs.forEach(egg => {
         egg.y += egg.speed;
+        addTrack(egg.x, egg.y - 75); // Добавляем след для текущего положения
         if (egg.y > canvasHeight) {
             eggs = eggs.filter(e => e !== egg);
         }
@@ -165,20 +234,28 @@ function updateEggs() {
 
 // Check for collisions between eggs and the basket
 function handleCollision() {
+    flashFlag = false; // Сбрасываем флаг вспышки
+    touchFlag = false; // Сбрасываем флаг касания
     eggs.forEach(egg => {
-        if (egg.y + 10 > canvasHeight - basketHeight && egg.x > basketX && egg.x < basketX + basketWidth) {
+        if (egg.y + 25 > canvasHeight - basketHeight && egg.x > basketX && egg.x < basketX + basketWidth) {
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
-            // if (properties.gameOver) {
-            //     endGame();
-            // }
+            if (properties.gameOver) {
+                endGame();
+            }
             eggs = eggs.filter(e => e !== egg);
+            touchFlag = true; // Устанавливаем флаг касания
+            flashFlag = true; // Устанавливаем флаг вспышки
         }
     });
 }
 
 // Update the displayed score
+function timerDisplay(state) {
+    document.getElementById('timer').style.display = state;
+}
+
 function updateScoreDisplay() {
     document.getElementById('score').textContent = `Score: ${score}`;
 }
@@ -187,8 +264,10 @@ function updateScoreDisplay() {
 function gameLoop() {
     if (gameOver) return;
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    drawTracks(); // Рисуем следы
+    drawFlashes(); // Рисуем вспышки
     drawBasket();
-    drawEggs();
+    drawEggs(); // Рисуем шары
     updateEggs();
     handleCollision();
     requestAnimationFrame(gameLoop);
@@ -201,6 +280,8 @@ function addEgg() {
     const color = colors[Math.floor(Math.random() * colors.length)];
     const speed = eggSpeedBase + Math.random() * eggSpeedVariance;
     eggs.push({x, y: 0, color, speed});
+    // Добавляем трек за шаром
+    tracks.push({x, y: 75, startTime: Date.now()});
 }
 
 // Save the highest score to localStorage

@@ -19,6 +19,13 @@ canvas {
     pointer-events: none;
 }
 
+#min, #dots, #seconds {
+    font-size: 28pt;
+    margin-top: 0;
+    margin-left: 10px;
+    float: left;
+}
+
 #score {
     top: 10px;
     right: 10px;
@@ -28,6 +35,15 @@ canvas {
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    display: none;
+}
+
+#timer img {
+    float: left;
+    width: 35px;
 }
 
 #gameOverScreen {

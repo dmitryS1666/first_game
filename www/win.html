@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Win</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="victoryScreen">
+    <h1>Congratulations!</h1>
+    <p>You have completed the game!</p>
+    <p id="finalScore">Final Score: 0</p>
+    <button id="playAgainButton">Play Again</button>
+    <button id="menuButton">Menu</button>
+</div>
+<script>
+    document.getElementById('playAgainButton').addEventListener('click', () => {
+        window.location.href = 'index.html'; // Перенаправляем на главную страницу
+    });
+    document.getElementById('menuButton').addEventListener('click', () => {
+        window.location.href = 'index.html'; // Перенаправляем на главную страницу
+    });
+</script>
+</body>
+</html>
