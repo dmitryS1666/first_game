@@ -6,20 +6,29 @@
     <title>Win</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-<div id="victoryScreen">
-    <h1>Congratulations!</h1>
-    <p>You have completed the game!</p>
-    <p id="finalScore">Final Score: 0</p>
-    <button id="playAgainButton">Play Again</button>
-    <button id="menuButton">Menu</button>
+<body id="winFail">
+<div id="blur"></div>
+<div class="result">
+    <p id="finalText">WIN</p>
+    <p id="finalScore">0</p>
+</div>
+
+<div id="goldImage" class="goldWin">
+    <img class="flash" src="res/big_flash.png">
+    <img class="gold" src="res/gold_price.png">
+</div>
+<div class="button">
+    <button id="winFailMenuButton">
+        <img src="res/continue_button.png">
+    </button>
 </div>
 <script>
-    document.getElementById('playAgainButton').addEventListener('click', () => {
-        window.location.href = 'index.html'; // Перенаправляем на главную страницу
-    });
-    document.getElementById('menuButton').addEventListener('click', () => {
-        window.location.href = 'index.html'; // Перенаправляем на главную страницу
+    document.addEventListener('DOMContentLoaded', () => {
+        const score = localStorage.getItem('currentScore');
+        // document.getElementById('finalScore').textContent += score;
+        document.getElementById('mainMenuButton').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
     });
 </script>
 </body>

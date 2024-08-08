@@ -137,12 +137,18 @@ function startGame() {
 }
 
 // End the game
-function endGame() {
+function endGame(isVictory) {
     canvas.style.display = 'none';
     timerDisplay('none');
-    document.getElementById('finalScore').textContent = `Final Score: ${score}`;
+    const finalScore = document.getElementById('finalScore');
+    finalScore.textContent = `Final Score: ${score}`;
     saveHighestScore(score);
-    document.getElementById('gameOverScreen').style.display = 'block';
+    if (isVictory) {
+        localStorage.setItem('currentScore', score); // Сохраняем текущий результат
+        window.location.href = 'win.html'; // Перенаправляем на страницу победы
+    } else {
+        window.location.href = 'fail.html'; // Перенаправляем на страницу поражения
+    }
     gameOver = true;
     clearInterval(timer);
 }
@@ -155,7 +161,7 @@ function startTimer() {
         timeRemaining--;
         document.getElementById('seconds').textContent = `${timeRemaining}`;
         if (timeRemaining <= 0) {
-            endGame();
+            endGame(score >= 100); // Условие для победы, например, 100 очков
         }
     }, 1000);
 }
@@ -242,7 +248,7 @@ function handleCollision() {
             score += properties.score;
             updateScoreDisplay();
             if (properties.gameOver) {
-                endGame();
+                endGame(false); // Поражение
             }
             eggs = eggs.filter(e => e !== egg);
             touchFlag = true; // Устанавливаем флаг касания
