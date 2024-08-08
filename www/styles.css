@@ -142,6 +142,19 @@ canvas {
     z-index: 0;
 }
 
+#rocket img {
+    display: block;
+    width: 100%; /* Обеспечить растяжение изображения на всю ширину контейнера */
+    height: auto; /* Сохранить пропорции изображения */
+    z-index: 1;
+}
+
+#rocket .flash {
+    top: 105px;
+    position: relative;
+    animation: shine 1.5s infinite;
+}
+
 #goldImage img {
     display: block;
     width: 100%; /* Обеспечить растяжение изображения на всю ширину контейнера */
@@ -156,6 +169,18 @@ canvas {
     top: 255px;
     position: relative;
     animation: shine 2s infinite;
+}
+
+@keyframes shine {
+    0% { filter: brightness(100%); }
+    50% { filter: brightness(150%); }
+    100% { filter: brightness(100%); }
+}
+
+@keyframes flash {
+    0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
+    50% { text-shadow: 0 0 30px rgba(255, 255, 255, 1); }
+    100% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
 }
 
 #goldImage .gold {
@@ -177,11 +202,27 @@ canvas {
     position: absolute;
     z-index: 1;
     bottom: 80px;
+    animation: pulse 1.5s infinite;
     /*border: none;*/
     /*background: #f0f0f0;*/
     /*border-radius: 5px;*/
     /*box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);*/
     /*transition: background 0.3s, box-shadow 0.3s;*/
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
 }
 
 button:active {
