@@ -162,11 +162,6 @@ canvas {
 #startButton{
     background: none;
     border: none;
-    padding: 0;
-}
-
-#startButton img{
-    display: block;
 }
 
 /* Фон для затемнения */
@@ -236,13 +231,13 @@ canvas {
 #goldImage .flash {
     top: 255px;
     position: relative;
-    animation: shine 2s infinite;
+    animation: shine 2.5s infinite;
 }
 
 @keyframes shine {
     0% { filter: brightness(100%); }
     50% { filter: brightness(150%); }
-    100% { filter: brightness(100%); }
+    100% { filter: brightness(85%); }
 }
 
 @keyframes flash {
@@ -301,4 +296,27 @@ button:active {
 
 #winFailMenuButton img {
     display: block;
+}
+
+/*MENU PAGE*/
+.levels ul {
+    list-style: none;
+    background: url(res/levels/arrow.png) no-repeat;
+    background-position-x: center;
+    background-position-y: 180px;
+    padding: unset;
+    margin-top: 70px;
+}
+
+.levels ul li {
+    margin-top: -10px;
+}
+
+.levels ul li img{
+    width: 180px;
+    height: 180px;
+}
+
+.goldMenu {
+    bottom: 0 !important;
 }

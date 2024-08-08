@@ -16,19 +16,30 @@
         <img src="res/setting_button.png">
     </button>
 </div>
-<div id="dogWithRocket">
-    <img class="dogWithRocket" src="res/dog_with_rocket.png">
+<div class="levels">
+    <ul>
+        <li>
+            <img src="res/levels/bonus.png">
+        </li>
+        <li>
+            <img src="res/levels/third.png">
+        </li>
+        <li>
+            <img src="res/levels/second.png">
+        </li>
+        <li>
+            <img src="res/levels/first.png">
+        </li>
+    </ul>
 </div>
-<div class="startButton">
-    <button id="startButton">
-        <img src="res/main_play_button.png">
-    </button>
+
+<div id="goldImage" class="goldMenu">
+    <img class="flash" src="res/big_flash.png">
+    <img class="gold" src="res/gold_price.png">
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('startButton').addEventListener('click', () => {
-            window.location.href = 'menu.html';
-        });
         document.getElementById('homeButton').addEventListener('click', () => {
             window.location.href = 'main.html';
         });
