@@ -27,8 +27,7 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const score = localStorage.getItem('currentScore');
-        // document.getElementById('finalScore').textContent += score;
+        document.getElementById('finalScore').textContent = localStorage.getItem('currentScore');
         document.getElementById('winFailMenuButton').addEventListener('click', () => {
             window.location.href = 'main.html';
         });

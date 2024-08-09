@@ -4,7 +4,7 @@ let canvasWidth, canvasHeight;
 let basketWidth, basketHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
 const eggInterval = 1000; // milliseconds
-const gameDuration = 150; // seconds
+const gameDuration = 15; // seconds
 const flashDuration = 100; // Duration of the flash in milliseconds
 let flashes = []; // Array to keep track of flashes
 let tracks = []; // Массив для хранения следов
@@ -161,7 +161,7 @@ function startTimer() {
         timeRemaining--;
         document.getElementById('seconds').textContent = `${timeRemaining}`;
         if (timeRemaining <= 0) {
-            endGame(score >= 100); // Условие для победы, например, 100 очков
+            endGame(score >= 0); // Условие для победы, например, 100 очков
         }
     }, 1000);
 }

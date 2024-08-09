@@ -26,5 +26,21 @@
     <button id="startButton">Play</button>
 </div>
 <script src="index.js"></script>
+<script>
+    window.addEventListener('load', () => {
+        // Извлечь параметр из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const levelNumber = urlParams.get('level');
+
+        // Запустить игру с переданным параметром
+        if (levelNumber) {
+            startGame();
+            // startGame(levelNumber);
+        } else {
+            // Запустить игру без уровня или с уровнем по умолчанию, если параметр отсутствует
+            startGame();
+        }
+    });
+</script>
 </body>
 </html>

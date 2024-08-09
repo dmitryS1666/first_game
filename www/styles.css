@@ -1,3 +1,8 @@
+@font-face {
+    font-family: SpaceAge;
+    src: url(res/fonts/space_age.ttf);
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -147,18 +152,6 @@ canvas {
     mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
 }
 
-@keyframes shimmer {
-    0% {
-        transform: translateX(-100%) rotate(-30deg);
-    }
-    50% {
-        transform: translateX(100%) rotate(-30deg);
-    }
-    100% {
-        transform: translateX(100%) rotate(-30deg);
-    }
-}
-
 #startButton{
     background: none;
     border: none;
@@ -234,18 +227,6 @@ canvas {
     animation: shine 2.5s infinite;
 }
 
-@keyframes shine {
-    0% { filter: brightness(100%); }
-    50% { filter: brightness(150%); }
-    100% { filter: brightness(85%); }
-}
-
-@keyframes flash {
-    0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
-    50% { text-shadow: 0 0 30px rgba(255, 255, 255, 1); }
-    100% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
-}
-
 #goldImage .gold {
     position: relative;
 }
@@ -268,21 +249,6 @@ canvas {
     animation: pulse 1.5s infinite;
 }
 
-@keyframes pulse {
-    0% {
-        transform: scale(0.8);
-        opacity: 0.8;
-    }
-    50% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(0.8);
-        opacity: 0.8;
-    }
-}
-
 button:active {
     background: #e0e0e0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -300,23 +266,157 @@ button:active {
 
 /*MENU PAGE*/
 .levels ul {
-    list-style: none;
+    position: relative;
+    list-style-type: none;
     background: url(res/levels/arrow.png) no-repeat;
     background-position-x: center;
     background-position-y: 180px;
-    padding: unset;
+    padding: 0;
     margin-top: 70px;
+    z-index: 1;
 }
 
-.levels ul li {
+.levels li {
+    display: flex;
+    justify-content: center; /* Центрируем контент по горизонтали */
+    position: relative;
     margin-top: -10px;
+    z-index: 1;
+    border-radius: 30%;
+}
+
+.levels li:nth-child(odd) {
+    justify-content: flex-start; /* Нечетные элементы размещаем слева */
+}
+
+.levels li:nth-child(even) {
+    justify-content: flex-end; /* Четные элементы размещаем справа */
+}
+
+.levels li::before {
+    content: attr(data-number);
+    position: absolute;
+    top: 30%;
+    transform: translateY(-50%);
+    width: 55px;
+    height: 55px;
+    background: #828282bf;
+    color: #fff;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    font-weight: bold;
+    z-index: 2;
+    font-family: 'SpaceAge', sans-serif;
+    display: none;
+}
+
+.levels li[data-number]::before {
+    display: flex; /* Показываем кружок, если data-number задан */
+}
+
+.levels li.active::before {
+    background: #FFD700; /* Желтый фон */
+    color: #000; /* Черный текст */
+}
+
+.levels li:not(.active)::before {
+    background: rgba(130, 130, 130, 0.75); /* Прозрачно-серый фон */
+    color: #fff; /* Белый текст */
 }
 
 .levels ul li img{
     width: 180px;
     height: 180px;
+    z-index: 1;
+}
+
+.miniRocket {
+    width: 50px; /* Ширина картинки miniRocket */
+    height: auto;
 }
 
 .goldMenu {
     bottom: 0 !important;
+}
+
+#miniRocket {
+    z-index: 1;
+    position: absolute;
+    transition: transform 1.3s ease; /* Плавное перемещение */
+}
+
+#main .shinePlanet {
+    position: relative;
+    overflow: hidden; /* Обеспечивает, что круги не будут выходить за пределы элемента */
+    z-index: 0;
+}
+
+/*.shinePlanet::before {*/
+/*    content: '';*/
+/*    position: absolute;*/
+/*    top: 50%;*/
+/*    left: 50%;*/
+/*    width: 200%; !* Размер круга для создания эффекта затухания *!*/
+/*    height: 200%;*/
+/*    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 215, 0, 0) 100%);*/
+/*    border-radius: 50%;*/
+/*    transform: translate(-50%, -50%);*/
+/*    opacity: 0;*/
+/*    z-index: -1; !* Помещает псевдоэлемент на задний план *!*/
+/*    filter: blur(15px); !* Добавляет размытие для мягких краев *!*/
+/*    animation: shine-animation 1.5s ease-out infinite;*/
+/*}*/
+
+/*ANIMATION*/
+
+@keyframes shine-animation {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes shine {
+    0% { filter: brightness(100%); }
+    50% { filter: brightness(150%); }
+    100% { filter: brightness(85%); }
+}
+
+@keyframes flash {
+    0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
+    50% { text-shadow: 0 0 30px rgba(255, 255, 255, 1); }
+    100% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) rotate(-30deg);
+    }
+    50% {
+        transform: translateX(100%) rotate(-30deg);
+    }
+    100% {
+        transform: translateX(100%) rotate(-30deg);
+    }
 }
