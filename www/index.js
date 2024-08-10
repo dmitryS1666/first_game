@@ -94,13 +94,98 @@ function setupGame() {
     const restartButton = document.getElementById('restartButton');
     const menuButton = document.getElementById('menuButton');
 
-    if (startButton) startButton.addEventListener('click', startGame);
-    if (restartButton) restartButton.addEventListener('click', startGame);
+    // if (startButton) startButton.addEventListener('click', startGame);
+    // if (restartButton) restartButton.addEventListener('click', startGame);
     if (menuButton) menuButton.addEventListener('click', showMainMenu);
 
     setInterval(addEgg, eggInterval);
     showMainMenu();
 }
+
+// ====================================
+// MENU SCRIPT
+// ====================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Функция, которую нужно выполнить, когда элемент станет видимым
+    let isInitialLoad = true; // Флаг для проверки первоначальной загрузки
+    const miniRocket = document.getElementById('miniRocket');
+    const listItems = document.querySelectorAll('.levels li');
+
+    function onElementVisible() {
+        listItems.forEach(item => {
+            // События для сенсорных экранов
+            item.addEventListener('touchstart', addShineClass);
+            item.addEventListener('touchend', removeShineClass);
+
+            // События для настольных браузеров
+            item.addEventListener('mouseover', addShineClass);
+            item.addEventListener('mouseout', removeShineClass);
+
+            item.addEventListener('click', () => {
+                moveRocketToItem(item);
+            });
+        });
+
+        miniRocket.style.top = '0';
+
+        // Установить начальное положение ракеты на последнем элементе, но не выполнять редирект
+        moveRocketToItem(listItems[listItems.length - 1]);
+        isInitialLoad = false; // Установить флаг в false после инициализации
+    }
+
+    // Получаем элемент, за изменением которого будем следить
+    const element = document.getElementById('mainMenu');
+
+    // Создаем новый MutationObserver и передаем ему коллбэк
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                if (element.style.display !== 'none') {
+                    onElementVisible();
+                }
+            }
+        }
+    });
+
+    // Конфигурация наблюдателя: отслеживание изменений атрибутов
+    const config = {attributes: true};
+
+    // Запускаем наблюдение
+    observer.observe(element, config);
+
+
+    function moveRocketToItem(item) {
+        const rect = item.getBoundingClientRect();
+        const rocketRect = miniRocket.getBoundingClientRect();
+
+        const offsetX = 50;
+        const offsetY = rect.top + (rect.height / 2) - (rocketRect.height / 2);
+
+        miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+        // Удаляем класс active у всех элементов
+        listItems.forEach(li => li.classList.remove('active'));
+        // Добавляем класс active только к выбранному элементу
+        item.classList.add('active');
+
+        // Если это не первоначальная загрузка, выполняем редирект
+        if (!isInitialLoad) {
+            setTimeout(() => {
+                const levelNumber = item.getAttribute('data-number');
+                navigateTo('gameContainer', levelNumber)
+                isInitialLoad = true;
+            }, 250);
+        }
+    }
+
+    function addShineClass(event) {
+        event.currentTarget.classList.add('shinePlanet');
+    }
+
+    function removeShineClass(event) {
+        event.currentTarget.classList.remove('shinePlanet');
+    }
+});
 
 // ====================================
 // Setup event listeners for NAVIGATION
@@ -150,9 +235,11 @@ function startGame() {
     startTimer();
     // document.getElementById('gameOverScreen').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'none';
-    canvas.style.display = 'block';
-    gameOver = false;
-    gameLoop();
+    if (canvas) {
+        canvas.style.display = 'block';
+        gameOver = false;
+        gameLoop();
+    }
 }
 
 // End the game
@@ -160,7 +247,9 @@ function endGame(isVictory) {
     canvas.style.display = 'none';
     timerDisplay('none');
     const finalScore = document.getElementById('finalScore');
-    finalScore.textContent = `Final Score: ${score}`;
+    if (finalScore) {
+        finalScore.textContent = `Final Score: ${score}`;
+    }
     saveHighestScore(score);
     if (isVictory) {
         localStorage.setItem('currentScore', score); // Сохраняем текущий результат
@@ -319,7 +408,7 @@ function saveHighestScore(score) {
 // Load the highest score from localStorage
 function loadHighestScore() {
     highestScore = localStorage.getItem('highestScore') || 0;
-    document.getElementById('lastScore').textContent = `Your highest score: ${highestScore}`;
+    // document.getElementById('lastScore').textContent = `Your highest score: ${highestScore}`;
 }
 
 // Handle touch input for mobile devices
@@ -345,12 +434,16 @@ function setupKeyboardControls() {
 }
 
 // Setup the game on page load
-setupGame();
-setupTouchControls();
-setupKeyboardControls();
+// setupGame();
+// setupTouchControls();
+// setupKeyboardControls();
 
 
-function navigateTo(pageId) {
+function navigateTo(...args) {
+    if (args[1]) {
+        console.log('selected game: ' + args[1]);
+    }
+
     const overlay = document.getElementById('overlay');
     const preloader = document.getElementById('preloader');
     overlay.style.display = 'block';
@@ -362,10 +455,10 @@ function navigateTo(pageId) {
         document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
 
         // Показать выбранную страницу
-        document.getElementById(pageId).style.display = 'block';
+        document.getElementById(args[0]).style.display = 'block';
 
         // Скрыть затемнитель и прелоадер
         overlay.style.display = 'none';
         preloader.style.display = 'none';
-    }, 800);
+    }, 400);
 }
