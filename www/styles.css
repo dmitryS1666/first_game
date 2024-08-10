@@ -151,7 +151,7 @@ canvas {
 }
 
 /* Фон для затемнения */
-#blur {
+.blur {
     position: absolute;
     top: 0;
     left: 0;
@@ -159,19 +159,6 @@ canvas {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 1;
-}
-
-.result {
-    color: white;
-    text-align: center;
-    z-index: 1;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: 3.5em;
-    position: absolute;
-    bottom: 410px;
-
-    animation: flash 1.5s infinite;
 }
 
 #finalText {
@@ -191,17 +178,37 @@ canvas {
     z-index: 0;
 }
 
+#rocket {
+    left: 35%;
+    position: absolute;
+    margin: 0;
+    text-align: center;
+}
+
 #rocket img {
     display: block;
-    width: 100%; /* Обеспечить растяжение изображения на всю ширину контейнера */
     height: auto; /* Сохранить пропорции изображения */
     z-index: 1;
 }
 
 #rocket .flash {
-    top: 105px;
+    top: 70px;
     position: relative;
     animation: shine 1.5s infinite;
+}
+
+.result {
+    color: white;
+    text-align: center;
+    z-index: 1;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 3.5em;
+    position: absolute;
+    top: 300px;
+    animation: flash 1.5s infinite;
+    left: 33%;
+    line-height: 0;
 }
 
 .goldImage img {
@@ -235,10 +242,11 @@ canvas {
 }
 
 /* Стили для кнопки */
-.button {
+#winPage .button,
+#failPage .button {
     position: absolute;
     z-index: 1;
-    bottom: 80px;
+    bottom: 100px;
     animation: pulse 1.5s infinite;
 }
 
@@ -247,13 +255,14 @@ button:active {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-#winFailMenuButton {
+#winMenuButton, #failMenuButton {
     background: none;
     border: none;
     padding: 0;
+    margin-left: 15px;
 }
 
-#winFailMenuButton img {
+#winMenuButton img {
     display: block;
 }
 

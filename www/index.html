@@ -71,45 +71,45 @@
         <img src="../res/timer.png">
         <span id="min">00</span>
         <span id="dots">:</span>
-        <span id="seconds">15</span>
+        <span id="seconds">150</span>
     </div>
 </div>
 
 <!-- Win Screen -->
-<div id="winScreen" class="page" style="display: none;">
+<div id="winPage" class="page" style="display: none;">
     <div class="blur"></div>
     <div id="rocket">
         <img class="flash" src="../res/rocket.png">
     </div>
     <div class="result">
         <p class="finalText">WIN</p>
-        <p class="finalScore">0</p>
+        <p class="finalScore">+0</p>
     </div>
 
-<!--    <div id="goldImage" class="goldWin">-->
-<!--        <img class="flash" src="../res/big_flash.png">-->
-<!--        <img class="gold" src="../res/gold_price.png">-->
-<!--    </div>-->
+    <div class="goldImage goldWin">
+        <img class="flash" src="../res/big_flash.png">
+        <img class="gold" src="../res/gold_price.png">
+    </div>
     <div class="button">
-        <button id="winFailMenuButton">
+        <button id="winMenuButton">
             <img src="../res/continue_button.png">
         </button>
     </div>
 </div>
 
 <!-- Fail Screen -->
-<div id="failScreen" class="page" style="display: none;">
+<div id="failPage" class="page" style="display: none;">
     <div class="blur"></div>
     <div class="result">
         <p class="finalText">LOSE</p>
         <p class="finalScore">0</p>
     </div>
 
-<!--    <div class="goldImage">-->
-<!--        <img src="../res/gold_price.png" alt="Gold Price">-->
-<!--    </div>-->
+    <div class="goldImage">
+        <img src="../res/gold_price.png" alt="Gold Price">
+    </div>
     <div class="button">
-        <button class="winFailMenuButton">
+        <button id="failMenuButton">
             <img src="../res/continue_button.png" alt="Continue">
         </button>
     </div>
@@ -124,22 +124,6 @@
 
 <script src="index.js"></script>
 
-<script>
-    window.addEventListener('load', () => {
-        // Извлечь параметр из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const levelNumber = urlParams.get('level');
-
-        // Запустить игру с переданным параметром
-        if (levelNumber) {
-            // startGame();
-            // startGame(levelNumber);
-        } else {
-            // Запустить игру без уровня или с уровнем по умолчанию, если параметр отсутствует
-            // startGame();
-        }
-    });
-</script>
 <!--WIN script-->
 <script>
     document.addEventListener('DOMContentLoaded', () => {

@@ -4,7 +4,7 @@ let canvasWidth, canvasHeight;
 let basketWidth, basketHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
 const eggInterval = 1000; // milliseconds
-const gameDuration = 15; // seconds
+const gameDuration = 150; // seconds
 const flashDuration = 100; // Duration of the flash in milliseconds
 let flashes = []; // Array to keep track of flashes
 let tracks = []; // Массив для хранения следов
@@ -20,7 +20,8 @@ const colorProperties = {
     orange: {score: -5},
     purple: {score: -10},
     pink: {score: -2},
-    red: {score: 0, gameOver: true},
+    // red: {score: 0, gameOver: true},
+    red: {score: 0}
 };
 
 // Image references
@@ -47,6 +48,8 @@ let gameOver = false;
 let highestScore = 0;
 
 let basketImage = new Image();
+basketImage.src = "res/new_platform.png";
+
 let flashImage = new Image();
 flashImage.src = "res/flash.png";
 
@@ -92,14 +95,11 @@ function setupGame() {
 
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
-    const menuButton = document.getElementById('menuButton');
 
     // if (startButton) startButton.addEventListener('click', startGame);
     // if (restartButton) restartButton.addEventListener('click', startGame);
-    if (menuButton) menuButton.addEventListener('click', showMainMenu);
 
     setInterval(addEgg, eggInterval);
-    showMainMenu();
 }
 
 // ====================================
@@ -204,7 +204,15 @@ document.getElementById('menuButton')
         navigateTo('mainMenu')
     );
 
-document.getElementById('winFailMenuButton').addEventListener('click', () => navigateTo('mainMenu'));
+document.getElementById('winMenuButton')
+    .addEventListener('click', () =>
+        navigateTo('mainMenu')
+    );
+
+document.getElementById('failMenuButton')
+    .addEventListener('click', () =>
+        navigateTo('mainMenu')
+    );
 
 // Resize canvas to fit window
 function resizeCanvas() {
@@ -217,16 +225,12 @@ function resizeCanvas() {
     basketSpeed = canvasWidth * 0.02;
 }
 
-// Show main menu
-function showMainMenu() {
-    canvas.style.display = 'none';
-    // document.getElementById('gameOverScreen').style.display = 'none';
-    document.getElementById('mainMenu').style.display = 'block';
-    loadHighestScore();
-}
-
 // Start a new game
 function startGame() {
+    setupGame();
+    setupTouchControls();
+    setupKeyboardControls();
+
     score = 0;
     basketX = (canvasWidth - basketWidth) / 2;
     eggs = [];
@@ -234,7 +238,6 @@ function startGame() {
     timerDisplay('block');
     startTimer();
     // document.getElementById('gameOverScreen').style.display = 'none';
-    document.getElementById('mainMenu').style.display = 'none';
     if (canvas) {
         canvas.style.display = 'block';
         gameOver = false;
@@ -278,15 +281,17 @@ function addTrack(x, y) {
     tracks.push({x, y, startTime: Date.now()});
 }
 
-function addFlash(x, y) {
-    flashes.push({x, y, startTime: Date.now()});
-}
-
 function drawBasket() {
-    basketImage.src = "res/new_platform.png";
     // Проверяем, что изображение загружено
+    console.log(basketImage);
     if (basketImage.complete) {
-        ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight, basketWidth, basketHeight);
+        console.log(basketX);
+        console.log(canvasHeight);
+        console.log(basketHeight);
+        console.log(basketWidth);
+        console.log(canvasHeight - basketHeight);
+        console.log('----------------------');
+        ctx.drawImage(basketImage, basketX, canvasHeight, basketWidth, basketHeight);
     } else {
         // Если изображение еще не загружено, выводим отладочное сообщение
         console.error('Basket image is not loaded yet.');
@@ -351,7 +356,7 @@ function handleCollision() {
     flashFlag = false; // Сбрасываем флаг вспышки
     touchFlag = false; // Сбрасываем флаг касания
     eggs.forEach(egg => {
-        if (egg.y + 25 > canvasHeight - basketHeight && egg.x > basketX && egg.x < basketX + basketWidth) {
+        if (egg.y > canvasHeight - basketHeight && egg.x > basketX && egg.x < basketX + basketWidth) {
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
@@ -433,32 +438,27 @@ function setupKeyboardControls() {
     });
 }
 
-// Setup the game on page load
-// setupGame();
-// setupTouchControls();
-// setupKeyboardControls();
-
-
 function navigateTo(...args) {
-    if (args[1]) {
-        console.log('selected game: ' + args[1]);
-    }
-
     const overlay = document.getElementById('overlay');
     const preloader = document.getElementById('preloader');
     overlay.style.display = 'block';
     preloader.style.display = 'block';
 
-    // Задержка в 1.5 секунды
     setTimeout(() => {
         // Скрыть все страницы
         document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
 
         // Показать выбранную страницу
+        console.log(args[0]);
         document.getElementById(args[0]).style.display = 'block';
 
         // Скрыть затемнитель и прелоадер
         overlay.style.display = 'none';
         preloader.style.display = 'none';
     }, 400);
+
+    if (args[1]) {
+        console.log('selected game: ' + args[1]);
+        startGame();
+    }
 }
