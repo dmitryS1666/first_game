@@ -126,7 +126,7 @@ canvas {
 #mainPage .startButton {
     position: absolute;
     z-index: 1;
-    bottom: 80px;
+    bottom: 100px;
     animation: pulse 2.5s infinite;
 }
 
@@ -256,6 +256,42 @@ button:active {
 #winFailMenuButton img {
     display: block;
 }
+
+/*==============================*/
+         /* PRELOADER */
+/*==============================*/
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
+    z-index: 1000; /* Должен быть выше других элементов */
+}
+
+#preloader {
+    display: block;
+    left: 50%;
+    top: 15%;
+    text-align: center;
+    position: fixed;
+    transform: translateX(-50%);
+    z-index: 1001; /* Должен быть выше overlay */
+}
+
+#preloader img {
+    width: 111px; /* Размер изображения прелоадера */
+    height: 111px;
+    animation: spin 1s linear infinite;
+}
+
+#preloader .text {
+    color: white;
+    font-family: 'SpaceAge', sans-serif;
+    font-size: 24px;
+}
+
 
 /*==============================*/
          /*MENU PAGE*/
@@ -451,4 +487,10 @@ button:active {
     100% {
         transform: translateX(100%) rotate(-30deg);
     }
+}
+
+/* Анимация вращения */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

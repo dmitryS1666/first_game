@@ -17,6 +17,12 @@
     </button>
 </div>
 
+<div id="overlay" style="display: none;"></div>
+<div id="preloader" style="display: none;">
+    <img src="res/preloader.png">
+    <p class="text">LOADING</p>
+</div>
+
 <div id="mainPage" class="page">
     <div id="dogWithRocket">
         <img class="dogWithRocket" src="../res/dog_with_rocket.png">
@@ -146,8 +152,6 @@
 <!--MENU SCRIPT-->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const homeButton = document.getElementById('homeButton');
-        const settingButton = document.getElementById('settingButton');
         const miniRocket = document.getElementById('miniRocket');
         const listItems = document.querySelectorAll('.levels li');
         let isInitialLoad = true; // Флаг для проверки первоначальной загрузки

@@ -101,6 +101,7 @@ function setupGame() {
     setInterval(addEgg, eggInterval);
     showMainMenu();
 }
+
 // ====================================
 // Setup event listeners for NAVIGATION
 // ====================================
@@ -185,11 +186,11 @@ function startTimer() {
 }
 
 function addTrack(x, y) {
-    tracks.push({ x, y, startTime: Date.now() });
+    tracks.push({x, y, startTime: Date.now()});
 }
 
 function addFlash(x, y) {
-    flashes.push({ x, y, startTime: Date.now() });
+    flashes.push({x, y, startTime: Date.now()});
 }
 
 function drawBasket() {
@@ -328,7 +329,7 @@ function setupTouchControls() {
         const touchX = event.touches[0].clientX;
         basketX = Math.min(Math.max(touchX - basketWidth / 2, 0), canvasWidth - basketWidth);
         event.preventDefault();
-    }, { passive: false });
+    }, {passive: false});
 }
 
 // Handle keyboard input for desktop
@@ -350,6 +351,21 @@ setupKeyboardControls();
 
 
 function navigateTo(pageId) {
-    document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
-    document.getElementById(pageId).style.display = 'block';
+    const overlay = document.getElementById('overlay');
+    const preloader = document.getElementById('preloader');
+    overlay.style.display = 'block';
+    preloader.style.display = 'block';
+
+    // Задержка в 1.5 секунды
+    setTimeout(() => {
+        // Скрыть все страницы
+        document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
+
+        // Показать выбранную страницу
+        document.getElementById(pageId).style.display = 'block';
+
+        // Скрыть затемнитель и прелоадер
+        overlay.style.display = 'none';
+        preloader.style.display = 'none';
+    }, 800);
 }
