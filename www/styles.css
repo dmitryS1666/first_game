@@ -1,6 +1,6 @@
 @font-face {
     font-family: SpaceAge;
-    src: url(res/fonts/space_age.ttf);
+    src: url(../res/fonts/space_age.ttf);
 }
 
 body {
@@ -9,7 +9,7 @@ body {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    background: url('res/splash2.png') no-repeat center center fixed; /* Фоновое изображение */
+    background: url('../res/splash1.png') no-repeat center center fixed; /* Фоновое изображение */
     background-size: cover; /* Масштабирование фона */
 }
 
@@ -72,28 +72,14 @@ canvas {
     margin-top: 10px;
 }
 
-#mainMenu {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-}
-
-#mainMenu button {
-    padding: 15px 30px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
 #lastScore {
     font-size: 18px;
     color: #555;
     margin-top: 10px;
 }
 
-#main, #winFail {
-    background: url(res/splash1.png) no-repeat center center fixed;
+#mainPage, #winFail {
+    background: url(../res/splash1.png) no-repeat center center fixed;
     background-size: cover;
     height: 100%;
     width: 100%;
@@ -103,10 +89,15 @@ canvas {
     justify-content: center;
 }
 
+/*============================*/
+        /*HEADER MENU*/
+/*============================*/
+
 #headerMenu {
     position: absolute;
     top: 5px;
     width: 100%;
+    z-index: 3;
 }
 
 #headerMenu img {
@@ -115,11 +106,13 @@ canvas {
 
 #headerMenu button {
     position: absolute;
-    border: none;
     padding: 0;
     width: 70px;
     margin-top: 20px;
     background: none;
+    border-radius: 50%;
+    height: 70px;
+    border: solid 1px #80808000;
 }
 
 .homeButton {
@@ -130,7 +123,7 @@ canvas {
     right: 25px;
 }
 
-#main .startButton {
+#mainPage .startButton {
     position: absolute;
     z-index: 1;
     bottom: 80px;
@@ -152,7 +145,7 @@ canvas {
     mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
 }
 
-#startButton{
+#menuButton{
     background: none;
     border: none;
 }
@@ -190,7 +183,7 @@ canvas {
 }
 
 /* Картинка gold */
-#goldImage {
+.goldImage {
     position: absolute;
     bottom: 260px;
     width: 100%;
@@ -211,7 +204,7 @@ canvas {
     animation: shine 1.5s infinite;
 }
 
-#goldImage img {
+.goldImage img {
     display: block;
     width: 100%; /* Обеспечить растяжение изображения на всю ширину контейнера */
     height: auto; /* Сохранить пропорции изображения */
@@ -221,18 +214,18 @@ canvas {
     z-index: 1 !important;
 }
 
-#goldImage .flash {
-    top: 255px;
+.goldImage .flash {
+    top: 220px;
     position: relative;
     animation: shine 2.5s infinite;
 }
 
-#goldImage .gold {
+.goldImage .gold {
     position: relative;
 }
 
 /* Затемнение изображения с помощью псевдоэлемента */
-#goldImage::before {
+.goldImage::before {
     position: absolute;
     top: 0;
     left: 0;
@@ -264,36 +257,52 @@ button:active {
     display: block;
 }
 
-/*MENU PAGE*/
-.levels ul {
+/*==============================*/
+         /*MENU PAGE*/
+/*==============================*/
+#mainMenu {
+    position: absolute;
+    bottom: 220px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+#mainMenu button {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#mainMenu .levels ul {
     position: relative;
     list-style-type: none;
-    background: url(res/levels/arrow.png) no-repeat;
+    background: url(../res/levels/arrow.png) no-repeat;
     background-position-x: center;
-    background-position-y: 180px;
+    background-position-y: 149px;
     padding: 0;
     margin-top: 70px;
     z-index: 1;
 }
 
-.levels li {
+#mainMenu .levels li {
     display: flex;
     justify-content: center; /* Центрируем контент по горизонтали */
     position: relative;
-    margin-top: -10px;
+    /*margin-top: -10px;*/
     z-index: 1;
     border-radius: 30%;
 }
 
-.levels li:nth-child(odd) {
+#mainMenu .levels li:nth-child(odd) {
     justify-content: flex-start; /* Нечетные элементы размещаем слева */
 }
 
-.levels li:nth-child(even) {
+#mainMenu .levels li:nth-child(even) {
     justify-content: flex-end; /* Четные элементы размещаем справа */
 }
 
-.levels li::before {
+#mainMenu .levels li::before {
     content: attr(data-number);
     position: absolute;
     top: 30%;
@@ -312,23 +321,23 @@ button:active {
     display: none;
 }
 
-.levels li[data-number]::before {
+#mainMenu .levels li[data-number]::before {
     display: flex; /* Показываем кружок, если data-number задан */
 }
 
-.levels li.active::before {
+#mainMenu .levels li.active::before {
     background: #FFD700; /* Желтый фон */
     color: #000; /* Черный текст */
 }
 
-.levels li:not(.active)::before {
+#mainMenu .levels li:not(.active)::before {
     background: rgba(130, 130, 130, 0.75); /* Прозрачно-серый фон */
     color: #fff; /* Белый текст */
 }
 
-.levels ul li img{
-    width: 180px;
-    height: 180px;
+#mainMenu .levels ul li img{
+    width: 150px;
+    height: 150px;
     z-index: 1;
 }
 
@@ -338,7 +347,10 @@ button:active {
 }
 
 .goldMenu {
-    bottom: 0 !important;
+    bottom: -150px !important;
+    width: 350px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 #miniRocket {
@@ -347,7 +359,7 @@ button:active {
     transition: transform 1.3s ease; /* Плавное перемещение */
 }
 
-#main .shinePlanet {
+#mainPage .shinePlanet {
     position: relative;
     overflow: hidden; /* Обеспечивает, что круги не будут выходить за пределы элемента */
     z-index: 0;
@@ -369,7 +381,27 @@ button:active {
 /*    animation: shine-animation 1.5s ease-out infinite;*/
 /*}*/
 
-/*ANIMATION*/
+/*==============================*/
+         /* SETTINGS */
+/*==============================*/
+
+#settingsPage {
+    display: block;
+    top: 150px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+
+#settingsPage .content {
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 25px;
+}
+
+/*==============================*/
+          /*ANIMATION*/
+/*==============================*/
 
 @keyframes shine-animation {
     0% {
@@ -396,15 +428,15 @@ button:active {
 
 @keyframes pulse {
     0% {
-        transform: scale(0.8);
+        transform: scale(0.6);
         opacity: 0.8;
     }
     50% {
-        transform: scale(1);
+        transform: scale(0.7);
         opacity: 1;
     }
     100% {
-        transform: scale(0.8);
+        transform: scale(0.6);
         opacity: 0.8;
     }
 }

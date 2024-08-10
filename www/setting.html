@@ -10,10 +10,10 @@
 <body id="main">
 <div id="headerMenu">
     <button id="homeButton" class="homeButton">
-        <img src="res/home_button.png">
+        <img src="../res/home_button.png">
     </button>
     <button id="settingButton" class="settingButton">
-        <img src="res/setting_button.png">
+        <img src="../res/setting_button.png">
     </button>
 </div>
 <div>
@@ -21,21 +21,8 @@
 </div>
 <div class="startButton">
     <button id="startButton">
-        <img src="res/main_play_button.png">
+        <img src="../res/main_play_button.png">
     </button>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('startButton').addEventListener('click', () => {
-            window.location.href = 'menu.html';
-        });
-        document.getElementById('homeButton').addEventListener('click', () => {
-            window.location.href = 'main.html';
-        });
-        document.getElementById('settingButton').addEventListener('click', () => {
-            window.location.href = 'setting.html';
-        });
-    });
-</script>
 </body>
 </html>

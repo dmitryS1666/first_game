@@ -101,6 +101,24 @@ function setupGame() {
     setInterval(addEgg, eggInterval);
     showMainMenu();
 }
+// ====================================
+// Setup event listeners for NAVIGATION
+// ====================================
+document.getElementById('homeButton')
+    .addEventListener('click', () =>
+        navigateTo('mainPage')
+    );
+document.getElementById('settingButton')
+    .addEventListener('click', () =>
+        navigateTo('settingsPage')
+    );
+
+document.getElementById('menuButton')
+    .addEventListener('click', () =>
+        navigateTo('mainMenu')
+    );
+
+document.getElementById('winFailMenuButton').addEventListener('click', () => navigateTo('mainMenu'));
 
 // Resize canvas to fit window
 function resizeCanvas() {
@@ -116,7 +134,7 @@ function resizeCanvas() {
 // Show main menu
 function showMainMenu() {
     canvas.style.display = 'none';
-    document.getElementById('gameOverScreen').style.display = 'none';
+    // document.getElementById('gameOverScreen').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'block';
     loadHighestScore();
 }
@@ -129,7 +147,7 @@ function startGame() {
     updateScoreDisplay();
     timerDisplay('block');
     startTimer();
-    document.getElementById('gameOverScreen').style.display = 'none';
+    // document.getElementById('gameOverScreen').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'none';
     canvas.style.display = 'block';
     gameOver = false;
@@ -145,9 +163,9 @@ function endGame(isVictory) {
     saveHighestScore(score);
     if (isVictory) {
         localStorage.setItem('currentScore', score); // Сохраняем текущий результат
-        window.location.href = 'win.html'; // Перенаправляем на страницу победы
+        navigateTo('winPage'); // Перенаправляем на страницу победы
     } else {
-        window.location.href = 'fail.html'; // Перенаправляем на страницу поражения
+        navigateTo('failPage'); // Перенаправляем на страницу поражения
     }
     gameOver = true;
     clearInterval(timer);
@@ -329,3 +347,9 @@ function setupKeyboardControls() {
 setupGame();
 setupTouchControls();
 setupKeyboardControls();
+
+
+function navigateTo(pageId) {
+    document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
+    document.getElementById(pageId).style.display = 'block';
+}

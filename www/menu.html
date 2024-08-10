@@ -10,36 +10,36 @@
 <body id="main">
 <div id="headerMenu">
     <button id="homeButton" class="homeButton">
-        <img src="res/home_button.png">
+        <img src="../res/home_button.png">
     </button>
     <button id="settingButton" class="settingButton">
-        <img src="res/setting_button.png">
+        <img src="../res/setting_button.png">
     </button>
 </div>
 <div class="levels">
     <ul>
         <li>
-            <img src="res/levels/bonus.png">
+            <img src="../res/levels/bonus.png">
         </li>
         <li data-number="3">
-            <img src="res/levels/third.png">
+            <img src="../res/levels/third.png">
         </li>
         <li data-number="2">
-            <img src="res/levels/second.png">
+            <img src="../res/levels/second.png">
         </li>
         <li data-number="1">
-            <img src="res/levels/first.png">
+            <img src="../res/levels/first.png">
         </li>
     </ul>
 </div>
 
 <div id="miniRocket">
-    <img class="miniRocket" src="res/levels/mini_rocket.png">
+    <img class="miniRocket" src="../res/levels/mini_rocket.png">
 </div>
 
 <div id="goldImage" class="goldMenu">
-    <img class="flash" src="res/big_flash.png">
-    <img class="gold" src="res/gold_price.png">
+    <img class="flash" src="../res/big_flash.png">
+    <img class="gold" src="../res/gold_price.png">
 </div>
 
 <script>
@@ -49,14 +49,6 @@
         const miniRocket = document.getElementById('miniRocket');
         const listItems = document.querySelectorAll('.levels li');
         let isInitialLoad = true; // Флаг для проверки первоначальной загрузки
-
-        homeButton.addEventListener('click', () => {
-            window.location.href = 'main.html';
-        });
-
-        settingButton.addEventListener('click', () => {
-            window.location.href = 'setting.html';
-        });
 
         function moveRocketToItem(item) {
             const rect = item.getBoundingClientRect();
@@ -76,7 +68,7 @@
             if (!isInitialLoad) {
                 setTimeout(() => {
                     const levelNumber = item.getAttribute('data-number');
-                    window.location.href = `index.html?level=${levelNumber}`;
+                    // window.location.href = `index.html?level=${levelNumber}`;
                 }, 2000); // 2000 миллисекунд = 2 секунды
             }
         }

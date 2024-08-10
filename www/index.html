@@ -8,24 +8,118 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:700" rel="stylesheet">
 </head>
 <body>
-<canvas id="gameCanvas"></canvas>
-<div id="score">Score: 0</div>
-<div id="timer">
-    <img src="res/timer.png">
-    <span id="min">00</span>
-    <span id="dots">:</span>
-    <span id="seconds">15</span>
+<div id="headerMenu">
+    <button id="homeButton" class="homeButton">
+        <img src="../res/home_button.png">
+    </button>
+    <button id="settingButton" class="settingButton">
+        <img src="../res/setting_button.png">
+    </button>
 </div>
-<div id="gameOverScreen">
-    <div id="finalScore"></div>
-    <button id="restartButton">Start New Game</button>
-    <button id="menuButton">Menu</button>
+
+<div id="mainPage" class="page">
+    <div id="dogWithRocket">
+        <img class="dogWithRocket" src="../res/dog_with_rocket.png">
+    </div>
+    <div class="startButton">
+        <button id="menuButton">
+            <img src="../res/main_play_button.png">
+        </button>
+    </div>
 </div>
-<div id="mainMenu">
-    <div id="lastScore">Your highest score: 0</div>
-    <button id="startButton">Play</button>
+
+<!-- Main Menu Page -->
+<div id="mainMenu" class="page" style="display: none;">
+    <div class="levels">
+        <ul>
+            <li>
+                <img src="../res/levels/bonus.png">
+            </li>
+            <li data-number="3">
+                <img src="../res/levels/third.png">
+            </li>
+            <li data-number="2">
+                <img src="../res/levels/second.png">
+            </li>
+            <li data-number="1">
+                <img src="../res/levels/first.png">
+            </li>
+        </ul>
+    </div>
+
+    <div id="miniRocket">
+        <img class="miniRocket" src="../res/levels/mini_rocket.png">
+    </div>
+
+    <div class="goldImage goldMenu">
+        <img class="flash" src="../res/big_flash.png">
+        <img class="gold" src="../res/gold_price.png">
+    </div>
 </div>
+
+<!-- Game Page -->
+<div id="gameContainer" class="page" style="display: none;">
+    <canvas id="gameCanvas"></canvas>
+    <div id="score">Score: 0</div>
+    <div id="timer">
+        <img src="../res/timer.png">
+        <span id="min">00</span>
+        <span id="dots">:</span>
+        <span id="seconds">15</span>
+    </div>
+</div>
+
+<!-- Win Screen -->
+<div id="winScreen" class="page" style="display: none;">
+    <div class="blur"></div>
+    <div id="rocket">
+        <img class="flash" src="../res/rocket.png">
+    </div>
+    <div class="result">
+        <p class="finalText">WIN</p>
+        <p class="finalScore">0</p>
+    </div>
+
+<!--    <div id="goldImage" class="goldWin">-->
+<!--        <img class="flash" src="../res/big_flash.png">-->
+<!--        <img class="gold" src="../res/gold_price.png">-->
+<!--    </div>-->
+    <div class="button">
+        <button id="winFailMenuButton">
+            <img src="../res/continue_button.png">
+        </button>
+    </div>
+</div>
+
+<!-- Fail Screen -->
+<div id="failScreen" class="page" style="display: none;">
+    <div class="blur"></div>
+    <div class="result">
+        <p class="finalText">LOSE</p>
+        <p class="finalScore">0</p>
+    </div>
+
+<!--    <div class="goldImage">-->
+<!--        <img src="../res/gold_price.png" alt="Gold Price">-->
+<!--    </div>-->
+    <div class="button">
+        <button class="winFailMenuButton">
+            <img src="../res/continue_button.png" alt="Continue">
+        </button>
+    </div>
+</div>
+
+<!-- Fail Screen -->
+<div id="settingsPage" class="page" style="display: none;">
+    <div class="content">
+        <p>SETTINGS</p>
+    </div>
+</div>
+
 <script src="index.js"></script>
+
+
+
 <script>
     window.addEventListener('load', () => {
         // Извлечь параметр из URL
@@ -42,5 +136,76 @@
         }
     });
 </script>
+<!--WIN script-->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('finalScore').textContent = localStorage.getItem('currentScore');
+    });
+</script>
+
+<!--MENU SCRIPT-->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const homeButton = document.getElementById('homeButton');
+        const settingButton = document.getElementById('settingButton');
+        const miniRocket = document.getElementById('miniRocket');
+        const listItems = document.querySelectorAll('.levels li');
+        let isInitialLoad = true; // Флаг для проверки первоначальной загрузки
+
+
+        function moveRocketToItem(item) {
+            const rect = item.getBoundingClientRect();
+            const rocketRect = miniRocket.getBoundingClientRect();
+
+            const offsetX = 50;
+            const offsetY = rect.top + (rect.height / 2) - (rocketRect.height / 2);
+
+            miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+            // Удаляем класс active у всех элементов
+            listItems.forEach(li => li.classList.remove('active'));
+            // Добавляем класс active только к выбранному элементу
+            item.classList.add('active');
+
+            // Если это не первоначальная загрузка, выполняем редирект
+            if (!isInitialLoad) {
+                setTimeout(() => {
+                    const levelNumber = item.getAttribute('data-number');
+                    // window.location.href = `index.html?level=${levelNumber}`;
+                }, 2000); // 2000 миллисекунд = 2 секунды
+            }
+        }
+
+        function addShineClass(event) {
+            event.currentTarget.classList.add('shinePlanet');
+        }
+
+        function removeShineClass(event) {
+            event.currentTarget.classList.remove('shinePlanet');
+        }
+
+        listItems.forEach(item => {
+            // События для сенсорных экранов
+            item.addEventListener('touchstart', addShineClass);
+            item.addEventListener('touchend', removeShineClass);
+
+            // События для настольных браузеров
+            item.addEventListener('mouseover', addShineClass);
+            item.addEventListener('mouseout', removeShineClass);
+
+            item.addEventListener('click', () => {
+                moveRocketToItem(item);
+            });
+        });
+
+        miniRocket.style.top = '0';
+
+        // Установить начальное положение ракеты на последнем элементе, но не выполнять редирект
+        moveRocketToItem(listItems[listItems.length - 1]);
+        isInitialLoad = false; // Установить флаг в false после инициализации
+    });
+</script>
+
+
 </body>
 </html>
