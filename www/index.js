@@ -9,6 +9,9 @@ const flashDuration = 100; // Duration of the flash in milliseconds
 let flashes = []; // Array to keep track of flashes
 let tracks = []; // Массив для хранения следов
 
+let deposit = 1000; // Начальный депозит игрока
+let bet = 0; // Ставка игрока
+
 const colors = ['blue', 'brown', 'yellow', 'earth', 'green', 'indigo', 'orange', 'purple', 'pink', 'red'];
 const colorProperties = {
     blue: {score: 5},
@@ -96,10 +99,18 @@ function setupGame() {
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
 
-    // if (startButton) startButton.addEventListener('click', startGame);
+    if (startButton) startButton.addEventListener('click', startGame);
     // if (restartButton) restartButton.addEventListener('click', startGame);
 
     setInterval(addEgg, eggInterval);
+
+    bet = parseInt(document.getElementById('currentBit').value, 10);
+    if (isNaN(bet) || bet <= 0 || bet % 100 !== 0 || bet > deposit) {
+        alert('Ставка должна быть кратной 100 и не превышать ваш депозит.');
+        return;
+    }
+
+    deposit -= bet; // Уменьшить депозит на ставку
 }
 
 // ====================================
@@ -214,6 +225,11 @@ document.getElementById('failMenuButton')
         navigateTo('mainMenu')
     );
 
+document.getElementById('play')
+    .addEventListener('click', () =>
+        startGame()
+    );
+
 // Resize canvas to fit window
 function resizeCanvas() {
     canvasWidth = window.innerWidth;
@@ -226,7 +242,7 @@ function resizeCanvas() {
 }
 
 // Start a new game
-function startGame() {
+function prepareGame() {
     setupGame();
     setupTouchControls();
     setupKeyboardControls();
@@ -236,13 +252,40 @@ function startGame() {
     eggs = [];
     updateScoreDisplay();
     timerDisplay('block');
+}
+
+// Start a new game
+function startGame() {
     startTimer();
-    // document.getElementById('gameOverScreen').style.display = 'none';
     if (canvas) {
         canvas.style.display = 'block';
         gameOver = false;
         gameLoop();
     }
+}
+
+function resetGame() {
+    // Останавливаем текущую игру
+    if (timer) {
+        clearInterval(timer);
+    }
+
+    // Сбрасываем состояние игры
+    score = 0;
+    bet = 0;
+    deposit = 1000; // Или любое начальное значение депозита
+    eggs = [];
+    tracks = [];
+    flashFlag = false;
+    touchFlag = false;
+    gameOver = false;
+
+    // Обновляем отображение
+    updateScoreDisplay();
+
+    // Переключаем видимость
+    canvas.style.display = 'none';
+    timerDisplay('none');
 }
 
 // End the game
@@ -450,6 +493,6 @@ function navigateTo(...args) {
     }, 400);
 
     if (args[1]) {
-        startGame();
+        prepareGame();
     }
 }
