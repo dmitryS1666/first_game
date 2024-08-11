@@ -283,15 +283,8 @@ function addTrack(x, y) {
 
 function drawBasket() {
     // Проверяем, что изображение загружено
-    console.log(basketImage);
     if (basketImage.complete) {
-        console.log(basketX);
-        console.log(canvasHeight);
-        console.log(basketHeight);
-        console.log(basketWidth);
-        console.log(canvasHeight - basketHeight);
-        console.log('----------------------');
-        ctx.drawImage(basketImage, basketX, canvasHeight, basketWidth, basketHeight);
+        ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight - 150, basketWidth, basketHeight);
     } else {
         // Если изображение еще не загружено, выводим отладочное сообщение
         console.error('Basket image is not loaded yet.');
@@ -301,10 +294,10 @@ function drawBasket() {
 function drawFlashes() {
     if (flashFlag) {
         ctx.globalAlpha = 1;
-        ctx.drawImage(flashImage, basketX, canvasHeight - basketHeight - 50, basketWidth, basketHeight); // Отображаем вспышку
+        ctx.drawImage(flashImage, basketX, canvasHeight - basketHeight - 50 - 150, basketWidth, basketHeight); // Отображаем вспышку
         setTimeout(() => {
             flashFlag = false; // Сбрасываем флаг после короткого времени
-        }, 100); // Время отображения вспышки
+        }, 200); // Время отображения вспышки
     }
 }
 
@@ -356,7 +349,7 @@ function handleCollision() {
     flashFlag = false; // Сбрасываем флаг вспышки
     touchFlag = false; // Сбрасываем флаг касания
     eggs.forEach(egg => {
-        if (egg.y > canvasHeight - basketHeight && egg.x > basketX && egg.x < basketX + basketWidth) {
+        if (egg.y > canvasHeight - basketHeight - 150 && egg.x > basketX && egg.x < basketX + basketWidth) {
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
@@ -376,7 +369,7 @@ function timerDisplay(state) {
 }
 
 function updateScoreDisplay() {
-    document.getElementById('score').textContent = `Score: ${score}`;
+    document.getElementById('scoreValue').textContent = score;
 }
 
 // Main game loop
@@ -449,7 +442,6 @@ function navigateTo(...args) {
         document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
 
         // Показать выбранную страницу
-        console.log(args[0]);
         document.getElementById(args[0]).style.display = 'block';
 
         // Скрыть затемнитель и прелоадер
@@ -458,7 +450,6 @@ function navigateTo(...args) {
     }, 400);
 
     if (args[1]) {
-        console.log('selected game: ' + args[1]);
         startGame();
     }
 }

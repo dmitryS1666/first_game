@@ -6,6 +6,7 @@
     <title>Egg Catcher Game</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400" rel="stylesheet">
 </head>
 <body>
 <div id="headerMenu">
@@ -66,12 +67,47 @@
 <!-- Game Page -->
 <div id="gameContainer" class="page" style="display: none;">
     <canvas id="gameCanvas"></canvas>
-    <div id="score">Score: 0</div>
     <div id="timer">
         <img src="../res/timer.png">
         <span id="min">00</span>
         <span id="dots">:</span>
         <span id="seconds">150</span>
+    </div>
+
+    <div id="gameScore">
+        <div class="hr">
+            <img src="res/line.png">
+        </div>
+        <div class="statistics">
+            <div class="score">
+                <div class="text">
+                    <span>Balance</span>
+                    <span>WIN</span>
+                </div>
+                <div class="value">
+                    <span id="balanceValue">9999</span>
+                    <span id="scoreValue">1111</span>
+                </div>
+            </div>
+            <div class="playButton">
+                <button id="play">
+                    <img src="res/play_bautton.png">
+                </button>
+            </div>
+            <div class="bits">
+                <div class="bit">
+                    <span id="currentBit">100</span>
+                </div>
+                <div class="bitControl">
+                    <button id="minusBit">
+                        <img src="res/minusBit.png">
+                    </button>
+                    <button id="plusBit">
+                        <img src="res/plusBit.png">
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
