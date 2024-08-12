@@ -4,13 +4,13 @@ let canvasWidth, canvasHeight;
 let basketWidth, basketHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
 const eggInterval = 1000; // milliseconds
-const gameDuration = 150; // seconds
+const gameDuration = 15; // seconds
 const flashDuration = 100; // Duration of the flash in milliseconds
 let flashes = []; // Array to keep track of flashes
 let tracks = []; // Массив для хранения следов
 
 let deposit = 1000; // Начальный депозит игрока
-let bet = 0; // Ставка игрока
+let bet = 50; // Ставка игрока
 
 const colors = ['blue', 'brown', 'yellow', 'earth', 'green', 'indigo', 'orange', 'purple', 'pink', 'red'];
 const colorProperties = {
@@ -23,8 +23,8 @@ const colorProperties = {
     orange: {score: -5},
     purple: {score: -10},
     pink: {score: -2},
-    // red: {score: 0, gameOver: true},
-    red: {score: 0}
+    red: {score: 0, gameOver: true}
+    // red: {score: 0}
 };
 
 // Image references
@@ -48,7 +48,6 @@ let eggs = [];
 let score = 0;
 let timer;
 let gameOver = false;
-let highestScore = 0;
 
 let basketImage = new Image();
 basketImage.src = "res/new_platform.png";
@@ -82,8 +81,9 @@ function setupGame() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    basketWidth = canvasWidth * 0.2;
-    basketHeight = canvasHeight * 0.05;
+    basketWidth = 145;
+    basketHeight = 127;
+
     basketSpeed = canvasWidth * 0.02;
     eggSpeedBase = canvasHeight * 0.005;
     eggSpeedVariance = canvasHeight * 0.003;
@@ -104,13 +104,10 @@ function setupGame() {
 
     setInterval(addEgg, eggInterval);
 
-    bet = parseInt(document.getElementById('currentBit').value, 10);
-    if (isNaN(bet) || bet <= 0 || bet % 100 !== 0 || bet > deposit) {
-        alert('Ставка должна быть кратной 100 и не превышать ваш депозит.');
-        return;
-    }
-
-    deposit -= bet; // Уменьшить депозит на ставку
+    document.getElementById('currentBet').textContent = bet;
+    document.getElementById('scoreValue').textContent = score || 0;
+    checkFirstRun();
+    document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
 }
 
 // ====================================
@@ -230,6 +227,16 @@ document.getElementById('play')
         startGame()
     );
 
+document.getElementById('minusBet')
+    .addEventListener('click', () =>
+        minusBet()
+    );
+
+document.getElementById('plusBet')
+    .addEventListener('click', () =>
+        plusBet()
+    );
+
 // Resize canvas to fit window
 function resizeCanvas() {
     canvasWidth = window.innerWidth;
@@ -239,6 +246,15 @@ function resizeCanvas() {
     basketWidth = canvasWidth * 0.2;
     basketHeight = canvasHeight * 0.05;
     basketSpeed = canvasWidth * 0.02;
+}
+
+function checkFirstRun() {
+    const isFirstRun = localStorage.getItem('firstRun');
+
+    if (!isFirstRun) {
+        localStorage.setItem('firstRun', 'false');
+        localStorage.setItem('currentScore', deposit);
+    }
 }
 
 // Start a new game
@@ -256,6 +272,7 @@ function prepareGame() {
 
 // Start a new game
 function startGame() {
+    document.getElementById('failPlatform').style.display = 'none';
     startTimer();
     if (canvas) {
         canvas.style.display = 'block';
@@ -292,19 +309,24 @@ function resetGame() {
 function endGame(isVictory) {
     canvas.style.display = 'none';
     timerDisplay('none');
-    const finalScore = document.getElementById('finalScore');
-    if (finalScore) {
-        finalScore.textContent = `Final Score: ${score}`;
-    }
-    saveHighestScore(score);
     if (isVictory) {
-        localStorage.setItem('currentScore', score); // Сохраняем текущий результат
+        let newScore = parseInt(localStorage.getItem('currentScore')) + score; // Сохраняем текущий результат
+        saveScore(newScore);
+
+        const finalScore = document.getElementById('finalScore');
+        finalScore.textContent = `+${score}`;
+
         navigateTo('winPage'); // Перенаправляем на страницу победы
     } else {
+        let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+        let newScore = parseInt(localStorage.getItem('currentScore')) - currentBet; // Сохраняем текущий результат
+        saveScore(newScore);
+
         navigateTo('failPage'); // Перенаправляем на страницу поражения
     }
     gameOver = true;
     clearInterval(timer);
+    document.getElementById('failPlatform').style.display = 'block';
 }
 
 // Start the game timer
@@ -315,7 +337,7 @@ function startTimer() {
         timeRemaining--;
         document.getElementById('seconds').textContent = `${timeRemaining}`;
         if (timeRemaining <= 0) {
-            endGame(score >= 0); // Условие для победы, например, 100 очков
+            endGame(score >= 0);
         }
     }, 1000);
 }
@@ -325,13 +347,7 @@ function addTrack(x, y) {
 }
 
 function drawBasket() {
-    // Проверяем, что изображение загружено
-    if (basketImage.complete) {
-        ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight - 150, basketWidth, basketHeight);
-    } else {
-        // Если изображение еще не загружено, выводим отладочное сообщение
-        console.error('Basket image is not loaded yet.');
-    }
+    ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight - 130, basketWidth, basketHeight);
 }
 
 function drawFlashes() {
@@ -365,7 +381,7 @@ function drawEggs() {
     eggs.forEach(egg => {
         const img = ballImages[egg.color];
         if (img) {
-            ctx.drawImage(img, egg.x - 25, egg.y - 25, 50, 50); // Рисуем шар
+            ctx.drawImage(img, egg.x - 25, egg.y - 25, 75, 75); // Рисуем шар
         } else {
             // Резервный случай
             ctx.beginPath();
@@ -409,6 +425,7 @@ function handleCollision() {
 // Update the displayed score
 function timerDisplay(state) {
     document.getElementById('timer').style.display = state;
+    document.getElementById('seconds').textContent = gameDuration;
 }
 
 function updateScoreDisplay() {
@@ -440,16 +457,8 @@ function addEgg() {
 }
 
 // Save the highest score to localStorage
-function saveHighestScore(score) {
-    const savedScore = localStorage.getItem('highestScore') || 0;
-    highestScore = Math.max(score, savedScore);
-    localStorage.setItem('highestScore', highestScore);
-}
-
-// Load the highest score from localStorage
-function loadHighestScore() {
-    highestScore = localStorage.getItem('highestScore') || 0;
-    // document.getElementById('lastScore').textContent = `Your highest score: ${highestScore}`;
+function saveScore(score) {
+    localStorage.setItem('currentScore', score);
 }
 
 // Handle touch input for mobile devices
@@ -494,5 +503,23 @@ function navigateTo(...args) {
 
     if (args[1]) {
         prepareGame();
+    }
+}
+
+function minusBet() {
+    let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+    if (currentBet - 50 > 0 && deposit > currentBet - 50) {
+        document.getElementById('currentBet').textContent = currentBet - 50;
+    } else {
+        alert('Ставка должна не превышать ваш депозит.');
+    }
+}
+
+function plusBet() {
+    let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+    if (deposit > currentBet + 50) {
+        document.getElementById('currentBet').textContent = currentBet + 50;
+    } else {
+        alert('Ставка должна не превышать ваш депозит.');
     }
 }

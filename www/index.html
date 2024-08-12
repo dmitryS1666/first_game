@@ -71,11 +71,12 @@
         <img src="../res/timer.png">
         <span id="min">00</span>
         <span id="dots">:</span>
-        <span id="seconds">150</span>
+        <span id="seconds"></span>
     </div>
 
     <div id="gameScore">
         <div class="hr">
+            <img id="failPlatform" src="res/new_platform.png">
             <img src="res/line.png">
         </div>
         <div class="statistics">
@@ -85,8 +86,8 @@
                     <span>WIN</span>
                 </div>
                 <div class="value">
-                    <span id="balanceValue">9999</span>
-                    <span id="scoreValue">1111</span>
+                    <span id="balanceValue"></span>
+                    <span id="scoreValue"></span>
                 </div>
             </div>
             <div class="playButton">
@@ -94,15 +95,15 @@
                     <img src="res/play_bautton.png">
                 </button>
             </div>
-            <div class="bits">
-                <div class="bit">
-                    <span id="currentBit">100</span>
+            <div class="bets">
+                <div class="bet">
+                    <span id="currentBet"></span>
                 </div>
-                <div class="bitControl">
-                    <button id="minusBit">
+                <div class="betControl">
+                    <button id="minusBet">
                         <img src="res/minusBit.png">
                     </button>
-                    <button id="plusBit">
+                    <button id="plusBet">
                         <img src="res/plusBit.png">
                     </button>
                 </div>
@@ -119,7 +120,7 @@
     </div>
     <div class="result">
         <p class="finalText">WIN</p>
-        <p class="finalScore">+0</p>
+        <p id="finalScore" class="finalScore"></p>
     </div>
 
     <div class="goldImage goldWin">
@@ -159,13 +160,6 @@
 </div>
 
 <script src="index.js"></script>
-
-<!--WIN script-->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // document.getElementById('finalScore').textContent = localStorage.getItem('currentScore');
-    });
-</script>
 
 </body>
 </html>

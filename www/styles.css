@@ -457,8 +457,16 @@ button:active {
     font-family: Montserrat, serif;
 }
 
+#failPlatform {
+    width: 35% !important;
+    position: absolute;
+    top: -105px;
+    left: 33%;
+}
+
 #gameScore .hr {
     display: block;
+    z-index: 0;
 }
 
 #gameScore .hr img{
@@ -471,20 +479,20 @@ button:active {
     height: 150px;
 }
 
-#play, #minusBit, #plusBit {
+#play, #minusBet, #plusBet {
     background: none;
     border: none;
     border-radius: 50%;
     padding: unset;
 }
 
-#minusBit img, #plusBit img {
+#minusBet img, #plusBet img {
     width: 40px;
 }
 
 #gameScore .score,
 #gameScore .playButton,
-#gameScore .bits {
+#gameScore .bets {
     width: 32%;
     float: left;
     height: inherit;
@@ -507,7 +515,7 @@ button:active {
     width: 80px;
 }
 
-#gameScore .bits {
+#gameScore .bets {
     padding-top: 15px;
     padding-left: 5px;
 }
@@ -532,17 +540,18 @@ button:active {
     text-align: left;
     margin-left: 4%;
     margin-top: 25px;
+    line-height: 25px;
 }
 
 
 
-#gameScore .bits .bit,
-#gameScore .bits .bitControl{
+#gameScore .bets .bet,
+#gameScore .bets .betControl{
     width: 50%;
     float: left;
 }
 
-#gameScore .bits .bit {
+#gameScore .bets .bet {
     margin-top: 15%;
     font-size: 35px;
     font-weight: 700;
