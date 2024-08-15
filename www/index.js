@@ -248,6 +248,14 @@ function resizeCanvas() {
     basketSpeed = canvasWidth * 0.02;
 }
 
+// Resize canvas to fit window
+function resizeCanvasRolette() {
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+}
+
 function checkFirstRun() {
     const isFirstRun = localStorage.getItem('firstRun');
 
@@ -551,23 +559,58 @@ const rouletteAngle = 360 / rouletteSegments.length;
 let rouletteCanvas, rouletteCtx;
 let isSpinning = false;
 
+const rouletteImage = new Image();
+rouletteImage.src = 'res/roulette-image.png'; // Замените на путь к вашему изображению
+
 function setupRoulette() {
     rouletteCanvas = document.getElementById('rouletteCanvas');
     rouletteCtx = rouletteCanvas.getContext('2d');
 
-    const image = new Image();
-    image.src = 'res/roulette-image.png'; // Замените на путь к вашему изображению
+    // Отрисовываем стрелку поверх рулетки, чтобы она оставалась зафиксированной
+    drawPointer();
 
-    let isSpinning = false;
-
-    image.onload = function() {
-        drawRoulette(image);
-    };
+    drawRoulette();
 
     document.getElementById('spinButton').addEventListener('click', spinRoulette);
 }
 
-function drawRoulette(image) {
+// function drawRoulette() {
+//     const radius = rouletteCanvas.width / 2;
+//     const angle = 2 * Math.PI / rouletteSegments.length;
+//
+//     // Очищаем и центрируем канвас
+//     rouletteCtx.clearRect(0, 0, rouletteCanvas.width, rouletteCanvas.height);
+//     rouletteCtx.save();
+//     rouletteCtx.translate(radius, radius);
+//
+//     // Рисуем изображение рулетки, вращая его в соответствии с сектором
+//     rouletteCtx.drawImage(roletteImage, -radius, -radius, rouletteCanvas.width, rouletteCanvas.height);
+//
+//
+//     // Рисуем секторы и их текст поверх изображения
+//     for (let i = 0; i < rouletteSegments.length; i++) {
+//         const startAngle = i * angle;
+//         const endAngle = startAngle + angle;
+//         const midAngle = (startAngle + endAngle) / 2;
+//
+//         rouletteCtx.save();
+//         rouletteCtx.rotate(midAngle);
+//         rouletteCtx.translate(0, -radius / 2); // Перемещаем в центр сектора
+//
+//         rouletteCtx.fillStyle = '#000'; // Цвет текста
+//         rouletteCtx.textAlign = 'center';
+//         rouletteCtx.textBaseline = 'middle';
+//         rouletteCtx.font = '16px Arial';
+//         rouletteCtx.fillText(rouletteSegments[i], 0, 0);
+//
+//         rouletteCtx.restore();
+//     }
+//     rouletteCtx.restore();
+// }
+const rotationAngle = 22.5 * (Math.PI / 180); // Величина поворота в радианах
+
+// Функция для отрисовки рулетки
+function drawRoulette() {
     const radius = rouletteCanvas.width / 2;
     const angle = 2 * Math.PI / rouletteSegments.length;
 
@@ -576,10 +619,10 @@ function drawRoulette(image) {
     rouletteCtx.save();
     rouletteCtx.translate(radius, radius);
 
-    // Рисуем изображение рулетки, вращая его в соответствии с сектором
-    console.log(image);
-    rouletteCtx.drawImage(image, -radius, -radius, rouletteCanvas.width, rouletteCanvas.height);
-
+    // Вращаем изображение рулетки
+    rouletteCtx.rotate(rotationAngle);
+    rouletteCtx.drawImage(rouletteImage, -radius, -radius, rouletteCanvas.width, rouletteCanvas.height);
+    rouletteCtx.rotate(-rotationAngle); // Вращаем обратно для рисования секторов
 
     // Рисуем секторы и их текст поверх изображения
     for (let i = 0; i < rouletteSegments.length; i++) {
@@ -591,23 +634,47 @@ function drawRoulette(image) {
         rouletteCtx.rotate(midAngle);
         rouletteCtx.translate(0, -radius / 2); // Перемещаем в центр сектора
 
-        rouletteCtx.fillStyle = '#000'; // Цвет текста
-        rouletteCtx.textAlign = 'center';
-        rouletteCtx.textBaseline = 'middle';
-        rouletteCtx.font = '16px Arial';
-        rouletteCtx.fillText(rouletteSegments[i], 0, 0);
-
         rouletteCtx.restore();
     }
     rouletteCtx.restore();
 }
+// Функция для рисования фиксированной стрелки-указателя над рулеткой
+function drawPointer() {
+    const pointerSize = 20; // Размер стрелки-указателя
+    const pointerX = rouletteCanvas.width / 2; // Центр рулетки по X
+    const pointerY = 0; // Позиция стрелки сверху канваса
+
+    // Рисуем треугольную стрелку вне рулетки
+    rouletteCtx.save();
+    rouletteCtx.beginPath();
+    rouletteCtx.moveTo(pointerX, pointerY); // Верхняя точка стрелки
+    rouletteCtx.lineTo(pointerX - pointerSize, pointerY + pointerSize); // Левая нижняя точка
+    rouletteCtx.lineTo(pointerX + pointerSize, pointerY + pointerSize); // Правая нижняя точка
+    rouletteCtx.closePath();
+    rouletteCtx.fillStyle = '#FF0000'; // Красный цвет стрелки
+    rouletteCtx.fill();
+    rouletteCtx.restore();
+}
 
 function spinRoulette() {
-    if (isSpinning) return;
+    if (isSpinning) return; // Блокируем повторное вращение
     isSpinning = true;
 
-    const spinDuration = 3000; // Время вращения
-    const spinAngle = 360 * 5 + Math.floor(Math.random() * 360); // 5 полных оборотов плюс случайный угол
+    const spinDuration = 3000; // Время вращения в миллисекундах
+    const segmentAngle = 360 / rouletteSegments.length; // Угол одного сектора
+
+    // Выбираем случайный выигрышный сегмент
+    const winningSegment = Math.floor(Math.random() * rouletteSegments.length);
+
+    // Рассчитываем угол, на который нужно повернуть рулетку, чтобы выигрышный сектор оказался вверху
+    const targetAngle = winningSegment * segmentAngle;
+
+    // Для корректного отображения поворачиваем на 90 градусов влево
+    const adjustedTargetAngle = (targetAngle + 22.5) % 360; // Добавляем 90 градусов и нормализуем угол
+
+    // Рассчитываем полный угол вращения рулетки
+    // Вращаем на несколько полных оборотов + на нужный угол
+    const totalSpinAngle = 360 * 3 + (360 - adjustedTargetAngle); // 5 полных оборотов + до нужного сектора
 
     let startTime = null;
 
@@ -615,42 +682,38 @@ function spinRoulette() {
         if (!startTime) startTime = time;
         const elapsed = time - startTime;
         const progress = Math.min(elapsed / spinDuration, 1);
-        const currentAngle = spinAngle * progress;
+        const currentAngle = totalSpinAngle * progress;
 
+        // Очищаем холст и рисуем рулетку с учётом вращения
         rouletteCtx.clearRect(0, 0, rouletteCanvas.width, rouletteCanvas.height);
         rouletteCtx.save();
         rouletteCtx.translate(rouletteCanvas.width / 2, rouletteCanvas.height / 2);
-        rouletteCtx.rotate((currentAngle * Math.PI) / 180);
+        rouletteCtx.rotate((currentAngle * Math.PI) / 180); // Вращаем рулетку
         rouletteCtx.translate(-rouletteCanvas.width / 2, -rouletteCanvas.height / 2);
-        drawRoulette();
+        drawRoulette(); // Отрисовка рулетки
         rouletteCtx.restore();
 
+        // Рисуем стрелку
+        drawPointer();
+
         if (progress < 1) {
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animate); // Продолжаем анимацию
         } else {
-            handleRouletteResult(spinAngle % 360);
+            // После остановки обработка победного сектора
+            handleRouletteResult(winningSegment); // Вывод результата
             isSpinning = false;
         }
     }
 
-    requestAnimationFrame(animate);
+    requestAnimationFrame(animate); // Запуск анимации
 }
 
-function handleRouletteResult(angle) {
-    const segmentIndex = Math.floor((angle + (360 / rouletteSegments.length) / 2) % 360 / (360 / rouletteSegments.length));
-    const result = rouletteSegments[segmentIndex];
-    document.getElementById('rouletteResult').textContent = `Вы выиграли: ${result}`;
+function handleRouletteResult(winningSegment) {
+    // Вычисляем угол для отображения результата
+    const segmentAngle = 360 / rouletteSegments.length;
+    const adjustedTargetAngle = (winningSegment * segmentAngle + 112) % 360; // Добавляем 90 градусов и нормализуем угол
 
-    console.log('result: ');
-    console.log(result);
-    console.log('--------------------------------------------------------------');
-
-    // Суммирование с текущей ставкой и депозитом
-    deposit += result; // Например, добавляем выигрыш к депозиту
-    document.getElementById('balanceValue').textContent = deposit;
-
-    // Обновляем отображение ставки, если требуется
-    // Например:
-    // const currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
-    // document.getElementById('currentBet').textContent = currentBet + result;
+    // Отображаем выигрышный сектор в консоли или другом месте
+    console.log(`Выигрышный сектор: ${rouletteSegments[winningSegment]}`);
+    // Здесь можно обновить интерфейс для отображения результата
 }
