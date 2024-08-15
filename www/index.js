@@ -567,7 +567,7 @@ function setupRoulette() {
     rouletteCtx = rouletteCanvas.getContext('2d');
 
     // Отрисовываем стрелку поверх рулетки, чтобы она оставалась зафиксированной
-    drawPointer();
+    // drawPointer();
 
     drawRoulette();
 
@@ -694,7 +694,7 @@ function spinRoulette() {
         rouletteCtx.restore();
 
         // Рисуем стрелку
-        drawPointer();
+        // drawPointer();
 
         if (progress < 1) {
             requestAnimationFrame(animate); // Продолжаем анимацию
