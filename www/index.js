@@ -489,26 +489,40 @@ function navigateTo(...args) {
     overlay.style.display = 'block';
     preloader.style.display = 'block';
 
+    if (args[1] === undefined) {
+        showHidePage(overlay, preloader, args[0]);
+    } else {
+        switch (args[1]) {
+            case '1':
+                console.log('eggs catcher');
+                showHidePage(overlay, preloader, 'gameContainer');
+                prepareGame();
+                break;
+            case '2':
+                console.log('rolette');
+                showHidePage(overlay, preloader, 'rouletteContainer');
+                setupRoulette();
+                break;
+            default:
+                return null;
+        }
+    }
+
+}
+
+function showHidePage(overlay, preloader, page) {
+
     setTimeout(() => {
         // Скрыть все страницы
         document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
 
         // Показать выбранную страницу
-        document.getElementById(args[0]).style.display = 'block';
+        document.getElementById(page).style.display = 'block';
 
         // Скрыть затемнитель и прелоадер
         overlay.style.display = 'none';
         preloader.style.display = 'none';
     }, 400);
-
-
-    if (args[0] === 'rouletteContainer') {
-        setupRoulette();
-    }
-
-    if (args[1]) {
-        prepareGame();
-    }
 }
 
 function minusBet() {
@@ -530,10 +544,6 @@ function plusBet() {
 }
 
 
-
-
-
-
 // Рулетка
 const rouletteSegments = [2, 200, 5000, 400, 500, 600, 1.5, 800];
 const rouletteColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FF6600', '#66FF00'];
@@ -544,35 +554,52 @@ let isSpinning = false;
 function setupRoulette() {
     rouletteCanvas = document.getElementById('rouletteCanvas');
     rouletteCtx = rouletteCanvas.getContext('2d');
-    drawRoulette();
+
+    const image = new Image();
+    image.src = 'res/roulette-image.png'; // Замените на путь к вашему изображению
+
+    let isSpinning = false;
+
+    image.onload = function() {
+        drawRoulette(image);
+    };
+
     document.getElementById('spinButton').addEventListener('click', spinRoulette);
 }
 
-function drawRoulette() {
+function drawRoulette(image) {
     const radius = rouletteCanvas.width / 2;
     const angle = 2 * Math.PI / rouletteSegments.length;
 
+    // Очищаем и центрируем канвас
+    rouletteCtx.clearRect(0, 0, rouletteCanvas.width, rouletteCanvas.height);
+    rouletteCtx.save();
+    rouletteCtx.translate(radius, radius);
+
+    // Рисуем изображение рулетки, вращая его в соответствии с сектором
+    console.log(image);
+    rouletteCtx.drawImage(image, -radius, -radius, rouletteCanvas.width, rouletteCanvas.height);
+
+
+    // Рисуем секторы и их текст поверх изображения
     for (let i = 0; i < rouletteSegments.length; i++) {
         const startAngle = i * angle;
         const endAngle = startAngle + angle;
+        const midAngle = (startAngle + endAngle) / 2;
 
-        rouletteCtx.beginPath();
-        rouletteCtx.moveTo(radius, radius);
-        rouletteCtx.arc(radius, radius, radius, startAngle, endAngle);
-        rouletteCtx.closePath();
-        rouletteCtx.fillStyle = rouletteColors[i];
-        rouletteCtx.fill();
+        rouletteCtx.save();
+        rouletteCtx.rotate(midAngle);
+        rouletteCtx.translate(0, -radius / 2); // Перемещаем в центр сектора
 
-        // Добавление текста на сектора
-        rouletteCtx.fillStyle = '#000';
+        rouletteCtx.fillStyle = '#000'; // Цвет текста
         rouletteCtx.textAlign = 'center';
         rouletteCtx.textBaseline = 'middle';
         rouletteCtx.font = '16px Arial';
-        const midAngle = (startAngle + endAngle) / 2;
-        const textX = radius + (radius / 2) * Math.cos(midAngle);
-        const textY = radius + (radius / 2) * Math.sin(midAngle);
-        rouletteCtx.fillText(rouletteSegments[i], textX, textY);
+        rouletteCtx.fillText(rouletteSegments[i], 0, 0);
+
+        rouletteCtx.restore();
     }
+    rouletteCtx.restore();
 }
 
 function spinRoulette() {
@@ -613,6 +640,10 @@ function handleRouletteResult(angle) {
     const segmentIndex = Math.floor((angle + (360 / rouletteSegments.length) / 2) % 360 / (360 / rouletteSegments.length));
     const result = rouletteSegments[segmentIndex];
     document.getElementById('rouletteResult').textContent = `Вы выиграли: ${result}`;
+
+    console.log('result: ');
+    console.log(result);
+    console.log('--------------------------------------------------------------');
 
     // Суммирование с текущей ставкой и депозитом
     deposit += result; // Например, добавляем выигрыш к депозиту
