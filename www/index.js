@@ -501,6 +501,11 @@ function navigateTo(...args) {
         preloader.style.display = 'none';
     }, 400);
 
+
+    if (args[0] === 'rouletteContainer') {
+        setupRoulette();
+    }
+
     if (args[1]) {
         prepareGame();
     }
@@ -522,4 +527,99 @@ function plusBet() {
     } else {
         alert('Ставка должна не превышать ваш депозит.');
     }
+}
+
+
+
+
+
+
+// Рулетка
+const rouletteSegments = [2, 200, 5000, 400, 500, 600, 1.5, 800];
+const rouletteColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FF6600', '#66FF00'];
+const rouletteAngle = 360 / rouletteSegments.length;
+let rouletteCanvas, rouletteCtx;
+let isSpinning = false;
+
+function setupRoulette() {
+    rouletteCanvas = document.getElementById('rouletteCanvas');
+    rouletteCtx = rouletteCanvas.getContext('2d');
+    drawRoulette();
+    document.getElementById('spinButton').addEventListener('click', spinRoulette);
+}
+
+function drawRoulette() {
+    const radius = rouletteCanvas.width / 2;
+    const angle = 2 * Math.PI / rouletteSegments.length;
+
+    for (let i = 0; i < rouletteSegments.length; i++) {
+        const startAngle = i * angle;
+        const endAngle = startAngle + angle;
+
+        rouletteCtx.beginPath();
+        rouletteCtx.moveTo(radius, radius);
+        rouletteCtx.arc(radius, radius, radius, startAngle, endAngle);
+        rouletteCtx.closePath();
+        rouletteCtx.fillStyle = rouletteColors[i];
+        rouletteCtx.fill();
+
+        // Добавление текста на сектора
+        rouletteCtx.fillStyle = '#000';
+        rouletteCtx.textAlign = 'center';
+        rouletteCtx.textBaseline = 'middle';
+        rouletteCtx.font = '16px Arial';
+        const midAngle = (startAngle + endAngle) / 2;
+        const textX = radius + (radius / 2) * Math.cos(midAngle);
+        const textY = radius + (radius / 2) * Math.sin(midAngle);
+        rouletteCtx.fillText(rouletteSegments[i], textX, textY);
+    }
+}
+
+function spinRoulette() {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    const spinDuration = 3000; // Время вращения
+    const spinAngle = 360 * 5 + Math.floor(Math.random() * 360); // 5 полных оборотов плюс случайный угол
+
+    let startTime = null;
+
+    function animate(time) {
+        if (!startTime) startTime = time;
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / spinDuration, 1);
+        const currentAngle = spinAngle * progress;
+
+        rouletteCtx.clearRect(0, 0, rouletteCanvas.width, rouletteCanvas.height);
+        rouletteCtx.save();
+        rouletteCtx.translate(rouletteCanvas.width / 2, rouletteCanvas.height / 2);
+        rouletteCtx.rotate((currentAngle * Math.PI) / 180);
+        rouletteCtx.translate(-rouletteCanvas.width / 2, -rouletteCanvas.height / 2);
+        drawRoulette();
+        rouletteCtx.restore();
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            handleRouletteResult(spinAngle % 360);
+            isSpinning = false;
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+function handleRouletteResult(angle) {
+    const segmentIndex = Math.floor((angle + (360 / rouletteSegments.length) / 2) % 360 / (360 / rouletteSegments.length));
+    const result = rouletteSegments[segmentIndex];
+    document.getElementById('rouletteResult').textContent = `Вы выиграли: ${result}`;
+
+    // Суммирование с текущей ставкой и депозитом
+    deposit += result; // Например, добавляем выигрыш к депозиту
+    document.getElementById('balanceValue').textContent = deposit;
+
+    // Обновляем отображение ставки, если требуется
+    // Например:
+    // const currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+    // document.getElementById('currentBet').textContent = currentBet + result;
 }
