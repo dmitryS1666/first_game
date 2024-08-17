@@ -475,6 +475,12 @@ button:active {
     left: 33%;
 }
 
+#failPlatformAstro {
+    position: absolute;
+    top: -200px;
+    left: 30%;
+}
+
 #gameScore .hr {
     display: block;
     z-index: 0;

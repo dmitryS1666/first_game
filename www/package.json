@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --outfile=dist/index.js"
+  }
+}
