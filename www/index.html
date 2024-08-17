@@ -76,7 +76,8 @@
 </div>
 
 <!-- Game Page -->
-<div id="planetCatcherContainer" class="page" style="display:none;">
+<div id="gameContainer" class="page" style="display: none;">
+    <canvas id="gameCanvas"></canvas>
     <canvas id="planetCatcherCanvas"></canvas>
     <div id="timer">
         <img src="../res/timer.png">
@@ -86,7 +87,11 @@
     </div>
 
     <div id="gameScore">
-        <div class="hr">
+        <div id="failPlatformBlock" style="display: none;">
+            <img id="failPlatform" src="res/new_platform.png">
+            <img src="res/line.png">
+        </div>
+        <div id="failPlatformAstroBlock" style="display: none;">
             <img id="failPlatformAstro" src="res/astro_left.png">
         </div>
         <div class="statistics">
@@ -101,55 +106,10 @@
                 </div>
             </div>
             <div class="playButton">
-                <button id="play">
+                <button id="play" style="display: none;">
                     <img src="res/play_bautton.png">
                 </button>
-            </div>
-            <div class="bets">
-                <div class="bet">
-                    <span id="currentBet"></span>
-                </div>
-                <div class="betControl">
-                    <button id="minusBet">
-                        <img src="res/minusBit.png">
-                    </button>
-                    <button id="plusBet">
-                        <img src="res/plusBit.png">
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Game Page -->
-<div id="gameContainer" class="page" style="display: none;">
-    <canvas id="gameCanvas"></canvas>
-    <div id="timer">
-        <img src="../res/timer.png">
-        <span id="min">00</span>
-        <span id="dots">:</span>
-        <span id="seconds"></span>
-    </div>
-
-    <div id="gameScore">
-        <div class="hr">
-            <img id="failPlatform" src="res/new_platform.png">
-            <img src="res/line.png">
-        </div>
-        <div class="statistics">
-            <div class="score">
-                <div class="text">
-                    <span>Balance</span>
-                    <span>WIN</span>
-                </div>
-                <div class="value">
-                    <span id="balanceValue"></span>
-                    <span id="scoreValue"></span>
-                </div>
-            </div>
-            <div class="playButton">
-                <button id="play">
+                <button id="playPC" style="display: none;">
                     <img src="res/play_bautton.png">
                 </button>
             </div>

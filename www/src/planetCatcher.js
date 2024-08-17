@@ -3,134 +3,251 @@
 // --------------- Ловец планет ---------------- //
 // --------------------------------------------- //
 
-let pcCanvas, ctxPC, pcBasket;
+import {checkFirstRun, navigateTo, saveScore} from "./main";
+import {bet, deposit} from './main';
 
-const balls = [];
-const colorsPlanet = ["red", "blue", "green", "yellow", "purple"];
+// Game state
+let timerPC;
+let gameOver = false;
 
-function setupPC() {
-    pcCanvas = document.getElementById("planetCatcherCanvas");
-    ctxPC = pcCanvas.getContext("2d");
+let canvasPC, ctxPC;
+let canvasPCWidth, canvasPCHeight;
+let basketPCWidth, basketPCHeight;
+let basketSpeed, eggSpeedBase, eggSpeedVariance;
+const eggInterval = 1000; // milliseconds
+const gameDuration = 15; // seconds
+let basketPosition = 'left'; // Начальное положение корзины (слева или справа)
+let eggs = [];
+let score = 0;
 
-    pcBasket = {
-        x: pcCanvas.width / 2 - 50,
-        y: pcCanvas.height - 30,
-        width: 100,
-        height: 20,
-        speed: 7,
-        isMoving: false,
-        startTouchX: 0,
-        currentTouchX: 0
-    };
+const colors = ['blue', 'brown', 'yellow', 'earth', 'green', 'indigo', 'orange', 'purple', 'pink', 'red'];
+const colorProperties = {
+    blue: {score: 5},
+    brown: {score: 15},
+    yellow: {score: 10},
+    earth: {score: 25},
+    green: {score: 2},
+    indigo: {score: 0},
+    orange: {score: -5},
+    purple: {score: -10},
+    pink: {score: -2},
+    red: {score: 0, gameOver: true}
+};
 
-// Обработка касаний
-    pcCanvas.addEventListener("touchstart", (event) => {
-        if (event.touches.length > 0) {
-            const touch = event.touches[0];
-            pcBasket.isMoving = true;
-            pcBasket.startTouchX = touch.clientX;
-            pcBasket.currentTouchX = touch.clientX;
-        }
+const ballImages = {};
+const ballImageNames = [
+    'blue_ball.png',
+    'brown_ball.png',
+    'yellow_ball.png',
+    'earth_ball.png',
+    'green_ball.png',
+    'indigo_ball.png',
+    'orange_ball.png',
+    'pink_ball.png',
+    'purple_ball.png',
+    'red_ball.png'
+];
+
+let basketImage = new Image();
+basketImage.src = "res/astro_left.png";
+
+// Initialize game
+export function setupGamePC() {
+    canvasPC = document.getElementById('planetCatcherCanvas');
+    if (!canvasPC) {
+        console.error('Canvas element not found');
+        return;
+    }
+
+    ctxPC = canvasPC.getContext('2d');
+    if (!ctxPC) {
+        console.error('Canvas context not found');
+        return;
+    }
+
+    resizeCanvasPC();
+    window.addEventListener('resize', resizeCanvasPC);
+
+    basketPCWidth = 400;
+    basketPCHeight = 392;
+
+    basketSpeed = canvasPCWidth * 0.02;
+    eggSpeedBase = canvasPCHeight * 0.005;
+    eggSpeedVariance = canvasPCHeight * 0.003;
+
+    // Load ball images
+    ballImageNames.forEach((fileName) => {
+        const color = fileName.split('_')[0];
+        const img = new Image();
+        img.src = `res/balls/${fileName}`;
+        ballImages[color] = img;
     });
 
-    pcCanvas.addEventListener("touchmove", (event) => {
-        if (event.touches.length > 0) {
-            const touch = event.touches[0];
-            pcBasket.currentTouchX = touch.clientX;
-        }
-    });
+    const startButton = document.getElementById('startButton');
+    if (startButton) startButton.addEventListener('click', startGamePC);
 
-    pcCanvas.addEventListener("touchend", () => {
-        pcBasket.isMoving = false;
-    });
+    setInterval(addEgg, eggInterval);
 
-// Создание нового шара каждые 2 секунды
-    setInterval(createBall, 2000);
+    document.getElementById('currentBet').textContent = bet;
+    document.getElementById('scoreValue').textContent = score || 0;
+    checkFirstRun();
+    document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
+
+    document.getElementById('failPlatformBlock').style.display = 'none';
+    document.getElementById('failPlatform').style.display = 'none';
+    document.getElementById('play').style.display = 'none';
+    document.getElementById('failPlatformAstroBlock').style.display = 'block';
+    document.getElementById('failPlatformAstro').style.display = 'block';
+    document.getElementById('playPC').style.display = 'inline-block';
+}
+
+function resizeCanvasPC() {
+    canvasPCWidth = window.innerWidth;
+    canvasPCHeight = window.innerHeight;
+    canvasPC.width = canvasPCWidth;
+    canvasPC.height = canvasPCHeight;
+    basketPCWidth = canvasPCWidth * 0.2;
+    basketPCHeight = canvasPCHeight * 0.05;
+    basketSpeed = canvasPCWidth * 0.02;
+}
+
+// Начало игры
+export function startGamePC() {
+    setupGamePC();
+    score = 0;
+    eggs = [];
+    basketPosition = 'left'; // Корзина стартует слева
+    updateScoreDisplay();
+    startTimerPC();
+    canvasPC.style.display = 'block';
+    gameOver = false;
+
+    document.getElementById('failPlatformAstroBlock').style.display = 'none';
 
     gameLoopPC();
 }
 
-function createBall() {
-    const isLeft = Math.random() < 0.5;
-    const ball = {
-        x: isLeft ? 0 : pcCanvas.width,
-        y: 0,
-        radius: 15 + Math.random() * 10,
-        color: colorsPlanet[Math.floor(Math.random() * colorsPlanet.length)],
-        angle: 0,
-        speedX: isLeft ? 2 + Math.random() * 2 : -(2 + Math.random() * 2),
-        speedY: 2 + Math.random() * 2,
-        rotationSpeed: 0.1 + Math.random() * 0.05
-    };
-    balls.push(ball);
-}
+// Конец игры
+function endGame(isVictory) {
+    canvasPC.style.display = 'none';
 
-function updatePcBasket() {
-    if (pcBasket.isMoving) {
-        // Перемещаем корзину в соответствии с текущим касанием
-        const touchPositionX = pcBasket.currentTouchX;
-        pcBasket.x = Math.max(0, Math.min(pcCanvas.width - pcBasket.width, touchPositionX - pcBasket.width / 2));
+    if (isVictory) {
+        let newScore = parseInt(localStorage.getItem('currentScore')) + score;
+        saveScore(newScore);
+
+        const finalScore = document.getElementById('finalScore');
+        finalScore.textContent = `+${score}`;
+
+        navigateTo('winPage');
+    } else {
+        let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+        let newScore = parseInt(localStorage.getItem('currentScore')) - currentBet;
+        saveScore(newScore);
+
+        navigateTo('failPage');
     }
+    gameOver = true;
+    clearInterval(timerPC);
 }
 
-function updateBalls() {
-    for (let i = 0; i < balls.length; i++) {
-        const ball = balls[i];
-        ball.x += ball.speedX;
-        ball.y += ball.speedY;
-        ball.angle += ball.rotationSpeed;
-
-        // Проверка на столкновение с корзиной
-        if (
-            ball.x + ball.radius > pcBasket.x &&
-            ball.x - ball.radius < pcBasket.x + pcBasket.width &&
-            ball.y + ball.radius > pcBasket.y &&
-            ball.y - ball.radius < pcBasket.y + pcBasket.height
-        ) {
-            balls.splice(i, 1); // Удалить пойманный шар
-            i--;
-            continue;
+// Таймер игры
+function startTimerPC() {
+    let timeRemaining = gameDuration;
+    document.getElementById('seconds').textContent = `${timeRemaining}`;
+    timerPC = setInterval(() => {
+        timeRemaining--;
+        if (timeRemaining >= 10) {
+            document.getElementById('seconds').textContent = `${timeRemaining}`;
+        } else {
+            document.getElementById('seconds').textContent = `0${timeRemaining}`;
         }
-
-        // Удалить шары, которые вышли за границы канваса
-        if (ball.y - ball.radius > pcCanvas.height) {
-            balls.splice(i, 1);
-            i--;
+        if (timeRemaining <= 0) {
+            endGame(score >= 0);
         }
-    }
+    }, 1000);
 }
 
-function drawPcBasket() {
-    ctxPC.fillStyle = "brown";
-    ctxPC.fillRect(pcBasket.x, pcBasket.y, pcBasket.width, pcBasket.height);
+// Отрисовка корзины
+function drawBasket() {
+    let basketX = basketPosition === 'left' ? canvasPCWidth * 0.25 - basketPCWidth / 2 : canvasPCWidth * 0.75 - basketPCWidth / 2;
+    ctxPC.drawImage(basketImage, basketX + 105, canvasPCHeight - basketPCHeight - 280, basketPCWidth, basketPCHeight);
 }
 
-function drawBalls() {
-    for (const ball of balls) {
-        ctxPC.save();
-        ctxPC.translate(ball.x, ball.y);
-        ctxPC.rotate(ball.angle);
-        ctxPC.beginPath();
-        ctxPC.arc(0, 0, ball.radius, 0, Math.PI * 2);
-        ctxPC.fillStyle = ball.color;
-        ctxPC.fill();
-        ctxPC.restore();
-    }
+// Параболическая траектория шаров
+function calculateParabola(egg) {
+    let time = egg.time; // Прошедшее время
+    let xStart = egg.fromLeft ? 0 : canvasPCWidth; // Начальная точка по X (углы)
+    let xEnd = basketPosition === 'left' ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75; // Конечная точка (позиция корзины)
+    let yStart = 0;
+    let yEnd = canvasPCHeight - basketPCHeight - 50;
+
+    let t = time / 100; // Время как коэффициент от траектории
+    egg.x = xStart + (xEnd - xStart) * t;
+    egg.y = yStart + (yEnd - yStart) * t * t; // Параболическая траектория
 }
 
-function draw() {
-    ctxPC.clearRect(0, 0, pcCanvas.width, pcCanvas.height);
-    drawPcBasket();
-    drawBalls();
+// Рисуем шары
+function drawEggs() {
+    eggs.forEach(egg => {
+        const img = ballImages[egg.color];
+        if (img) {
+            ctxPC.drawImage(img, egg.x - 25, egg.y - 25, 50, 50);
+        }
+        calculateParabola(egg); // Обновляем траекторию
+    });
 }
 
-function update() {
-    updatePcBasket();
-    updateBalls();
-}
-
+// Логика игры
 function gameLoopPC() {
-    update();
-    draw();
+    if (gameOver) return;
+    ctxPC.clearRect(0, 0, canvasPCWidth, canvasPCHeight);
+    drawBasket();
+    drawEggs();
+    handleCollision();
     requestAnimationFrame(gameLoopPC);
 }
+
+// Проверка столкновений
+function handleCollision() {
+    eggs.forEach(egg => {
+        let basketX = basketPosition === 'left' ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
+        if (egg.y > canvasPCHeight - basketPCHeight - 50 && egg.x > basketX - basketPCWidth / 2 && egg.x < basketX + basketPCWidth / 2) {
+            const properties = colorProperties[egg.color];
+            score += properties.score;
+            updateScoreDisplay();
+            if (properties.gameOver) {
+                endGame(false);
+            }
+            eggs = eggs.filter(e => e !== egg);
+        }
+    });
+}
+
+// Обновляем отображение очков
+function updateScoreDisplay() {
+    document.getElementById('scoreValue').textContent = score;
+}
+
+// Добавляем шар
+function addEgg() {
+    if (gameOver) return;
+    const fromLeft = Math.random() > 0.5;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    eggs.push({
+        x: fromLeft ? 0 : canvasPCWidth,
+        y: 0,
+        color: color,
+        fromLeft: fromLeft,
+        time: 0 // Время траектории
+    });
+}
+
+// Управление движением корзины
+document.addEventListener('keydown', (event) => {
+    if (gameOver) return;
+    if (event.key === 'ArrowLeft') {
+        basketPosition = 'left';
+    } else if (event.key === 'ArrowRight') {
+        basketPosition = 'right';
+    }
+});

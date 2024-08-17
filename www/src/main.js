@@ -5,6 +5,7 @@
 
 import {setupRoulette} from './roulette'
 import {prepareGame, startGame} from "./bonus";
+import {setupGamePC, startGamePC} from "./planetCatcher";
 
 // Configuration
 export let deposit = 1000; // Начальный депозит игрока
@@ -47,6 +48,11 @@ document.getElementById('play')
         startGame()
     );
 
+document.getElementById('playPC')
+    .addEventListener('click', () =>
+        startGamePC()
+    );
+
 document.getElementById('minusBet')
     .addEventListener('click', () =>
         minusBet()
@@ -82,14 +88,14 @@ export function navigateTo(...args) {
                 prepareGame();
                 break;
             case '2':
-                console.log('rolette');
+                console.log('roulette');
                 showHidePage(overlay, preloader, 'rouletteContainer');
                 setupRoulette();
                 break;
             case '3':
                 console.log('planetCatcher');
-                showHidePage(overlay, preloader, 'planetCatcherContainer');
-                setupPC();
+                showHidePage(overlay, preloader, 'gameContainer');
+                setupGamePC();
                 break;
             default:
                 console.log('default')

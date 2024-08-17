@@ -3,7 +3,7 @@
 // --------------- Бонусная игра --------------- //
 // --------------------------------------------- //
 
-import {checkFirstRun, navigateTo} from "./main";
+import {checkFirstRun, navigateTo, saveScore} from "./main";
 import { bet, deposit } from './main'
 
 // Game state
@@ -135,6 +135,13 @@ export function prepareGame() {
     eggs = [];
     updateScoreDisplay();
     timerDisplay('block');
+
+    document.getElementById('failPlatformBlock').style.display = 'block';
+    document.getElementById('failPlatform').style.display = 'block';
+    document.getElementById('play').style.display = 'block';
+    document.getElementById('failPlatformAstroBlock').style.display = 'none';
+    document.getElementById('failPlatformAstro').style.display = 'none';
+    document.getElementById('playPC').style.display = 'none';
 }
 
 // Start a new game
@@ -193,16 +200,19 @@ function endGame(isVictory) {
     }
     gameOver = true;
     clearInterval(timer);
-    document.getElementById('failPlatform').style.display = 'block';
 }
 
-// Start the game timer
 function startTimer() {
+    console.log('start time');
     let timeRemaining = gameDuration;
     document.getElementById('seconds').textContent = `${timeRemaining}`;
     timer = setInterval(() => {
         timeRemaining--;
-        document.getElementById('seconds').textContent = `${timeRemaining}`;
+        if (timeRemaining >= 10) {
+            document.getElementById('seconds').textContent = `${timeRemaining}`;
+        } else {
+            document.getElementById('seconds').textContent = `0${timeRemaining}`;
+        }
         if (timeRemaining <= 0) {
             endGame(score >= 0);
         }

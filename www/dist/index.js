@@ -208,6 +208,12 @@
     eggs = [];
     updateScoreDisplay();
     timerDisplay("block");
+    document.getElementById("failPlatformBlock").style.display = "block";
+    document.getElementById("failPlatform").style.display = "block";
+    document.getElementById("play").style.display = "block";
+    document.getElementById("failPlatformAstroBlock").style.display = "none";
+    document.getElementById("failPlatformAstro").style.display = "none";
+    document.getElementById("playPC").style.display = "none";
   }
   function startGame() {
     document.getElementById("failPlatform").style.display = "none";
@@ -235,14 +241,18 @@
     }
     gameOver = true;
     clearInterval(timer);
-    document.getElementById("failPlatform").style.display = "block";
   }
   function startTimer() {
+    console.log("start time");
     let timeRemaining = gameDuration;
     document.getElementById("seconds").textContent = `${timeRemaining}`;
     timer = setInterval(() => {
       timeRemaining--;
-      document.getElementById("seconds").textContent = `${timeRemaining}`;
+      if (timeRemaining >= 10) {
+        document.getElementById("seconds").textContent = `${timeRemaining}`;
+      } else {
+        document.getElementById("seconds").textContent = `0${timeRemaining}`;
+      }
       if (timeRemaining <= 0) {
         endGame(score >= 0);
       }
@@ -363,9 +373,218 @@
     });
   }
 
+  // src/planetCatcher.js
+  var timerPC;
+  var gameOver2 = false;
+  var canvasPC;
+  var ctxPC;
+  var canvasPCWidth;
+  var canvasPCHeight;
+  var basketPCWidth;
+  var basketPCHeight;
+  var basketSpeed2;
+  var eggSpeedBase2;
+  var eggSpeedVariance2;
+  var eggInterval2 = 1e3;
+  var gameDuration2 = 15;
+  var basketPosition = "left";
+  var eggs2 = [];
+  var score2 = 0;
+  var colors2 = ["blue", "brown", "yellow", "earth", "green", "indigo", "orange", "purple", "pink", "red"];
+  var colorProperties2 = {
+    blue: { score: 5 },
+    brown: { score: 15 },
+    yellow: { score: 10 },
+    earth: { score: 25 },
+    green: { score: 2 },
+    indigo: { score: 0 },
+    orange: { score: -5 },
+    purple: { score: -10 },
+    pink: { score: -2 },
+    red: { score: 0, gameOver: true }
+  };
+  var ballImages2 = {};
+  var ballImageNames2 = [
+    "blue_ball.png",
+    "brown_ball.png",
+    "yellow_ball.png",
+    "earth_ball.png",
+    "green_ball.png",
+    "indigo_ball.png",
+    "orange_ball.png",
+    "pink_ball.png",
+    "purple_ball.png",
+    "red_ball.png"
+  ];
+  var basketImage2 = new Image();
+  basketImage2.src = "res/astro_left.png";
+  function setupGamePC() {
+    canvasPC = document.getElementById("planetCatcherCanvas");
+    if (!canvasPC) {
+      console.error("Canvas element not found");
+      return;
+    }
+    ctxPC = canvasPC.getContext("2d");
+    if (!ctxPC) {
+      console.error("Canvas context not found");
+      return;
+    }
+    resizeCanvasPC();
+    window.addEventListener("resize", resizeCanvasPC);
+    basketPCWidth = 400;
+    basketPCHeight = 392;
+    basketSpeed2 = canvasPCWidth * 0.02;
+    eggSpeedBase2 = canvasPCHeight * 5e-3;
+    eggSpeedVariance2 = canvasPCHeight * 3e-3;
+    ballImageNames2.forEach((fileName) => {
+      const color = fileName.split("_")[0];
+      const img = new Image();
+      img.src = `res/balls/${fileName}`;
+      ballImages2[color] = img;
+    });
+    const startButton = document.getElementById("startButton");
+    if (startButton) startButton.addEventListener("click", startGamePC);
+    setInterval(addEgg2, eggInterval2);
+    document.getElementById("currentBet").textContent = bet;
+    document.getElementById("scoreValue").textContent = score2 || 0;
+    checkFirstRun();
+    document.getElementById("balanceValue").textContent = localStorage.getItem("currentScore") || 0;
+    document.getElementById("failPlatformBlock").style.display = "none";
+    document.getElementById("failPlatform").style.display = "none";
+    document.getElementById("play").style.display = "none";
+    document.getElementById("failPlatformAstroBlock").style.display = "block";
+    document.getElementById("failPlatformAstro").style.display = "block";
+    document.getElementById("playPC").style.display = "inline-block";
+  }
+  function resizeCanvasPC() {
+    canvasPCWidth = window.innerWidth;
+    canvasPCHeight = window.innerHeight;
+    canvasPC.width = canvasPCWidth;
+    canvasPC.height = canvasPCHeight;
+    basketPCWidth = canvasPCWidth * 0.2;
+    basketPCHeight = canvasPCHeight * 0.05;
+    basketSpeed2 = canvasPCWidth * 0.02;
+  }
+  function startGamePC() {
+    setupGamePC();
+    score2 = 0;
+    eggs2 = [];
+    basketPosition = "left";
+    updateScoreDisplay2();
+    startTimerPC();
+    canvasPC.style.display = "block";
+    gameOver2 = false;
+    document.getElementById("failPlatformAstroBlock").style.display = "none";
+    gameLoopPC();
+  }
+  function endGame2(isVictory) {
+    canvasPC.style.display = "none";
+    if (isVictory) {
+      let newScore = parseInt(localStorage.getItem("currentScore")) + score2;
+      saveScore(newScore);
+      const finalScore = document.getElementById("finalScore");
+      finalScore.textContent = `+${score2}`;
+      navigateTo("winPage");
+    } else {
+      let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
+      let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
+      saveScore(newScore);
+      navigateTo("failPage");
+    }
+    gameOver2 = true;
+    clearInterval(timerPC);
+  }
+  function startTimerPC() {
+    let timeRemaining = gameDuration2;
+    document.getElementById("seconds").textContent = `${timeRemaining}`;
+    timerPC = setInterval(() => {
+      timeRemaining--;
+      if (timeRemaining >= 10) {
+        document.getElementById("seconds").textContent = `${timeRemaining}`;
+      } else {
+        document.getElementById("seconds").textContent = `0${timeRemaining}`;
+      }
+      if (timeRemaining <= 0) {
+        endGame2(score2 >= 0);
+      }
+    }, 1e3);
+  }
+  function drawBasket2() {
+    let basketX2 = basketPosition === "left" ? canvasPCWidth * 0.25 - basketPCWidth / 2 : canvasPCWidth * 0.75 - basketPCWidth / 2;
+    ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight - 280, basketPCWidth, basketPCHeight);
+  }
+  function calculateParabola(egg) {
+    let time = egg.time;
+    let xStart = egg.fromLeft ? 0 : canvasPCWidth;
+    let xEnd = basketPosition === "left" ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
+    let yStart = 0;
+    let yEnd = canvasPCHeight - basketPCHeight - 50;
+    let t = time / 100;
+    egg.x = xStart + (xEnd - xStart) * t;
+    egg.y = yStart + (yEnd - yStart) * t * t;
+  }
+  function drawEggs2() {
+    eggs2.forEach((egg) => {
+      const img = ballImages2[egg.color];
+      if (img) {
+        ctxPC.drawImage(img, egg.x - 25, egg.y - 25, 50, 50);
+      }
+      calculateParabola(egg);
+    });
+  }
+  function gameLoopPC() {
+    if (gameOver2) return;
+    ctxPC.clearRect(0, 0, canvasPCWidth, canvasPCHeight);
+    drawBasket2();
+    drawEggs2();
+    handleCollision2();
+    requestAnimationFrame(gameLoopPC);
+  }
+  function handleCollision2() {
+    eggs2.forEach((egg) => {
+      let basketX2 = basketPosition === "left" ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
+      if (egg.y > canvasPCHeight - basketPCHeight - 50 && egg.x > basketX2 - basketPCWidth / 2 && egg.x < basketX2 + basketPCWidth / 2) {
+        const properties = colorProperties2[egg.color];
+        score2 += properties.score;
+        updateScoreDisplay2();
+        if (properties.gameOver) {
+          endGame2(false);
+        }
+        eggs2 = eggs2.filter((e) => e !== egg);
+      }
+    });
+  }
+  function updateScoreDisplay2() {
+    document.getElementById("scoreValue").textContent = score2;
+  }
+  function addEgg2() {
+    if (gameOver2) return;
+    const fromLeft = Math.random() > 0.5;
+    const color = colors2[Math.floor(Math.random() * colors2.length)];
+    eggs2.push({
+      x: fromLeft ? 0 : canvasPCWidth,
+      y: 0,
+      color,
+      fromLeft,
+      time: 0
+      // Время траектории
+    });
+  }
+  document.addEventListener("keydown", (event) => {
+    if (gameOver2) return;
+    if (event.key === "ArrowLeft") {
+      basketPosition = "left";
+    } else if (event.key === "ArrowRight") {
+      basketPosition = "right";
+    }
+  });
+
   // src/main.js
   var deposit = 1e3;
   var bet = 50;
+  function saveScore(score3) {
+    localStorage.setItem("currentScore", score3);
+  }
   document.getElementById("homeButton").addEventListener(
     "click",
     () => navigateTo("mainPage")
@@ -389,6 +608,10 @@
   document.getElementById("play").addEventListener(
     "click",
     () => startGame()
+  );
+  document.getElementById("playPC").addEventListener(
+    "click",
+    () => startGamePC()
   );
   document.getElementById("minusBet").addEventListener(
     "click",
@@ -420,14 +643,14 @@
           prepareGame();
           break;
         case "2":
-          console.log("rolette");
+          console.log("roulette");
           showHidePage(overlay, preloader, "rouletteContainer");
           setupRoulette();
           break;
         case "3":
           console.log("planetCatcher");
-          showHidePage(overlay, preloader, "planetCatcherContainer");
-          setupPC();
+          showHidePage(overlay, preloader, "gameContainer");
+          setupGamePC();
           break;
         default:
           console.log("default");

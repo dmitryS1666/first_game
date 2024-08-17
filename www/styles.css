@@ -463,6 +463,7 @@ button:active {
     position: absolute;
     bottom: 0;
     height: 150px;
+    width: 100%;
 
     color: white;
     font-family: Montserrat, serif;
@@ -477,16 +478,16 @@ button:active {
 
 #failPlatformAstro {
     position: absolute;
-    top: -200px;
-    left: 30%;
+    bottom: 130px;
+    left: 2%;
 }
 
-#gameScore .hr {
-    display: block;
+#failPlatformBlock,
+#failPlatformAstroBlock {
     z-index: 0;
 }
 
-#gameScore .hr img{
+#failPlatformBlock img{
     width: 100%;
 }
 
@@ -496,7 +497,8 @@ button:active {
     height: 150px;
 }
 
-#play, #minusBet, #plusBet, #spinButton {
+#play, #playPC,
+#minusBet, #plusBet, #spinButton {
     background: none;
     border: none;
     border-radius: 50%;
