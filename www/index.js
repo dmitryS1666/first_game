@@ -562,12 +562,15 @@ let isSpinning = false;
 const rouletteImage = new Image();
 rouletteImage.src = 'res/roulette-image.png'; // Замените на путь к вашему изображению
 
+const roulettePointerImage = new Image();
+roulettePointerImage.src = 'res/pointer.png'; // Замените на путь к вашему изображению
+
 function setupRoulette() {
     rouletteCanvas = document.getElementById('rouletteCanvas');
     rouletteCtx = rouletteCanvas.getContext('2d');
 
     // Отрисовываем стрелку поверх рулетки, чтобы она оставалась зафиксированной
-    // drawPointer();
+    drawPointer();
 
     drawRoulette();
 
@@ -639,21 +642,33 @@ function drawRoulette() {
     rouletteCtx.restore();
 }
 // Функция для рисования фиксированной стрелки-указателя над рулеткой
+// Функция для рисования фиксированной стрелки-указателя над рулеткой
 function drawPointer() {
-    const pointerSize = 20; // Размер стрелки-указателя
     const pointerX = rouletteCanvas.width / 2; // Центр рулетки по X
     const pointerY = 0; // Позиция стрелки сверху канваса
+    const pointerSize = 40; // Размер изображения стрелки
 
-    // Рисуем треугольную стрелку вне рулетки
-    rouletteCtx.save();
-    rouletteCtx.beginPath();
-    rouletteCtx.moveTo(pointerX, pointerY); // Верхняя точка стрелки
-    rouletteCtx.lineTo(pointerX - pointerSize, pointerY + pointerSize); // Левая нижняя точка
-    rouletteCtx.lineTo(pointerX + pointerSize, pointerY + pointerSize); // Правая нижняя точка
-    rouletteCtx.closePath();
-    rouletteCtx.fillStyle = '#FF0000'; // Красный цвет стрелки
-    rouletteCtx.fill();
-    rouletteCtx.restore();
+    // Убедитесь, что изображение стрелки загружено перед отрисовкой
+    if (roulettePointerImage.complete) {
+        rouletteCtx.drawImage(
+            roulettePointerImage,
+            pointerX - pointerSize / 2, // Центрируем изображение по оси X
+            pointerY, // Стрелка у верхней части рулетки
+            pointerSize, // Ширина стрелки
+            pointerSize // Высота стрелки
+        );
+    } else {
+        // Если изображение ещё не загружено, ждем его загрузки
+        roulettePointerImage.onload = () => {
+            rouletteCtx.drawImage(
+                roulettePointerImage,
+                pointerX - pointerSize / 2,
+                pointerY,
+                pointerSize,
+                pointerSize
+            );
+        };
+    }
 }
 
 function spinRoulette() {
@@ -694,7 +709,7 @@ function spinRoulette() {
         rouletteCtx.restore();
 
         // Рисуем стрелку
-        // drawPointer();
+        drawPointer();
 
         if (progress < 1) {
             requestAnimationFrame(animate); // Продолжаем анимацию

@@ -490,7 +490,7 @@ button:active {
     height: 150px;
 }
 
-#play, #minusBet, #plusBet {
+#play, #minusBet, #plusBet, #spinButton {
     background: none;
     border: none;
     border-radius: 50%;
@@ -566,6 +566,17 @@ button:active {
     margin-top: 15%;
     font-size: 35px;
     font-weight: 700;
+}
+
+#rouletteContainer .playButton {
+    position: absolute;
+    bottom: 150px;
+    text-align: center;
+    width: 100%;
+}
+
+#spinButton {
+    margin-left: 15px;
 }
 
 /*==============================*/
