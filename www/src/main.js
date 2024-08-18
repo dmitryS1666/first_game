@@ -6,6 +6,7 @@
 import {setupRoulette} from './roulette'
 import {prepareGame, startGame} from "./bonus";
 import {setupGamePC, startGamePC} from "./planetCatcher";
+import {initSlotMachine} from "./slotMachine";
 
 // Configuration
 export let deposit = 1000; // Начальный депозит игрока
@@ -102,7 +103,7 @@ export function navigateTo(...args) {
             case 'slotMachine':
                 console.log('slotMachine');
                 showHidePage(overlay, preloader, 'slotMachineContainer');
-                // setupSlotMachine();
+                initSlotMachine();
                 break;
             default:
                 console.log('default')

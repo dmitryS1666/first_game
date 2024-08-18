@@ -579,6 +579,113 @@
     }
   });
 
+  // src/slotMachine.js
+  var canvasSlot = document.getElementById("slotCanvas");
+  var ctxSlot = canvasSlot.getContext("2d");
+  var columnCount = 4;
+  var ballsPerColumn = 10;
+  var ballRadius = 30;
+  var columnWidth = canvasSlot.width / columnCount;
+  var ballSpacing = 10;
+  var isSpinning2 = false;
+  var ballImageNames3 = [
+    "blue_ball.png",
+    "brown_ball.png",
+    "yellow_ball.png",
+    "earth_ball.png",
+    "green_ball.png",
+    "indigo_ball.png",
+    "orange_ball.png",
+    "pink_ball.png",
+    "purple_ball.png",
+    "red_ball.png"
+  ];
+  var ballImages3 = [];
+  var columns = Array.from({ length: columnCount }, () => []);
+  var speeds = Array(columnCount).fill(0);
+  var slotBackground;
+  function loadImages(callback) {
+    let imagesLoaded = 0;
+    slotBackground = new Image();
+    slotBackground.src = "res/slotBg.png";
+    slotBackground.onload = () => {
+      imagesLoaded++;
+      if (imagesLoaded === ballImageNames3.length + 1) {
+        callback();
+      }
+    };
+    ballImageNames3.forEach((name, index) => {
+      const img = new Image();
+      img.src = `res/balls/${name}`;
+      img.onload = () => {
+        ballImages3[index] = img;
+        imagesLoaded++;
+        if (imagesLoaded === ballImageNames3.length + 1) {
+          callback();
+        }
+      };
+    });
+  }
+  function initSlotMachine() {
+    document.getElementById("spinSlotButton").addEventListener("click", spin);
+    for (let col = 0; col < columnCount; col++) {
+      for (let i = 0; i < ballsPerColumn; i++) {
+        const ball = {
+          imgIndex: i % ballImages3.length,
+          // индекс картинки
+          y: i * (ballRadius * 2 + ballSpacing)
+          // позиция по Y
+        };
+        columns[col].push(ball);
+      }
+    }
+    drawColumns();
+  }
+  function drawColumns() {
+    if (slotBackground.complete) {
+      ctxSlot.clearRect(0, 0, canvasSlot.width, canvasSlot.height);
+      ctxSlot.drawImage(slotBackground, 0, 0, canvasSlot.width, canvasSlot.height);
+    }
+    for (let col = 0; col < columnCount; col++) {
+      for (let i = 0; i < ballsPerColumn; i++) {
+        const ball = columns[col][i];
+        const img = ballImages3[ball.imgIndex];
+        if (img.complete) {
+          const x = col * columnWidth + columnWidth / 2 - ballRadius;
+          const y = ball.y % canvasSlot.height - ballRadius;
+          ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
+        }
+      }
+    }
+  }
+  function updateColumns() {
+    for (let col = 0; col < columnCount; col++) {
+      for (let i = 0; i < ballsPerColumn; i++) {
+        columns[col][i].y += speeds[col];
+      }
+    }
+  }
+  function spin() {
+    if (isSpinning2) return;
+    isSpinning2 = true;
+    speeds = Array(columnCount).fill(10);
+    const stopDelays = [1e3, 1500, 2e3, 2500];
+    const animation = setInterval(() => {
+      updateColumns();
+      drawColumns();
+    }, 1e3 / 60);
+    stopDelays.forEach((delay, index) => {
+      setTimeout(() => {
+        speeds[index] = 0;
+        if (index === columnCount - 1) {
+          clearInterval(animation);
+          isSpinning2 = false;
+        }
+      }, delay);
+    });
+  }
+  loadImages(initSlotMachine);
+
   // src/main.js
   var deposit = 1e3;
   var bet = 50;
@@ -656,6 +763,7 @@
         case "slotMachine":
           console.log("slotMachine");
           showHidePage(overlay, preloader, "slotMachineContainer");
+          initSlotMachine();
           break;
         default:
           console.log("default");

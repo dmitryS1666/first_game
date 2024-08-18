@@ -1,5 +1,6 @@
 import './main'
 import './mainMenu'
+import './slotMachine'
 import './planetCatcher'
 import './roulette'
 import './bonus'

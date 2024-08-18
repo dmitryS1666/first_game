@@ -498,7 +498,8 @@ button:active {
 }
 
 #play, #playPC,
-#minusBet, #plusBet, #spinButton {
+#minusBet, #plusBet,
+#spinButton, #spinSlotButton {
     background: none;
     border: none;
     border-radius: 50%;
@@ -574,6 +575,13 @@ button:active {
     margin-top: 15%;
     font-size: 35px;
     font-weight: 700;
+}
+
+#slotMachineContainer .playButton {
+    position: absolute;
+    bottom: 150px;
+    text-align: center;
+    width: 100%;
 }
 
 #rouletteContainer .playButton {
