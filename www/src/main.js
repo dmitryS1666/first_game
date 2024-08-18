@@ -78,24 +78,31 @@ export function navigateTo(...args) {
     overlay.style.display = 'block';
     preloader.style.display = 'block';
 
+    console.log(args);
+
     if (args[1] === undefined) {
         showHidePage(overlay, preloader, args[0]);
     } else {
         switch (args[1]) {
-            case '1':
+            case 'bonus':
                 console.log('eggs catcher');
                 showHidePage(overlay, preloader, 'gameContainer');
                 prepareGame();
                 break;
-            case '2':
+            case 'roulette':
                 console.log('roulette');
                 showHidePage(overlay, preloader, 'rouletteContainer');
                 setupRoulette();
                 break;
-            case '3':
+            case 'planetCatcher':
                 console.log('planetCatcher');
                 showHidePage(overlay, preloader, 'gameContainer');
                 setupGamePC();
+                break;
+            case 'slotMachine':
+                console.log('slotMachine');
+                showHidePage(overlay, preloader, 'slotMachineContainer');
+                // setupSlotMachine();
                 break;
             default:
                 console.log('default')

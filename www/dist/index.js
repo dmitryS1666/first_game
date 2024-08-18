@@ -633,24 +633,29 @@
     const preloader = document.getElementById("preloader");
     overlay.style.display = "block";
     preloader.style.display = "block";
+    console.log(args);
     if (args[1] === void 0) {
       showHidePage(overlay, preloader, args[0]);
     } else {
       switch (args[1]) {
-        case "1":
+        case "bonus":
           console.log("eggs catcher");
           showHidePage(overlay, preloader, "gameContainer");
           prepareGame();
           break;
-        case "2":
+        case "roulette":
           console.log("roulette");
           showHidePage(overlay, preloader, "rouletteContainer");
           setupRoulette();
           break;
-        case "3":
+        case "planetCatcher":
           console.log("planetCatcher");
           showHidePage(overlay, preloader, "gameContainer");
           setupGamePC();
+          break;
+        case "slotMachine":
+          console.log("slotMachine");
+          showHidePage(overlay, preloader, "slotMachineContainer");
           break;
         default:
           console.log("default");
@@ -724,7 +729,7 @@
       item.classList.add("active");
       if (!isInitialLoad) {
         setTimeout(() => {
-          const levelNumber = item.getAttribute("data-number");
+          const levelNumber = item.getAttribute("value");
           navigateTo("gameContainer", levelNumber);
           isInitialLoad = true;
         }, 250);

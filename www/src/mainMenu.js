@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Если это не первоначальная загрузка, выполняем редирект
         if (!isInitialLoad) {
             setTimeout(() => {
-                const levelNumber = item.getAttribute('data-number');
+                const levelNumber = item.getAttribute('value');
                 navigateTo('gameContainer', levelNumber)
                 isInitialLoad = true;
             }, 250);
