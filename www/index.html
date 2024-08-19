@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400" rel="stylesheet">
 </head>
 <body>
+<div id="orientationMessage" class="blurred">
+    Пожалуйста, поверните устройство горизонтально
+</div>
+
 <div id="headerMenu">
     <button id="homeButton" class="homeButton">
         <img src="../res/home_button.png">
@@ -65,7 +69,7 @@
 </div>
 
 <!-- Game Page -->
-<div id="slotMachineContainer" class="page" style="display:none;">
+<div id="slotMachineContainer" class="page" style="display: none;">
     <canvas id="slotCanvas" width="600" height="300"></canvas>
     <div class="playButton">
         <button id="spinSlotButton">

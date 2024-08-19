@@ -144,3 +144,34 @@ function plusBet() {
         alert('Ставка должна не превышать ваш депозит.');
     }
 }
+
+// Функция для проверки ориентации экрана
+export function checkOrientation() {
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const orientationMessage = document.getElementById('orientationMessage');
+    const slotMachineContainer = document.getElementById('slotMachineContainer');
+
+    if (isElementVisible('slotMachineContainer')) {  // Проверка видимости блока
+        if (isPortrait) {
+            // Если вертикальная ориентация, показать сообщение и скрыть игру
+            orientationMessage.style.display = 'flex';
+            slotMachineContainer.style.filter = 'blur(10px)'; // Заблюрить игру
+        } else {
+            // Если горизонтальная ориентация, убрать сообщение и показать игру
+            orientationMessage.style.display = 'none';
+            slotMachineContainer.style.filter = 'none'; // Убрать блюр
+        }
+    } else {
+        // Если слот-машина не видима, убрать обработчик события
+        window.removeEventListener('orientationchange', checkOrientation);
+    }
+}
+
+// Функция для проверки видимости элемента
+export function isElementVisible(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) return false; // Если элемент отсутствует в DOM
+
+    let style = window.getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+}

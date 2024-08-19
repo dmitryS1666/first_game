@@ -1,3 +1,5 @@
+import {checkOrientation, isElementVisible} from "./main";
+
 const canvasSlot = document.getElementById('slotCanvas');
 const ctxSlot = canvasSlot.getContext('2d');
 
@@ -27,7 +29,7 @@ const ballImageNames = [
 const ballImages = [];
 
 // Шары в каждой колонке
-const columns = Array.from({ length: columnCount }, () => []);
+const columns = Array.from({length: columnCount}, () => []);
 
 // Скорость вращения колонок
 let speeds = Array(columnCount).fill(0);
@@ -63,11 +65,32 @@ function loadImages(callback) {
     });
 }
 
+// Функция для активации проверки ориентации, если блок видим
+function activateOrientationCheck() {
+    if (isElementVisible('slotMachineContainer')) {
+        // Активируем событие изменения ориентации
+        window.addEventListener('orientationchange', checkOrientation);
+        checkOrientation(); // Выполнить проверку сразу при запуске
+        console.log('Событие orientationchange активировано');
+    } else {
+        // Удаляем обработчик события, если блок не видим
+        window.removeEventListener('orientationchange', checkOrientation);
+        console.log('Событие orientationchange деактивировано');
+    }
+}
+
 // Инициализация слот-машины после загрузки изображений
 export function initSlotMachine() {
+    document.getElementById('slotMachineContainer').addEventListener('click', spin);
+
+    // После инициализации слот-машины активируем проверку ориентации
+    setTimeout(() => {
+        activateOrientationCheck(); // Проверка ориентации после загрузки игры
+    }, 450);
+
     document.getElementById('spinSlotButton').addEventListener('click', spin);
 
-    // Инициализация колонок
+    // Инициализация колонок (оставляем как в оригинале)
     for (let col = 0; col < columnCount; col++) {
         for (let i = 0; i < ballsPerColumn; i++) {
             const ball = {
@@ -143,3 +166,6 @@ function spin() {
 
 // Загружаем изображения перед запуском слот-машины
 loadImages(initSlotMachine);
+
+// Запуск периодической проверки
+setInterval(activateOrientationCheck, 1000); // Периодическая проверка (каждую секунду)

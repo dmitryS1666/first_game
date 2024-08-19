@@ -273,6 +273,27 @@ button:active {
 }
 
 /*==============================*/
+/* BLUR */
+/*==============================*/
+
+.blurred {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    display: none; /* Скрыт по умолчанию */
+}
+
+/*==============================*/
 /* PRELOADER */
 /*==============================*/
 #overlay {

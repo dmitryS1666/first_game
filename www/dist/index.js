@@ -626,7 +626,21 @@
       };
     });
   }
+  function activateOrientationCheck() {
+    if (isElementVisible("slotMachineContainer")) {
+      window.addEventListener("orientationchange", checkOrientation);
+      checkOrientation();
+      console.log("\u0421\u043E\u0431\u044B\u0442\u0438\u0435 orientationchange \u0430\u043A\u0442\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043E");
+    } else {
+      window.removeEventListener("orientationchange", checkOrientation);
+      console.log("\u0421\u043E\u0431\u044B\u0442\u0438\u0435 orientationchange \u0434\u0435\u0430\u043A\u0442\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043E");
+    }
+  }
   function initSlotMachine() {
+    document.getElementById("slotMachineContainer").addEventListener("click", spin);
+    setTimeout(() => {
+      activateOrientationCheck();
+    }, 450);
     document.getElementById("spinSlotButton").addEventListener("click", spin);
     for (let col = 0; col < columnCount; col++) {
       for (let i = 0; i < ballsPerColumn; i++) {
@@ -685,6 +699,7 @@
     });
   }
   loadImages(initSlotMachine);
+  setInterval(activateOrientationCheck, 1e3);
 
   // src/main.js
   var deposit = 1e3;
@@ -794,6 +809,28 @@
     } else {
       alert("\u0421\u0442\u0430\u0432\u043A\u0430 \u0434\u043E\u043B\u0436\u043D\u0430 \u043D\u0435 \u043F\u0440\u0435\u0432\u044B\u0448\u0430\u0442\u044C \u0432\u0430\u0448 \u0434\u0435\u043F\u043E\u0437\u0438\u0442.");
     }
+  }
+  function checkOrientation() {
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const orientationMessage = document.getElementById("orientationMessage");
+    const slotMachineContainer = document.getElementById("slotMachineContainer");
+    if (isElementVisible("slotMachineContainer")) {
+      if (isPortrait) {
+        orientationMessage.style.display = "flex";
+        slotMachineContainer.style.filter = "blur(10px)";
+      } else {
+        orientationMessage.style.display = "none";
+        slotMachineContainer.style.filter = "none";
+      }
+    } else {
+      window.removeEventListener("orientationchange", checkOrientation);
+    }
+  }
+  function isElementVisible(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) return false;
+    let style = window.getComputedStyle(element);
+    return style.display !== "none" && style.visibility !== "hidden";
   }
 
   // src/mainMenu.js
