@@ -24,9 +24,12 @@ body {
     canvas {
         display: block;
         background: transparent; /* Сделаем фон прозрачным, чтобы фоновое изображение было видно */
-        /*transform: translateX(-95px);*/
         -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
         mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
+    }
+
+    canvas#rouletteCanvas {
+        transform: translateX(-95px);
     }
 
     #score, #timer {
