@@ -56,12 +56,22 @@ document.getElementById('playPC')
 
 document.getElementById('minusBet')
     .addEventListener('click', () =>
-        minusBet()
+        minusBet('currentBet')
     );
 
 document.getElementById('plusBet')
     .addEventListener('click', () =>
-        plusBet()
+        plusBet('currentBet')
+    );
+
+document.getElementById('minusBetRoulette')
+    .addEventListener('click', () =>
+        minusBet('currentBetRoulette')
+    );
+
+document.getElementById('plusBetRoulette')
+    .addEventListener('click', () =>
+        plusBet('currentBetRoulette')
     );
 
 export function checkFirstRun() {
@@ -127,21 +137,21 @@ function showHidePage(overlay, preloader, page) {
     }, 400);
 }
 
-function minusBet() {
-    let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+function minusBet(elementId) {
+    let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
     if (currentBet - 50 > 0 && deposit > currentBet - 50) {
-        document.getElementById('currentBet').textContent = currentBet - 50;
+        document.getElementById(elementId).textContent = currentBet - 50;
     } else {
-        alert('Ставка должна не превышать ваш депозит.');
+        alert('The rate must be lower than your deposit.');
     }
 }
 
-function plusBet() {
-    let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+function plusBet(elementId) {
+    let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
     if (deposit > currentBet + 50) {
-        document.getElementById('currentBet').textContent = currentBet + 50;
+        document.getElementById(elementId).textContent = currentBet + 50;
     } else {
-        alert('Ставка должна не превышать ваш депозит.');
+        alert('The bet must not exceed your deposit.');
     }
 }
 

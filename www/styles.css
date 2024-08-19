@@ -13,607 +13,1300 @@ body {
     background-size: cover; /* Масштабирование фона */
 }
 
-canvas {
-    display: block;
-    background: transparent; /* Сделаем фон прозрачным, чтобы фоновое изображение было видно */
-}
-
-#score, #timer {
-    position: absolute;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    pointer-events: none;
-}
-
-#min, #dots, #seconds {
-    font-size: 28pt;
-    margin-top: 0;
-    margin-left: 10px;
-    float: left;
-}
-
-#score {
-    top: 10px;
-    right: 10px;
-}
-
-#timer {
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    display: none;
-}
-
-#timer img {
-    float: left;
-    width: 35px;
-}
-
-#gameOverScreen {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    display: none;
-}
-
-#gameOverScreen button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-#gameOverScreen #menuButton {
-    margin-top: 10px;
-}
-
-#lastScore {
-    font-size: 18px;
-    color: #555;
-    margin-top: 10px;
-}
-
-#mainPage, #winFail {
-    background: url(../res/splash1.png) no-repeat center center fixed;
-    background-size: cover;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/*============================*/
-/*HEADER MENU*/
-/*============================*/
-
-#headerMenu {
-    position: absolute;
-    top: 5px;
-    width: 100%;
-    z-index: 3;
-}
-
-#headerMenu img {
-    width: 100%;
-}
-
-#headerMenu button {
-    position: absolute;
-    padding: 0;
-    width: 70px;
-    margin-top: 20px;
-    background: none;
-    border-radius: 50%;
-    height: 70px;
-    border: solid 1px #80808000;
-}
-
-.homeButton {
-    left: 25px;
-}
-
-.settingButton {
-    right: 25px;
-}
-
-#mainPage .startButton {
-    position: absolute;
-    z-index: 1;
-    bottom: 100px;
-    animation: pulse 2.5s infinite;
-}
-
-#dogWithRocket {
-    position: absolute;
-    bottom: 260px;
-    overflow: hidden;
-}
-
-#dogWithRocket img {
-    display: block;
-    width: 130%;
-    transform: translateX(-15%);
-
-    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
-    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
-}
-
-#menuButton {
-    background: none;
-    border: none;
-}
-
-/* Фон для затемнения */
-.blur {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1;
-}
-
-#finalText {
-    margin: 0;
-}
-
-#finalScore {
-    margin: 0;
-}
-
-/* Картинка gold */
-.goldImage {
-    position: absolute;
-    bottom: 260px;
-    width: 100%;
-    height: auto;
-    z-index: 0;
-}
-
-#rocket {
-    left: 35%;
-    position: absolute;
-    margin: 0;
-    text-align: center;
-}
-
-#rocket img {
-    display: block;
-    height: auto; /* Сохранить пропорции изображения */
-    z-index: 1;
-}
-
-#rocket .flash {
-    top: 70px;
-    position: relative;
-    animation: shine 1.5s infinite;
-}
-
-.result {
-    color: white;
-    text-align: center;
-    z-index: 1;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: 3.5em;
-    position: absolute;
-    top: 300px;
-    animation: flash 1.5s infinite;
-    left: 33%;
-    line-height: 0;
-}
-
-.goldImage img {
-    display: block;
-    width: 100%; /* Обеспечить растяжение изображения на всю ширину контейнера */
-    height: auto; /* Сохранить пропорции изображения */
-}
-
-.goldWin {
-    z-index: 1 !important;
-}
-
-.goldImage .flash {
-    top: 220px;
-    position: relative;
-    animation: shine 2.5s infinite;
-}
-
-.goldImage .gold {
-    position: relative;
-}
-
-/* Затемнение изображения с помощью псевдоэлемента */
-.goldImage::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Наложение сверху изображения */
-}
-
-/* Стили для кнопки */
-#winPage .button,
-#failPage .button {
-    position: absolute;
-    z-index: 1;
-    bottom: 100px;
-    animation: pulse 1.5s infinite;
-}
-
-button:active {
-    background: #e0e0e0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-#winMenuButton, #failMenuButton {
-    background: none;
-    border: none;
-    padding: 0;
-    margin-left: 15px;
-}
-
-#annualDataButton, #privatePolicyButton {
-    background: none;
-    border: none;
-    padding: 0;
-}
-
-#winMenuButton img {
-    display: block;
-}
-
-/*==============================*/
-/* BLUR */
-/*==============================*/
-
 .blurred {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 24px;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-    display: none; /* Скрыт по умолчанию */
-}
-
-/*==============================*/
-/* PRELOADER */
-/*==============================*/
-#overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
-    z-index: 1000; /* Должен быть выше других элементов */
-}
-
-#preloader {
-    display: block;
-    left: 50%;
-    top: 15%;
-    text-align: center;
-    position: fixed;
-    transform: translateX(-50%);
-    z-index: 1001; /* Должен быть выше overlay */
-}
-
-#preloader img {
-    width: 111px; /* Размер изображения прелоадера */
-    height: 111px;
-    animation: spin 1s linear infinite;
-}
-
-#preloader .text {
-    color: white;
-    font-family: 'SpaceAge', sans-serif;
-    font-size: 24px;
-}
-
-
-/*==============================*/
-/*MENU PAGE*/
-/*==============================*/
-#mainMenu {
-    position: absolute;
-    bottom: 220px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-}
-
-#mainMenu button {
-    padding: 15px 30px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-#mainMenu .levels ul {
-    position: relative;
-    list-style-type: none;
-    background: url(../res/levels/arrow.png) no-repeat;
-    background-position-x: center;
-    background-position-y: 149px;
-    padding: 0;
-    margin-top: 70px;
-    z-index: 1;
-}
-
-#mainMenu .levels li {
-    display: flex;
-    justify-content: center; /* Центрируем контент по горизонтали */
-    position: relative;
-    /*margin-top: -10px;*/
-    z-index: 1;
-    border-radius: 30%;
-}
-
-#mainMenu .levels li:nth-child(odd) {
-    justify-content: flex-start; /* Нечетные элементы размещаем слева */
-}
-
-#mainMenu .levels li:nth-child(even) {
-    justify-content: flex-end; /* Четные элементы размещаем справа */
-}
-
-#mainMenu .levels li::before {
-    content: attr(data-number);
-    position: absolute;
-    top: 30%;
-    transform: translateY(-50%);
-    width: 55px;
-    height: 55px;
-    background: #828282bf;
-    color: #fff;
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    font-size: 38px;
-    font-weight: bold;
-    z-index: 2;
-    font-family: 'SpaceAge', sans-serif;
-    display: none;
-}
-
-#mainMenu .levels li[data-number]::before {
-    display: flex; /* Показываем кружок, если data-number задан */
-}
-
-#mainMenu .levels li.active::before {
-    background: #FFD700; /* Желтый фон */
-    color: #000; /* Черный текст */
-}
-
-#mainMenu .levels li:not(.active)::before {
-    background: rgba(130, 130, 130, 0.75); /* Прозрачно-серый фон */
-    color: #fff; /* Белый текст */
-}
-
-#mainMenu .levels ul li img {
-    width: 150px;
-    height: 150px;
-    z-index: 1;
-}
-
-.miniRocket {
-    width: 50px; /* Ширина картинки miniRocket */
-    height: auto;
-}
-
-.goldMenu {
-    bottom: -150px !important;
-    width: 350px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-#miniRocket {
-    z-index: 1;
-    position: absolute;
-    transition: transform 1.3s ease; /* Плавное перемещение */
-}
-
-#mainPage .shinePlanet {
-    position: relative;
-    overflow: hidden; /* Обеспечивает, что круги не будут выходить за пределы элемента */
-    z-index: 0;
-}
-
-/*.shinePlanet::before {*/
-/*    content: '';*/
-/*    position: absolute;*/
-/*    top: 50%;*/
-/*    left: 50%;*/
-/*    width: 200%; !* Размер круга для создания эффекта затухания *!*/
-/*    height: 200%;*/
-/*    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 215, 0, 0) 100%);*/
-/*    border-radius: 50%;*/
-/*    transform: translate(-50%, -50%);*/
-/*    opacity: 0;*/
-/*    z-index: -1; !* Помещает псевдоэлемент на задний план *!*/
-/*    filter: blur(15px); !* Добавляет размытие для мягких краев *!*/
-/*    animation: shine-animation 1.5s ease-out infinite;*/
-/*}*/
-
-/*==============================*/
-/* SETTINGS */
-/*==============================*/
-
-#settingsPage {
-    display: block;
-    top: 150px;
-    position: absolute;
-    width: 100%;
-    text-align: center;
-}
-
-#settingsPage .content {
     color: white;
     font-family: 'Montserrat', sans-serif;
-
-    text-align: center;
-    font-weight: 900;
-    font-size: 3em;
-    line-height: 0;
-
-}
-
-/*==============================*/
-/*STATISTICS SCORE*/
-/*==============================*/
-
-#gameScore {
-    position: absolute;
-    bottom: 0;
-    height: 150px;
-    width: 100%;
-
-    color: white;
-    font-family: Montserrat, serif;
-}
-
-#failPlatform {
-    width: 35% !important;
-    position: absolute;
-    top: -105px;
-    left: 33%;
-}
-
-#failPlatformAstro {
-    position: absolute;
-    bottom: 130px;
-    left: 2%;
-}
-
-#failPlatformBlock,
-#failPlatformAstroBlock {
-    z-index: 0;
-}
-
-#failPlatformBlock img{
-    width: 100%;
-}
-
-#gameScore .statistics {
-    display: block;
-    width: 100%;
-    height: 150px;
-}
-
-#play, #playPC,
-#minusBet, #plusBet,
-#spinButton, #spinSlotButton {
-    background: none;
-    border: none;
-    border-radius: 50%;
-    padding: unset;
-}
-
-#minusBet img, #plusBet img {
-    width: 40px;
-}
-
-#gameScore .score,
-#gameScore .playButton,
-#gameScore .bets {
-    width: 32%;
-    float: left;
-    height: inherit;
+    font-weight: 600;
     text-align: center;
 }
 
-.balanceValue {
-    margin-top: 25px;
+@media screen and (orientation: portrait) {
+    canvas {
+        display: block;
+        background: transparent; /* Сделаем фон прозрачным, чтобы фоновое изображение было видно */
+        /*transform: translateX(-95px);*/
+        -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
+    }
+
+    #score, #timer {
+        position: absolute;
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        pointer-events: none;
+    }
+
+    #min, #dots, #seconds {
+        font-size: 28pt;
+        margin-top: 0;
+        margin-left: 10px;
+        float: left;
+    }
+
+    #score {
+        top: 10px;
+        right: 10px;
+    }
+
+    #timer {
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        display: none;
+    }
+
+    #timer img {
+        float: left;
+        width: 35px;
+    }
+
+    #gameOverScreen {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        display: none;
+    }
+
+    #gameOverScreen button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #gameOverScreen #menuButton {
+        margin-top: 10px;
+    }
+
+    #lastScore {
+        font-size: 18px;
+        color: #555;
+        margin-top: 10px;
+    }
+
+    #mainPage, #winFail {
+        background: url(../res/splash1.png) no-repeat center center fixed;
+        background-size: cover;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /*============================*/
+    /*HEADER MENU*/
+    /*============================*/
+    #headerMenu {
+        position: absolute;
+        top: 5px;
+        width: 100%;
+        z-index: 3;
+    }
+
+    #headerMenu img {
+        width: 100%;
+    }
+
+    #headerMenu button {
+        position: absolute;
+        padding: 0;
+        width: 70px;
+        margin-top: 20px;
+        background: none;
+        border-radius: 50%;
+        height: 70px;
+        border: solid 1px #80808000;
+    }
+
+    .homeButton {
+        left: 25px;
+    }
+
+    .settingButton {
+        right: 25px;
+    }
+
+    #mainPage .startButton {
+        position: absolute;
+        z-index: 1;
+        bottom: 100px;
+        animation: pulse 2.5s infinite;
+    }
+
+    #dogWithRocket {
+        position: absolute;
+        bottom: 260px;
+        overflow: hidden;
+    }
+
+    #dogWithRocket img {
+        display: block;
+        width: 130%;
+        transform: translateX(-15%);
+
+        -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
+    }
+
+    #menuButton {
+        background: none;
+        border: none;
+    }
+
+    /* Фон для затемнения */
+    .blur {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1;
+    }
+
+    #finalText {
+        margin: 0;
+    }
+
+    #finalScore {
+        margin: 0;
+    }
+
+    /* Картинка gold */
+    .goldImage {
+        position: absolute;
+        bottom: 260px;
+        width: 100%;
+        height: auto;
+        z-index: 0;
+    }
+
+    #rocket {
+        left: 35%;
+        position: absolute;
+        margin: 0;
+        text-align: center;
+    }
+
+    #rocket img {
+        display: block;
+        height: auto; /* Сохранить пропорции изображения */
+        z-index: 1;
+    }
+
+    #rocket .flash {
+        top: 70px;
+        position: relative;
+        animation: shine 1.5s infinite;
+    }
+
+    .result {
+        color: white;
+        text-align: center;
+        z-index: 1;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 900;
+        font-size: 3.5em;
+        position: absolute;
+        top: 300px;
+        animation: flash 1.5s infinite;
+        left: 33%;
+        line-height: 0;
+    }
+
+    .goldImage img {
+        display: block;
+        width: 100%; /* Обеспечить растяжение изображения на всю ширину контейнера */
+        height: auto; /* Сохранить пропорции изображения */
+    }
+
+    .goldWin {
+        z-index: 1 !important;
+    }
+
+    .goldImage .flash {
+        top: 220px;
+        position: relative;
+        animation: shine 2.5s infinite;
+    }
+
+    .goldImage .gold {
+        position: relative;
+    }
+
+    /* Затемнение изображения с помощью псевдоэлемента */
+    .goldImage::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1; /* Наложение сверху изображения */
+    }
+
+    /* Стили для кнопки */
+    #winPage .button,
+    #failPage .button {
+        position: absolute;
+        z-index: 1;
+        bottom: 100px;
+        animation: pulse 1.5s infinite;
+    }
+
+    button:active {
+        background: #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    #winMenuButton, #failMenuButton {
+        background: none;
+        border: none;
+        padding: 0;
+        margin-left: 15px;
+    }
+
+    #annualDataButton, #privatePolicyButton {
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    #winMenuButton img {
+        display: block;
+    }
+
+    /*==============================*/
+    /* BLUR */
+    /*==============================*/
+    .blurred {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 24px;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        display: none; /* Скрыт по умолчанию */
+    }
+
+    /*==============================*/
+    /* PRELOADER */
+    /*==============================*/
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
+        z-index: 1000; /* Должен быть выше других элементов */
+    }
+
+    #preloader {
+        display: block;
+        left: 50%;
+        top: 15%;
+        text-align: center;
+        position: fixed;
+        transform: translateX(-50%);
+        z-index: 1001; /* Должен быть выше overlay */
+    }
+
+    #preloader img {
+        width: 111px; /* Размер изображения прелоадера */
+        height: 111px;
+        animation: spin 1s linear infinite;
+    }
+
+    #preloader .text {
+        color: white;
+        font-family: 'SpaceAge', sans-serif;
+        font-size: 24px;
+    }
+
+
+    /*==============================*/
+    /*MENU PAGE*/
+    /*==============================*/
+    #mainMenu {
+        position: absolute;
+        bottom: 220px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+    }
+
+    #mainMenu button {
+        padding: 15px 30px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    #mainMenu .levels ul {
+        position: relative;
+        list-style-type: none;
+        background: url(../res/levels/arrow.png) no-repeat;
+        background-position-x: center;
+        background-position-y: 149px;
+        padding: 0;
+        margin-top: 70px;
+        z-index: 1;
+    }
+
+    #mainMenu .levels li {
+        display: flex;
+        justify-content: center; /* Центрируем контент по горизонтали */
+        position: relative;
+        /*margin-top: -10px;*/
+        z-index: 1;
+        border-radius: 30%;
+    }
+
+    #mainMenu .levels li:nth-child(odd) {
+        justify-content: flex-start; /* Нечетные элементы размещаем слева */
+    }
+
+    #mainMenu .levels li:nth-child(even) {
+        justify-content: flex-end; /* Четные элементы размещаем справа */
+    }
+
+    #mainMenu .levels li::before {
+        content: attr(data-number);
+        position: absolute;
+        top: 30%;
+        transform: translateY(-50%);
+        width: 55px;
+        height: 55px;
+        background: #828282bf;
+        color: #fff;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        font-size: 38px;
+        font-weight: bold;
+        z-index: 2;
+        font-family: 'SpaceAge', sans-serif;
+        display: none;
+    }
+
+    #mainMenu .levels li[data-number]::before {
+        display: flex; /* Показываем кружок, если data-number задан */
+    }
+
+    #mainMenu .levels li.active::before {
+        background: #FFD700; /* Желтый фон */
+        color: #000; /* Черный текст */
+    }
+
+    #mainMenu .levels li:not(.active)::before {
+        background: rgba(130, 130, 130, 0.75); /* Прозрачно-серый фон */
+        color: #fff; /* Белый текст */
+    }
+
+    #mainMenu .levels ul li img {
+        width: 150px;
+        height: 150px;
+        z-index: 1;
+    }
+
+    .miniRocket {
+        width: 50px; /* Ширина картинки miniRocket */
+        height: auto;
+    }
+
+    .goldMenu {
+        bottom: -150px !important;
+        width: 350px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    #miniRocket {
+        z-index: 1;
+        position: absolute;
+        transition: transform 1.3s ease; /* Плавное перемещение */
+    }
+
+    #mainPage .shinePlanet {
+        position: relative;
+        overflow: hidden; /* Обеспечивает, что круги не будут выходить за пределы элемента */
+        z-index: 0;
+    }
+
+    /*.shinePlanet::before {*/
+    /*    content: '';*/
+    /*    position: absolute;*/
+    /*    top: 50%;*/
+    /*    left: 50%;*/
+    /*    width: 200%; !* Размер круга для создания эффекта затухания *!*/
+    /*    height: 200%;*/
+    /*    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 215, 0, 0) 100%);*/
+    /*    border-radius: 50%;*/
+    /*    transform: translate(-50%, -50%);*/
+    /*    opacity: 0;*/
+    /*    z-index: -1; !* Помещает псевдоэлемент на задний план *!*/
+    /*    filter: blur(15px); !* Добавляет размытие для мягких краев *!*/
+    /*    animation: shine-animation 1.5s ease-out infinite;*/
+    /*}*/
+    /*==============================*/
+    /* SETTINGS */
+    /*==============================*/
+    #settingsPage {
+        display: block;
+        top: 150px;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+    }
+
+    #settingsPage .content {
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+
+        text-align: center;
+        font-weight: 900;
+        font-size: 3em;
+        line-height: 0;
+
+    }
+
+    /*==============================*/
+    /*STATISTICS SCORE*/
+    /*==============================*/
+    #gameScore {
+        position: absolute;
+        bottom: 0;
+        height: 150px;
+        width: 100%;
+
+        color: white;
+        font-family: Montserrat, serif;
+    }
+
+    #failPlatform {
+        width: 35% !important;
+        position: absolute;
+        top: -105px;
+        left: 33%;
+    }
+
+    #failPlatformAstro {
+        position: absolute;
+        bottom: 130px;
+        left: 2%;
+    }
+
+    #failPlatformBlock,
+    #failPlatformAstroBlock {
+        z-index: 0;
+    }
+
+    #failPlatformBlock img {
+        width: 100%;
+    }
+
+    #gameScore .statistics {
+        display: block;
+        width: 100%;
+        height: 150px;
+    }
+
+    #play, #playPC,
+    #minusBet, #plusBet,
+    #minusBetRoulette, #plusBetRoulette,
+    #spinSlotButton {
+        background: none;
+        border: none;
+        border-radius: 50%;
+        padding: unset;
+        width: 100%;
+    }
+
+    #spinButton {
+        background: none;
+        border: none;
+        border-radius: 50%;
+        padding: unset;
+    }
+
+    #minusBet img, #plusBet img {
+        width: 40px;
+    }
+
+    #gameScore .score,
+    #gameScore .playButton,
+    #gameScore .bets {
+        width: 32%;
+        float: left;
+        height: inherit;
+        text-align: center;
+    }
+
+    .balanceValue {
+        margin-top: 25px;
+    }
+
+    #gameScore .score {
+        padding-left: 10px;
+    }
+
+    #gameScore .playButton {
+        margin-top: 20px;
+    }
+
+    #gameScore .playButton img {
+        width: 80px;
+    }
+
+    #gameScore .bets {
+        padding-top: 15px;
+        padding-left: 5px;
+    }
+
+    #gameScore .score .text {
+        font-weight: 400;
+        font-size: 16px;
+        width: 35%;
+        float: left;
+        display: grid;
+        text-align: right;
+        line-height: 25px;
+        margin-right: 15%;
+        margin-top: 25px;
+    }
+
+    #gameScore .score .value {
+        font-weight: 700;
+        font-size: 19px;
+        width: 25%;
+        float: left;
+        display: grid;
+        text-align: left;
+        margin-left: 4%;
+        margin-top: 25px;
+        line-height: 25px;
+    }
+
+
+    #gameScore .bets .bet,
+    #gameScore .bets .betControl {
+        width: 50%;
+        float: left;
+    }
+
+    #gameScore .bets .bet {
+        margin-top: 15%;
+        font-size: 35px;
+        font-weight: 700;
+    }
+
+    #slotMachineContainer .playButton {
+        position: absolute;
+        bottom: 10px;
+        text-align: center;
+        width: 100%;
+    }
+
+    #rouletteContainer {
+        position: relative;
+        bottom: -240px;
+        overflow: hidden;
+        height: 750px;
+    }
+
+    #gameScoreRoulette {
+        width: 100%;
+        bottom: 100px;
+        position: absolute;
+    }
+
+    .scoreRoulette, .playButton, .betsRoulette {
+        float: left;
+    }
+
+    .scoreRoulette, .betsRoulette {
+        width: 24%;
+    }
+
+    .playButton {
+        width: 50%;
+    }
+
+    #spinButton img {
+        width: 100%;
+    }
+
+    #minusBetRoulette, #plusBetRoulette {
+        float: left;
+        width: 50%;
+    }
+
+    #currentBetRoulette {
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+    #minusBetRoulette img, #plusBetRoulette img {
+        width: 70%;
+    }
+
+    .betRoulette, .betControlRoulette {
+        width: 100%;
+        float: left;
+        text-align: center;
+    }
+
+    .scoreRoulette span,
+    .betRoulette span {
+        width: 100%;
+        font-family: Montserrat, serif;
+        color: white;
+        float: left;
+        padding-left: 10px;
+    }
+
+    .scoreRoulette .text {
+        font-size: 15px;
+    }
+
+    .scoreRoulette .value {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+
+    .betRoulette span {
+        padding: unset;
+    }
+
+    .betRoulette .text {
+        font-size: 18px;
+        font-weight: 100;
+    }
 }
 
-#gameScore .score {
-    padding-left: 10px;
-}
+@media screen and (orientation: landscape) {
+    #slotCanvas {
+        display: block;
+        margin: 0 auto; /* Центрирование по горизонтали */
+        position: absolute; /* Для центрирования по вертикали */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -67%); /* Центрирование относительно середины экрана */
+    }
 
-#gameScore .playButton {
-    margin-top: 20px;
-}
+    canvas {
+        display: block;
+        background: transparent; /* Сделаем фон прозрачным, чтобы фоновое изображение было видно */
+        transform: translateX(-95px);
+    }
 
-#gameScore .playButton img {
-    width: 80px;
-}
+    #score, #timer {
+        position: absolute;
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        pointer-events: none;
+    }
 
-#gameScore .bets {
-    padding-top: 15px;
-    padding-left: 5px;
-}
+    #min, #dots, #seconds {
+        font-size: 28pt;
+        margin-top: 0;
+        margin-left: 10px;
+        float: left;
+    }
 
-#gameScore .score .text {
-    font-weight: 400;
-    font-size: 16px;
-    width: 35%;
-    float: left;
-    display: grid;
-    text-align: right;
-    line-height: 25px;
-    margin-right: 15%;
-    margin-top: 25px;
-}
-#gameScore .score .value{
-    font-weight: 700;
-    font-size: 19px;
-    width: 25%;
-    float: left;
-    display: grid;
-    text-align: left;
-    margin-left: 4%;
-    margin-top: 25px;
-    line-height: 25px;
-}
+    #score {
+        top: 10px;
+        right: 10px;
+    }
+
+    #timer {
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        display: none;
+    }
+
+    #timer img {
+        float: left;
+        width: 35px;
+    }
+
+    #gameOverScreen {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        display: none;
+    }
+
+    #gameOverScreen button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #gameOverScreen #menuButton {
+        margin-top: 10px;
+    }
+
+    #lastScore {
+        font-size: 18px;
+        color: #555;
+        margin-top: 10px;
+    }
+
+    #mainPage, #winFail {
+        background: url(../res/splash1.png) no-repeat center center fixed;
+        background-size: cover;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /*============================*/
+    /*HEADER MENU*/
+    /*============================*/
+    #headerMenu {
+        position: absolute;
+        top: 5px;
+        width: 100%;
+        z-index: 3;
+    }
+
+    #headerMenu img {
+        width: 100%;
+    }
+
+    #headerMenu button {
+        position: absolute;
+        padding: 0;
+        width: 70px;
+        margin-top: 20px;
+        background: none;
+        border-radius: 50%;
+        height: 70px;
+        border: solid 1px #80808000;
+    }
+
+    .homeButton {
+        left: 25px;
+    }
+
+    .settingButton {
+        right: 25px;
+    }
+
+    #mainPage .startButton {
+        text-align: center;
+        margin-top: 260px;
+        z-index: 1;
+        bottom: 0;
+        width: 100%;
+        animation: pulse 2.5s infinite;
+    }
+
+    #dogWithRocket {
+        position: absolute;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    #dogWithRocket img {
+        display: block;
+        width: 70%;
+        transform: translateX(20%);
+
+        -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 1%, rgba(0, 0, 0, 1) 20%);
+    }
+
+    #menuButton {
+        background: none;
+        border: none;
+    }
+
+    /* Фон для затемнения */
+    .blur {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1;
+    }
+
+    #finalText {
+        margin: 0;
+    }
+
+    #finalScore {
+        margin: 0;
+    }
+
+    /* Картинка gold */
+    .goldImage {
+        position: absolute;
+        bottom: 260px;
+        width: 100%;
+        height: auto;
+        z-index: 0;
+    }
+
+    #rocket {
+        left: 35%;
+        position: absolute;
+        margin: 0;
+        text-align: center;
+    }
+
+    #rocket img {
+        display: block;
+        height: auto; /* Сохранить пропорции изображения */
+        z-index: 1;
+    }
+
+    #rocket .flash {
+        top: 70px;
+        position: relative;
+        animation: shine 1.5s infinite;
+    }
+
+    .result {
+        color: white;
+        text-align: center;
+        z-index: 1;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 900;
+        font-size: 3.5em;
+        position: absolute;
+        top: 300px;
+        animation: flash 1.5s infinite;
+        left: 33%;
+        line-height: 0;
+    }
+
+    .goldImage img {
+        display: block;
+        width: 100%; /* Обеспечить растяжение изображения на всю ширину контейнера */
+        height: auto; /* Сохранить пропорции изображения */
+    }
+
+    .goldWin {
+        z-index: 1 !important;
+    }
+
+    .goldImage .flash {
+        top: 220px;
+        position: relative;
+        animation: shine 2.5s infinite;
+    }
+
+    .goldImage .gold {
+        position: relative;
+    }
+
+    /* Затемнение изображения с помощью псевдоэлемента */
+    .goldImage::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1; /* Наложение сверху изображения */
+    }
+
+    /* Стили для кнопки */
+    #winPage .button,
+    #failPage .button {
+        position: absolute;
+        z-index: 1;
+        bottom: 100px;
+        animation: pulse 1.5s infinite;
+    }
+
+    button:active {
+        background: #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    #winMenuButton, #failMenuButton {
+        background: none;
+        border: none;
+        padding: 0;
+        margin-left: 15px;
+    }
+
+    #annualDataButton, #privatePolicyButton {
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    #winMenuButton img {
+        display: block;
+    }
+
+    /*==============================*/
+    /* BLUR */
+    /*==============================*/
+    .blurred {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 24px;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        display: none; /* Скрыт по умолчанию */
+    }
+
+    /*==============================*/
+    /* PRELOADER */
+    /*==============================*/
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
+        z-index: 1000; /* Должен быть выше других элементов */
+    }
+
+    #preloader {
+        display: block;
+        left: 50%;
+        top: 15%;
+        text-align: center;
+        position: fixed;
+        transform: translateX(-50%);
+        z-index: 1001; /* Должен быть выше overlay */
+    }
+
+    #preloader img {
+        width: 111px; /* Размер изображения прелоадера */
+        height: 111px;
+        animation: spin 1s linear infinite;
+    }
+
+    #preloader .text {
+        color: white;
+        font-family: 'SpaceAge', sans-serif;
+        font-size: 24px;
+    }
 
 
+    /*==============================*/
+    /*MENU PAGE*/
+    /*==============================*/
+    #mainMenu {
+        position: absolute;
+        transform: translate(-5%, 100%);
+        width: 100%;
+    }
 
-#gameScore .bets .bet,
-#gameScore .bets .betControl{
-    width: 50%;
-    float: left;
-}
+    #mainMenu button {
+        padding: 15px 30px;
+        font-size: 20px;
+        cursor: pointer;
+    }
 
-#gameScore .bets .bet {
-    margin-top: 15%;
-    font-size: 35px;
-    font-weight: 700;
-}
+    #mainMenu .levels ul {
+        /* width: 100%; */
+        /* position: relative; */
+        /* text-align: center; */
+        /* list-style-type: none; */
+        /* background: url(../res/levels/arrow.png) no-repeat; */
+        /* background-position-x: center; */
+        /* background-position-y: 149px; */
+        /* padding: 0; */
+        /* margin-top: 70px; */
+        /* z-index: 1; */
+        /* list-style: none; */
+        margin: 0;
+    }
 
-#slotMachineContainer .playButton {
-    position: absolute;
-    bottom: 150px;
-    text-align: center;
-    width: 100%;
-}
+    #mainMenu .levels li {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        border-radius: 30%;
+        float: right;
+        margin-right: 50px;
+    }
 
-#rouletteContainer .playButton {
-    position: absolute;
-    bottom: 150px;
-    text-align: center;
-    width: 100%;
-}
+    /*#mainMenu .levels li:nth-child(odd) {*/
+    /*    justify-content: flex-start; !* Нечетные элементы размещаем слева *!*/
+    /*}*/
 
-#spinButton {
-    margin-left: 15px;
+    #mainMenu .levels li:nth-child(even) {
+        justify-content: flex-end; /* Четные элементы размещаем справа */
+    }
+
+    #mainMenu .levels li::before {
+        content: attr(data-number);
+        position: absolute;
+        top: 10%;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        font-size: 38px;
+        font-weight: bold;
+        z-index: 2;
+        font-family: 'SpaceAge', sans-serif;
+        display: none;
+        right: 0;
+    }
+
+    #mainMenu .levels li[data-number]::before {
+        display: flex; /* Показываем кружок, если data-number задан */
+    }
+
+    #mainMenu .levels li.active::before {
+        background: #FFD700; /* Желтый фон */
+        color: #000; /* Черный текст */
+    }
+
+    #mainMenu .levels li:not(.active)::before {
+        background: rgba(130, 130, 130, 0.75); /* Прозрачно-серый фон */
+        color: #fff; /* Белый текст */
+    }
+
+    #mainMenu .levels ul li img {
+        width: 150px;
+        height: 150px;
+        z-index: 1;
+    }
+
+    .miniRocket {
+        width: 50px; /* Ширина картинки miniRocket */
+        height: auto;
+    }
+
+    .goldMenu {
+        display: none;
+    }
+
+    #miniRocket {
+        z-index: 1;
+        position: absolute;
+        transition: transform 1.3s ease; /* Плавное перемещение */
+    }
+
+    #mainPage .shinePlanet {
+        position: relative;
+        overflow: hidden; /* Обеспечивает, что круги не будут выходить за пределы элемента */
+        z-index: 0;
+    }
+
+    /*.shinePlanet::before {*/
+    /*    content: '';*/
+    /*    position: absolute;*/
+    /*    top: 50%;*/
+    /*    left: 50%;*/
+    /*    width: 200%; !* Размер круга для создания эффекта затухания *!*/
+    /*    height: 200%;*/
+    /*    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 215, 0, 0) 100%);*/
+    /*    border-radius: 50%;*/
+    /*    transform: translate(-50%, -50%);*/
+    /*    opacity: 0;*/
+    /*    z-index: -1; !* Помещает псевдоэлемент на задний план *!*/
+    /*    filter: blur(15px); !* Добавляет размытие для мягких краев *!*/
+    /*    animation: shine-animation 1.5s ease-out infinite;*/
+    /*}*/
+    /*==============================*/
+    /* SETTINGS */
+    /*==============================*/
+    #settingsPage {
+        display: block;
+        top: -20px;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+    }
+
+    #settingsPage .content {
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+
+        text-align: center;
+        font-weight: 900;
+        font-size: 3em;
+        line-height: 0;
+
+    }
+
+    /*==============================*/
+    /*STATISTICS SCORE*/
+    /*==============================*/
+    #gameScore {
+        position: absolute;
+        bottom: 0;
+        height: 150px;
+        width: 100%;
+
+        color: white;
+        font-family: Montserrat, serif;
+    }
+
+    #failPlatform {
+        width: 35% !important;
+        position: absolute;
+        top: -105px;
+        left: 33%;
+    }
+
+    #failPlatformAstro {
+        position: absolute;
+        bottom: 130px;
+        left: 2%;
+    }
+
+    #failPlatformBlock,
+    #failPlatformAstroBlock {
+        z-index: 0;
+    }
+
+    #failPlatformBlock img {
+        width: 100%;
+    }
+
+    #gameScore .statistics {
+        display: block;
+        width: 100%;
+        height: 150px;
+    }
+
+    #play, #playPC,
+    #minusBet, #plusBet,
+    #spinButton, #spinSlotButton {
+        background: none;
+        border: none;
+        border-radius: 50%;
+        padding: unset;
+        width: 100%;
+    }
+
+    #minusBet img, #plusBet img {
+        width: 40px;
+    }
+
+    #gameScore .score,
+    #gameScore .playButton,
+    #gameScore .bets {
+        width: 32%;
+        float: left;
+        height: inherit;
+        text-align: center;
+    }
+
+    .balanceValue {
+        margin-top: 25px;
+    }
+
+    #gameScore .score {
+        padding-left: 10px;
+    }
+
+    #gameScore .playButton {
+        margin-top: 20px;
+    }
+
+    #gameScore .playButton img {
+        width: 80px;
+    }
+
+    #gameScore .bets {
+        padding-top: 15px;
+        padding-left: 5px;
+    }
+
+    #gameScore .score .text {
+        font-weight: 400;
+        font-size: 16px;
+        width: 35%;
+        float: left;
+        display: grid;
+        text-align: right;
+        line-height: 25px;
+        margin-right: 15%;
+        margin-top: 25px;
+    }
+
+    #gameScore .score .value {
+        font-weight: 700;
+        font-size: 19px;
+        width: 25%;
+        float: left;
+        display: grid;
+        text-align: left;
+        margin-left: 4%;
+        margin-top: 25px;
+        line-height: 25px;
+    }
+
+
+    #gameScore .bets .bet,
+    #gameScore .bets .betControl {
+        width: 50%;
+        float: left;
+    }
+
+    #gameScore .bets .bet {
+        margin-top: 15%;
+        font-size: 35px;
+        font-weight: 700;
+    }
+
+    #slotMachineContainer .playButton {
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    #rouletteContainer .playButton {
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    #spinButton {
+        margin-left: 15px;
+    }
 }
 
 /*==============================*/

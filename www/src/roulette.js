@@ -3,9 +3,12 @@
 // ------------------ Рулетка ------------------ //
 // --------------------------------------------- //
 
+import {bet, checkFirstRun} from "./main";
+
 const rouletteSegments = [2, 200, 5000, 400, 500, 600, 1.5, 800];
 let rouletteCanvas, rouletteCtx;
 let isSpinning = false;
+let score = 0;
 
 const rouletteImage = new Image();
 rouletteImage.src = 'res/roulette-image.png'; // Замените на путь к вашему изображению
@@ -17,12 +20,20 @@ export function setupRoulette() {
     rouletteCanvas = document.getElementById('rouletteCanvas');
     rouletteCtx = rouletteCanvas.getContext('2d');
 
+    drawRoulette();
+
     // Отрисовываем стрелку поверх рулетки, чтобы она оставалась зафиксированной
     drawPointer();
 
-    drawRoulette();
-
     document.getElementById('spinButton').addEventListener('click', spinRoulette);
+
+    document.getElementById('currentBetRoulette').textContent = bet;
+    document.getElementById('scoreValueRoulette').textContent = score || 0;
+    checkFirstRun();
+    document.getElementById('balanceValueRoulette').textContent = localStorage.getItem('currentScore') || 0;
+
+    console.log('localStorage.getItem(currentScore)');
+    console.log(localStorage.getItem('currentScore'));
 }
 
 const rotationAngle = 22.5 * (Math.PI / 180); // Величина поворота в радианах
@@ -61,7 +72,7 @@ function drawRoulette() {
 function drawPointer() {
     const pointerX = rouletteCanvas.width / 2; // Центр рулетки по X
     const pointerY = 0; // Позиция стрелки сверху канваса
-    const pointerSize = 40; // Размер изображения стрелки
+    const pointerSize = 20; // Размер изображения стрелки
 
     // Убедитесь, что изображение стрелки загружено перед отрисовкой
     if (roulettePointerImage.complete) {
@@ -69,8 +80,8 @@ function drawPointer() {
             roulettePointerImage,
             pointerX - pointerSize / 2, // Центрируем изображение по оси X
             pointerY, // Стрелка у верхней части рулетки
-            pointerSize, // Ширина стрелки
-            pointerSize // Высота стрелки
+            30, // Ширина стрелки
+            75 // Высота стрелки
         );
     } else {
         // Если изображение ещё не загружено, ждем его загрузки
@@ -143,16 +154,27 @@ function handleRouletteResult(winningSegment) {
     const segmentAngle = 360 / rouletteSegments.length;
     const adjustedTargetAngle = (winningSegment * segmentAngle + 112) % 360; // Добавляем 90 градусов и нормализуем угол
 
+    score = rouletteSegments[winningSegment]
     // Отображаем выигрышный сектор в консоли или другом месте
     console.log(`Выигрышный сектор: ${rouletteSegments[winningSegment]}`);
     // Здесь можно обновить интерфейс для отображения результата
 }
 
 
-// Resize canvas to fit window
-function resizeCanvasRolette() {
-    canvasWidth = window.innerWidth;
-    canvasHeight = window.innerHeight;
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-}
+// Функция для изменения размеров холста рулетки
+// function resizeCanvas() {
+//     // Устанавливаем размеры холста в зависимости от размеров окна
+//     const canvasWidth = window.innerWidth; // 80% ширины окна
+//     const canvasHeight = window.innerHeight; // 80% высоты окна
+//
+//     // Устанавливаем новые размеры холста
+//     rouletteCanvas.width = canvasWidth;
+//     rouletteCanvas.height = canvasHeight;
+//
+//     // Перерисовываем рулетку и стрелку с учётом новых размеров
+//     drawRoulette();
+//     drawPointer();
+// }
+
+// Добавляем событие для изменения размера окна
+// window.addEventListener('resize', resizeCanvas);

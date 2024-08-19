@@ -1,4 +1,4 @@
-import {checkOrientation, isElementVisible} from "./main";
+import {bet, checkFirstRun, checkOrientation, isElementVisible} from "./main";
 
 const canvasSlot = document.getElementById('slotCanvas');
 const ctxSlot = canvasSlot.getContext('2d');
@@ -6,8 +6,8 @@ const ctxSlot = canvasSlot.getContext('2d');
 // Параметры игры
 const columnCount = 4;
 const ballsPerColumn = 10;
-const ballRadius = 30; // Радиус шара
-const columnWidth = canvasSlot.width / columnCount;
+let ballRadius = 30; // Радиус шара
+let columnWidth = canvasSlot.width / columnCount;
 const ballSpacing = 10;
 let isSpinning = false;
 
@@ -82,6 +82,7 @@ function activateOrientationCheck() {
 // Инициализация слот-машины после загрузки изображений
 export function initSlotMachine() {
     document.getElementById('slotMachineContainer').addEventListener('click', spin);
+    resizeCanvas();
 
     // После инициализации слот-машины активируем проверку ориентации
     setTimeout(() => {
@@ -102,6 +103,12 @@ export function initSlotMachine() {
     }
 
     drawColumns();
+
+
+    // document.getElementById('currentBet').textContent = bet;
+    // document.getElementById('scoreValue').textContent = score || 0;
+    // checkFirstRun();
+    // document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
 }
 
 // Функция отрисовки колонок, картинок и фона
@@ -116,13 +123,15 @@ function drawColumns() {
     for (let col = 0; col < columnCount; col++) {
         for (let i = 0; i < ballsPerColumn; i++) {
             const ball = columns[col][i];
-            const img = ballImages[ball.imgIndex];
-            if (img.complete) { // Проверяем, загружено ли изображение шара
-                const x = col * columnWidth + columnWidth / 2 - ballRadius; // центр колонки по X
-                const y = (ball.y % canvasSlot.height) - ballRadius; // вращаем по высоте холста
+            if (ball && ball.imgIndex !== undefined && ballImages[ball.imgIndex]) { // Проверяем, что imgIndex и изображение существуют
+                const img = ballImages[ball.imgIndex];
+                if (img.complete) { // Проверяем, загружено ли изображение шара
+                    const x = col * columnWidth + columnWidth / 2 - ballRadius; // центр колонки по X
+                    const y = (ball.y % canvasSlot.height) - ballRadius; // вращаем по высоте холста
 
-                // Рисуем изображение
-                ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
+                    // Рисуем изображение
+                    ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
+                }
             }
         }
     }
@@ -166,6 +175,38 @@ function spin() {
 
 // Загружаем изображения перед запуском слот-машины
 loadImages(initSlotMachine);
+
+function resizeCanvas() {
+    const canvasWidth = window.innerWidth * 0.75;
+    const canvasHeight = window.innerHeight * 0.7;
+
+    canvasSlot.width = canvasWidth;
+    canvasSlot.height = canvasHeight;
+
+    columnWidth = canvasSlot.width / columnCount;
+    ballRadius = canvasWidth / 20;
+
+    // Обновляем позиции шаров после изменения размера
+    for (let col = 0; col < columnCount; col++) {
+        for (let i = 0; i < ballsPerColumn; i++) {
+            const ball = columns[col][i];
+
+            if (ball) {
+                // Обновляем позицию существующего шара
+                ball.y = i * (ballRadius * 2 + ballSpacing);
+            }
+        }
+    }
+
+    drawColumns(); // Перерисовать канвас
+}
+
+// Вызвать изменение размера при загрузке страницы
+// window.addEventListener('load', resizeCanvas);
+
+// Обновить размеры при изменении размеров окна
+// window.addEventListener('resize', resizeCanvas);
+
 
 // Запуск периодической проверки
 setInterval(activateOrientationCheck, 1000); // Периодическая проверка (каждую секунду)

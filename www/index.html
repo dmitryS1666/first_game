@@ -10,7 +10,7 @@
 </head>
 <body>
 <div id="orientationMessage" class="blurred">
-    Пожалуйста, поверните устройство горизонтально
+    Please rotate your device horizontally
 </div>
 
 <div id="headerMenu">
@@ -70,7 +70,7 @@
 
 <!-- Game Page -->
 <div id="slotMachineContainer" class="page" style="display: none;">
-    <canvas id="slotCanvas" width="600" height="300"></canvas>
+    <canvas id="slotCanvas"></canvas>
     <div class="playButton">
         <button id="spinSlotButton">
             <img src="res/spin_button.png">
@@ -79,13 +79,36 @@
 </div>
 
 <div id="rouletteContainer" class="page" style="display:none;">
-    <canvas id="rouletteCanvas" width="500" height="500"></canvas>
-    <div class="playButton">
-        <button id="spinButton">
-            <img src="res/spin_button.png">
-        </button>
+    <canvas id="rouletteCanvas" width="600" height="600"></canvas>
+
+
+    <div id="gameScoreRoulette">
+        <div class="scoreRoulette">
+            <span class="text">Balance</span>
+            <span id="balanceValueRoulette" class="value"></span>
+            <span class="text">WIN</span>
+            <span id="scoreValueRoulette" class="value"></span>
+        </div>
+        <div class="playButton">
+            <button id="spinButton">
+                <img src="res/go_button.png">
+            </button>
+        </div>
+        <div class="betsRoulette">
+            <div class="betRoulette">
+                <span class="text">Bet</span>
+                <span id="currentBetRoulette">150</span>
+            </div>
+            <div class="betControlRoulette">
+                <button id="minusBetRoulette">
+                    <img src="res/minusBit.png">
+                </button>
+                <button id="plusBetRoulette">
+                    <img src="res/plusBit.png">
+                </button>
+            </div>
+        </div>
     </div>
-    <div id="rouletteResult"></div>
 </div>
 
 <!-- Game Page -->
