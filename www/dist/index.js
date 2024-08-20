@@ -287,7 +287,7 @@
     tracks.forEach((track) => {
       const elapsed = currentTime - track.startTime;
       if (elapsed < 200 && !flashFlag) {
-        ctx.drawImage(trackImage, track.x - trackWidth / 2, track.y - trackHeight / 2, trackWidth, trackHeight);
+        ctx.drawImage(trackImage, track.x, track.y - 120, trackWidth, trackHeight * 2.5);
       }
     });
     ctx.globalAlpha = 1;
@@ -594,8 +594,9 @@
   var ballsPerColumn = 10;
   var ballRadius = 30;
   var columnWidth = canvasSlot.width / columnCount;
-  var ballSpacing = 10;
+  var ballSpacing = 20;
   var isSpinning2 = false;
+  var margin = 35;
   var ballImageNames3 = [
     "blue_ball.png",
     "brown_ball.png",
@@ -638,10 +639,8 @@
     if (isElementVisible("slotMachineContainer")) {
       window.addEventListener("orientationchange", checkOrientation);
       checkOrientation();
-      console.log("\u0421\u043E\u0431\u044B\u0442\u0438\u0435 orientationchange \u0430\u043A\u0442\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043E");
     } else {
       window.removeEventListener("orientationchange", checkOrientation);
-      console.log("\u0421\u043E\u0431\u044B\u0442\u0438\u0435 orientationchange \u0434\u0435\u0430\u043A\u0442\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043E");
     }
   }
   function initSlotMachine() {
@@ -655,9 +654,8 @@
       for (let i = 0; i < ballsPerColumn; i++) {
         const ball = {
           imgIndex: i % ballImages3.length,
-          // индекс картинки
-          y: i * (ballRadius * 2 + ballSpacing)
-          // позиция по Y
+          y: i * (ballRadius * 2 + ballSpacing) + margin
+          // Добавляем отступ сверху
         };
         columns[col].push(ball);
       }
@@ -690,11 +688,20 @@
       }
     }
   }
+  function stopOnLine() {
+    for (let col = 0; col < columnCount; col++) {
+      for (let i = 0; i < ballsPerColumn; i++) {
+        const ball = columns[col][i];
+        ball.y = Math.round((ball.y - margin) / (ballRadius * 2 + ballSpacing)) * (ballRadius * 2 + ballSpacing) + margin;
+      }
+    }
+    drawColumns();
+  }
   function spin() {
     if (isSpinning2) return;
     isSpinning2 = true;
     speeds = Array(columnCount).fill(10);
-    const stopDelays = [1e3, 1500, 2e3, 2500];
+    const stopDelays = [1e3, 1300, 1600, 1900];
     const animation = setInterval(() => {
       updateColumns();
       drawColumns();
@@ -704,6 +711,7 @@
         speeds[index] = 0;
         if (index === columnCount - 1) {
           clearInterval(animation);
+          stopOnLine();
           isSpinning2 = false;
         }
       }, delay);
@@ -721,7 +729,7 @@
       for (let i = 0; i < ballsPerColumn; i++) {
         const ball = columns[col][i];
         if (ball) {
-          ball.y = i * (ballRadius * 2 + ballSpacing);
+          ball.y = i * (ballRadius * 2 + ballSpacing) + margin;
         }
       }
     }

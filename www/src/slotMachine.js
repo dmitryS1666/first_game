@@ -8,8 +8,9 @@ const columnCount = 4;
 const ballsPerColumn = 10;
 let ballRadius = 30; // Радиус шара
 let columnWidth = canvasSlot.width / columnCount;
-const ballSpacing = 10;
+const ballSpacing = 20;
 let isSpinning = false;
+const margin = 35; // отступ от верха и низа
 
 // Массив с именами картинок
 const ballImageNames = [
@@ -68,14 +69,10 @@ function loadImages(callback) {
 // Функция для активации проверки ориентации, если блок видим
 function activateOrientationCheck() {
     if (isElementVisible('slotMachineContainer')) {
-        // Активируем событие изменения ориентации
         window.addEventListener('orientationchange', checkOrientation);
-        checkOrientation(); // Выполнить проверку сразу при запуске
-        console.log('Событие orientationchange активировано');
+        checkOrientation();
     } else {
-        // Удаляем обработчик события, если блок не видим
         window.removeEventListener('orientationchange', checkOrientation);
-        console.log('Событие orientationchange деактивировано');
     }
 }
 
@@ -84,52 +81,42 @@ export function initSlotMachine() {
     document.getElementById('slotMachineContainer').addEventListener('click', spin);
     resizeCanvas();
 
-    // После инициализации слот-машины активируем проверку ориентации
     setTimeout(() => {
-        activateOrientationCheck(); // Проверка ориентации после загрузки игры
+        activateOrientationCheck();
     }, 450);
 
     document.getElementById('spinSlotButton').addEventListener('click', spin);
 
-    // Инициализация колонок (оставляем как в оригинале)
+    // Инициализация колонок
     for (let col = 0; col < columnCount; col++) {
         for (let i = 0; i < ballsPerColumn; i++) {
             const ball = {
-                imgIndex: i % ballImages.length, // индекс картинки
-                y: i * (ballRadius * 2 + ballSpacing) // позиция по Y
+                imgIndex: i % ballImages.length,
+                y: i * (ballRadius * 2 + ballSpacing) + margin // Добавляем отступ сверху
             };
             columns[col].push(ball);
         }
     }
 
     drawColumns();
-
-
-    // document.getElementById('currentBet').textContent = bet;
-    // document.getElementById('scoreValue').textContent = score || 0;
-    // checkFirstRun();
-    // document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
 }
 
 // Функция отрисовки колонок, картинок и фона
 function drawColumns() {
-    // Сначала рисуем фон
-    if (slotBackground.complete) { // Проверяем, загружен ли фон
+    if (slotBackground.complete) {
         ctxSlot.clearRect(0, 0, canvasSlot.width, canvasSlot.height);
         ctxSlot.drawImage(slotBackground, 0, 0, canvasSlot.width, canvasSlot.height);
     }
 
-    // Затем рисуем шары
     for (let col = 0; col < columnCount; col++) {
         for (let i = 0; i < ballsPerColumn; i++) {
             const ball = columns[col][i];
-            if (ball && ball.imgIndex !== undefined && ballImages[ball.imgIndex]) { // Проверяем, что imgIndex и изображение существуют
+            if (ball && ball.imgIndex !== undefined && ballImages[ball.imgIndex]) {
                 const img = ballImages[ball.imgIndex];
-                if (img.complete) { // Проверяем, загружено ли изображение шара
-                    const x = col * columnWidth + columnWidth / 2 - ballRadius; // центр колонки по X
-                    const y = (ball.y % canvasSlot.height) - ballRadius; // вращаем по высоте холста
+                if (img.complete) {
+                    const x = col * columnWidth + columnWidth / 2 - ballRadius;
+                    const y = (ball.y % canvasSlot.height) - ballRadius;
 
-                    // Рисуем изображение
                     ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
                 }
             }
@@ -141,9 +128,20 @@ function drawColumns() {
 function updateColumns() {
     for (let col = 0; col < columnCount; col++) {
         for (let i = 0; i < ballsPerColumn; i++) {
-            columns[col][i].y += speeds[col]; // обновляем позицию Y в зависимости от скорости
+            columns[col][i].y += speeds[col];
         }
     }
+}
+
+// Функция для остановки шаров на одной линии
+function stopOnLine() {
+    for (let col = 0; col < columnCount; col++) {
+        for (let i = 0; i < ballsPerColumn; i++) {
+            const ball = columns[col][i];
+            ball.y = Math.round((ball.y - margin) / (ballRadius * 2 + ballSpacing)) * (ballRadius * 2 + ballSpacing) + margin;
+        }
+    }
+    drawColumns(); // Перерисовать шары на линии
 }
 
 // Старт анимации
@@ -153,20 +151,19 @@ function spin() {
 
     speeds = Array(columnCount).fill(10); // задаем одинаковую начальную скорость для всех колонок
 
-    const stopDelays = [1000, 1500, 2000, 2500]; // задержки для остановки каждой колонки
+    const stopDelays = [1000, 1300, 1600, 1900];
 
-    // Старт обновления анимации
     const animation = setInterval(() => {
         updateColumns();
         drawColumns();
-    }, 1000 / 60); // частота обновления 60fps
+    }, 1000 / 60); // 60fps
 
-    // Останавливаем каждую колонку с задержкой
     stopDelays.forEach((delay, index) => {
         setTimeout(() => {
             speeds[index] = 0;
             if (index === columnCount - 1) {
                 clearInterval(animation);
+                stopOnLine(); // Остановка шаров на одной линии
                 isSpinning = false;
             }
         }, delay);
@@ -186,27 +183,16 @@ function resizeCanvas() {
     columnWidth = canvasSlot.width / columnCount;
     ballRadius = canvasWidth / 20;
 
-    // Обновляем позиции шаров после изменения размера
     for (let col = 0; col < columnCount; col++) {
         for (let i = 0; i < ballsPerColumn; i++) {
             const ball = columns[col][i];
-
             if (ball) {
-                // Обновляем позицию существующего шара
-                ball.y = i * (ballRadius * 2 + ballSpacing);
+                ball.y = i * (ballRadius * 2 + ballSpacing) + margin; // Учитываем отступ сверху
             }
         }
     }
 
-    drawColumns(); // Перерисовать канвас
+    drawColumns();
 }
 
-// Вызвать изменение размера при загрузке страницы
-// window.addEventListener('load', resizeCanvas);
-
-// Обновить размеры при изменении размеров окна
-// window.addEventListener('resize', resizeCanvas);
-
-
-// Запуск периодической проверки
-setInterval(activateOrientationCheck, 1000); // Периодическая проверка (каждую секунду)
+setInterval(activateOrientationCheck, 1000);

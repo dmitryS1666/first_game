@@ -243,7 +243,7 @@ function drawTracks() {
     tracks.forEach(track => {
         const elapsed = currentTime - track.startTime;
         if (elapsed < 200 && !flashFlag) { // Проверяем флаг вспышки
-            ctx.drawImage(trackImage, track.x - trackWidth / 2, track.y - trackHeight / 2, trackWidth, trackHeight);
+            ctx.drawImage(trackImage, track.x, track.y - 120, trackWidth, trackHeight * 2.5);
         }
     });
     ctx.globalAlpha = 1; // Сброс прозрачности

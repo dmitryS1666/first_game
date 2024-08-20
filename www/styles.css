@@ -24,12 +24,17 @@ body {
     canvas {
         display: block;
         background: transparent; /* Сделаем фон прозрачным, чтобы фоновое изображение было видно */
-        -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
-        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
     }
 
     canvas#rouletteCanvas {
         transform: translateX(-95px);
+        -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
+    }
+
+    canvas#gameCanvas {
+        z-index: 2;
+        position: absolute;
     }
 
     #score, #timer {
@@ -525,6 +530,8 @@ body {
         display: block;
         width: 100%;
         height: 150px;
+        position: absolute;
+        z-index: 3;
     }
 
     #play, #playPC,
@@ -715,6 +722,12 @@ body {
         display: block;
         background: transparent; /* Сделаем фон прозрачным, чтобы фоновое изображение было видно */
         transform: translateX(-95px);
+    }
+
+    canvas#rouletteCanvas {
+        transform: translate(26%, 10px);
+        -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 1) 50%);
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 1) 50%);
     }
 
     #score, #timer {
@@ -1210,6 +1223,8 @@ body {
         display: block;
         width: 100%;
         height: 150px;
+        position: absolute;
+        z-index: 3;
     }
 
     #play, #playPC,
@@ -1300,11 +1315,91 @@ body {
         width: 100%;
     }
 
-    #rouletteContainer .playButton {
-        position: absolute;
-        bottom: 0;
-        text-align: center;
+    #rouletteContainer {
+        position: relative;
+    }
+
+    #gameScoreRoulette {
         width: 100%;
+        bottom: 185px;
+        position: absolute;
+    }
+
+    .scoreRoulette, .playButton, .betsRoulette {
+        float: left;
+    }
+
+    .scoreRoulette, .betsRoulette {
+        width: 24%;
+        padding-top: 25px;
+    }
+
+    .betsRoulette {
+        padding-top: 0px;
+    }
+
+    .playButton {
+        width: 50%;
+    }
+
+    #spinButton img {
+        width: 50%;
+    }
+
+    #minusBetRoulette, #plusBetRoulette {
+        float: left;
+        width: 50%;
+        background: none;
+        border: none;
+        border-radius: 50%;
+        padding: unset;
+    }
+
+    #currentBetRoulette {
+        font-size: 30px;
+        font-weight: 700;
+        float: initial;
+    }
+
+    #minusBetRoulette img, #plusBetRoulette img {
+        width: 50%;
+    }
+
+    .betRoulette .text {
+        display: none;
+    }
+
+    .betRoulette, .betControlRoulette {
+        width: 90%;
+        float: left;
+        text-align: center;
+    }
+
+    .scoreRoulette span,
+    .betRoulette span {
+        width: 40%;
+        font-family: Montserrat, serif;
+        color: white;
+        float: left;
+        padding-left: 20px;
+    }
+
+    .scoreRoulette .text {
+        font-size: 20px;
+    }
+
+    .scoreRoulette .value {
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .betRoulette span {
+        padding: unset;
+    }
+
+    .betRoulette .text {
+        font-size: 18px;
+        font-weight: 100;
     }
 
     #spinButton {
