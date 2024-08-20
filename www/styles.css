@@ -286,6 +286,11 @@ body {
         padding: 0;
     }
 
+    #annualDataButton img,
+    #privatePolicyButton img {
+        width: 70%;
+    }
+
     #winMenuButton img {
         display: block;
     }
@@ -885,17 +890,15 @@ body {
     /* Картинка gold */
     .goldImage {
         position: absolute;
-        bottom: 260px;
-        width: 100%;
+        bottom: 160px;
+        width: 30%;
         height: auto;
         z-index: 0;
+        left: 39%;
     }
 
     #rocket {
-        left: 35%;
-        position: absolute;
-        margin: 0;
-        text-align: center;
+        display: none;
     }
 
     #rocket img {
@@ -918,9 +921,9 @@ body {
         font-weight: 900;
         font-size: 3.5em;
         position: absolute;
-        top: 300px;
+        top: 20px;
         animation: flash 1.5s infinite;
-        left: 33%;
+        left: 47%;
         line-height: 0;
     }
 
@@ -959,7 +962,8 @@ body {
     #failPage .button {
         position: absolute;
         z-index: 1;
-        bottom: 100px;
+        bottom: 0;
+        left: 32%;
         animation: pulse 1.5s infinite;
     }
 
@@ -979,6 +983,11 @@ body {
         background: none;
         border: none;
         padding: 0;
+    }
+
+    #annualDataButton img,
+    #privatePolicyButton img {
+        width: 70%;
     }
 
     #winMenuButton img {
@@ -1167,7 +1176,6 @@ body {
     /*==============================*/
     #settingsPage {
         display: block;
-        top: -20px;
         position: absolute;
         width: 100%;
         text-align: center;
@@ -1198,10 +1206,10 @@ body {
     }
 
     #failPlatform {
-        width: 35% !important;
+        width: 15% !important;
         position: absolute;
         top: -105px;
-        left: 33%;
+        left: 43%;
     }
 
     #failPlatformAstro {
