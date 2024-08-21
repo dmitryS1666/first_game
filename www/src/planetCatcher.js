@@ -3,7 +3,7 @@
 // --------------- Ловец планет ---------------- //
 // --------------------------------------------- //
 
-import {checkFirstRun, navigateTo, saveScore} from "./main";
+import {checkFirstRun, checkOrientation, isElementVisible, navigateTo, saveScore} from "./main";
 import {bet, deposit} from './main';
 
 // Game state
@@ -69,6 +69,11 @@ let flashes = [];
 // Initialize game
 export function setupGamePC() {
     canvasPC = document.getElementById('planetCatcherCanvas');
+
+    setTimeout(() => {
+        activateOrientationCheck();
+    }, 450);
+
     if (!canvasPC) {
         console.error('Canvas element not found');
         return;
@@ -232,27 +237,6 @@ function drawBasket() {
 }
 
 /// Параболическая траектория шаров
-// function calculateParabola(egg) {
-//     let time = egg.time;
-//
-//     // Используем startX и startY для начальной позиции
-//     let xStart = egg.startX;
-//     let xEnd;
-//
-//     // Определяем конечную точку в зависимости от стороны начала движения
-//     if (egg.fromLeft) {
-//         xEnd = canvasPCWidth / 7; // Конечная точка для шаров, летящих слева
-//     } else {
-//         xEnd = canvasPCWidth - 50; // Конечная точка для шаров, летящих справа
-//     }
-//
-//     let yStart = egg.startY; // Начальная высота (50px от верха)
-//     let yEnd = canvasPCHeight - basketPCHeight - 100; // Недолетают до конца на 50px
-//
-//     let t = time / 100;
-//     egg.x = xStart + (xEnd - xStart) * t;
-//     egg.y = yStart + (yEnd - yStart) * t;
-// }
 function calculateParabola(egg) {
     let time = egg.time;
 
@@ -427,3 +411,15 @@ function timerDisplay(state) {
     document.getElementById('timer').style.display = state;
     document.getElementById('seconds').textContent = gameDuration;
 }
+
+// Функция для активации проверки ориентации, если блок видим
+function activateOrientationCheck() {
+    if (isElementVisible('gameContainer')) {
+        window.addEventListener('orientationchange', checkOrientation);
+        checkOrientation();
+    } else {
+        window.removeEventListener('orientationchange', checkOrientation);
+    }
+}
+
+setInterval(activateOrientationCheck, 1000);

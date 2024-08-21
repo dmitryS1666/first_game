@@ -157,19 +157,33 @@ function plusBet(elementId) {
 
 // Функция для проверки ориентации экрана
 export function checkOrientation() {
-    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
     const orientationMessage = document.getElementById('orientationMessage');
     const slotMachineContainer = document.getElementById('slotMachineContainer');
+    const gameContainer = document.getElementById('gameContainer');
 
     if (isElementVisible('slotMachineContainer')) {  // Проверка видимости блока
+        const isPortrait = window.matchMedia("(orientation: portrait)").matches;
         if (isPortrait) {
             // Если вертикальная ориентация, показать сообщение и скрыть игру
+            orientationMessage.innerText = 'Please rotate your device';
             orientationMessage.style.display = 'flex';
             slotMachineContainer.style.filter = 'blur(10px)'; // Заблюрить игру
         } else {
             // Если горизонтальная ориентация, убрать сообщение и показать игру
             orientationMessage.style.display = 'none';
             slotMachineContainer.style.filter = 'none'; // Убрать блюр
+        }
+    } else if (isElementVisible('gameContainer')) {  // Проверка видимости блока
+        const isLand = window.matchMedia("(orientation: landscape)").matches;
+        if (isLand) {
+            // Если горизонтальная ориентация, показать сообщение и скрыть игру
+            orientationMessage.innerText = 'Please rotate your device vertically';
+            orientationMessage.style.display = 'flex';
+            gameContainer.style.filter = 'blur(10px)'; // Заблюрить игру
+        } else {
+            // Если горизонтальная ориентация, убрать сообщение и показать игру
+            orientationMessage.style.display = 'none';
+            gameContainer.style.filter = 'none'; // Убрать блюр
         }
     } else {
         // Если слот-машина не видима, убрать обработчик события

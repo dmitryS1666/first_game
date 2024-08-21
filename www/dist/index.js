@@ -448,6 +448,9 @@
   var flashes = [];
   function setupGamePC() {
     canvasPC = document.getElementById("planetCatcherCanvas");
+    setTimeout(() => {
+      activateOrientationCheck();
+    }, 450);
     if (!canvasPC) {
       console.error("Canvas element not found");
       return;
@@ -700,6 +703,15 @@
     document.getElementById("timer").style.display = state;
     document.getElementById("seconds").textContent = gameDuration2;
   }
+  function activateOrientationCheck() {
+    if (isElementVisible("gameContainer")) {
+      window.addEventListener("orientationchange", checkOrientation);
+      checkOrientation();
+    } else {
+      window.removeEventListener("orientationchange", checkOrientation);
+    }
+  }
+  setInterval(activateOrientationCheck, 1e3);
 
   // src/slotMachine.js
   var canvasSlot = document.getElementById("slotCanvas");
@@ -749,7 +761,7 @@
       };
     });
   }
-  function activateOrientationCheck() {
+  function activateOrientationCheck2() {
     if (isElementVisible("slotMachineContainer")) {
       window.addEventListener("orientationchange", checkOrientation);
       checkOrientation();
@@ -761,7 +773,7 @@
     document.getElementById("slotMachineContainer").addEventListener("click", spin);
     resizeCanvas2();
     setTimeout(() => {
-      activateOrientationCheck();
+      activateOrientationCheck2();
     }, 450);
     document.getElementById("spinSlotButton").addEventListener("click", spin);
     for (let col = 0; col < columnCount; col++) {
@@ -849,7 +861,7 @@
     }
     drawColumns();
   }
-  setInterval(activateOrientationCheck, 1e3);
+  setInterval(activateOrientationCheck2, 1e3);
 
   // src/main.js
   var deposit = 1e3;
@@ -969,11 +981,22 @@
     }
   }
   function checkOrientation() {
-    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
     const orientationMessage = document.getElementById("orientationMessage");
     const slotMachineContainer = document.getElementById("slotMachineContainer");
     if (isElementVisible("slotMachineContainer")) {
+      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
       if (isPortrait) {
+        orientationMessage.innerText = "Please rotate your device";
+        orientationMessage.style.display = "flex";
+        slotMachineContainer.style.filter = "blur(10px)";
+      } else {
+        orientationMessage.style.display = "none";
+        slotMachineContainer.style.filter = "none";
+      }
+    } else if (isElementVisible("planetCatcherCanvas")) {
+      const isLand = window.matchMedia("(orientation: landscape)").matches;
+      if (isLand) {
+        orientationMessage.innerText = "Please rotate your device vertically";
         orientationMessage.style.display = "flex";
         slotMachineContainer.style.filter = "blur(10px)";
       } else {
