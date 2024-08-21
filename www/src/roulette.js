@@ -3,7 +3,7 @@
 // ------------------ Рулетка ------------------ //
 // --------------------------------------------- //
 
-import {bet, checkFirstRun} from "./main";
+import {bet, checkFirstRun, navigateTo, saveScore} from "./main";
 
 const rouletteSegments = [2, 200, 5000, 400, 500, 600, 1.5, 800];
 let rouletteCanvas, rouletteCtx;
@@ -31,9 +31,6 @@ export function setupRoulette() {
     document.getElementById('scoreValueRoulette').textContent = score || 0;
     checkFirstRun();
     document.getElementById('balanceValueRoulette').textContent = localStorage.getItem('currentScore') || 0;
-
-    console.log('localStorage.getItem(currentScore)');
-    console.log(localStorage.getItem('currentScore'));
 }
 
 const rotationAngle = 22.5 * (Math.PI / 180); // Величина поворота в радианах
@@ -152,12 +149,26 @@ function spinRoulette() {
 function handleRouletteResult(winningSegment) {
     // Вычисляем угол для отображения результата
     const segmentAngle = 360 / rouletteSegments.length;
+    let result;
+    let currentBet = parseFloat(document.getElementById('currentBetRoulette').innerText);
+
     const adjustedTargetAngle = (winningSegment * segmentAngle + 112) % 360; // Добавляем 90 градусов и нормализуем угол
 
     score = rouletteSegments[winningSegment]
-    // Отображаем выигрышный сектор в консоли или другом месте
-    console.log(`Выигрышный сектор: ${rouletteSegments[winningSegment]}`);
-    // Здесь можно обновить интерфейс для отображения результата
+
+    if (score === 2 || score === 1.5) {
+        result = parseFloat(score) * currentBet;
+    } else {
+        result = parseFloat(score) + currentBet;
+    }
+
+    let newScore = parseInt(localStorage.getItem('currentScore')) + score + result; // Сохраняем текущий результат
+    saveScore(newScore);
+
+    const finalScore = document.getElementById('finalScore');
+    finalScore.textContent = `+${result}`;
+
+    navigateTo('winPage'); // Перенаправляем на страницу победы
 }
 
 

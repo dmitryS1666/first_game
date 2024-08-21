@@ -19,8 +19,6 @@
     document.getElementById("scoreValueRoulette").textContent = score || 0;
     checkFirstRun();
     document.getElementById("balanceValueRoulette").textContent = localStorage.getItem("currentScore") || 0;
-    console.log("localStorage.getItem(currentScore)");
-    console.log(localStorage.getItem("currentScore"));
   }
   var rotationAngle = 22.5 * (Math.PI / 180);
   function drawRoulette() {
@@ -105,9 +103,20 @@
   }
   function handleRouletteResult(winningSegment) {
     const segmentAngle = 360 / rouletteSegments.length;
+    let result;
+    let currentBet = parseFloat(document.getElementById("currentBetRoulette").innerText);
     const adjustedTargetAngle = (winningSegment * segmentAngle + 112) % 360;
     score = rouletteSegments[winningSegment];
-    console.log(`\u0412\u044B\u0438\u0433\u0440\u044B\u0448\u043D\u044B\u0439 \u0441\u0435\u043A\u0442\u043E\u0440: ${rouletteSegments[winningSegment]}`);
+    if (score === 2 || score === 1.5) {
+      result = parseFloat(score) * currentBet;
+    } else {
+      result = parseFloat(score) + currentBet;
+    }
+    let newScore = parseInt(localStorage.getItem("currentScore")) + score + result;
+    saveScore(newScore);
+    const finalScore = document.getElementById("finalScore");
+    finalScore.textContent = `+${result}`;
+    navigateTo("winPage");
   }
 
   // src/bonus.js
@@ -235,14 +244,14 @@
   function endGame(isVictory) {
     canvas.style.display = "none";
     timerDisplay("none");
+    let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
     if (isVictory) {
-      let newScore = parseInt(localStorage.getItem("currentScore")) + score2;
+      let newScore = parseInt(localStorage.getItem("currentScore")) + score2 + currentBet;
       saveScore(newScore);
       const finalScore = document.getElementById("finalScore");
       finalScore.textContent = `+${score2}`;
       navigateTo("winPage");
     } else {
-      let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
       navigateTo("failPage");
@@ -393,6 +402,10 @@
   var basketSpeed2;
   var eggSpeedBase2;
   var eggSpeedVariance2;
+  var leftPipeWidth;
+  var leftPipeHeight;
+  var rightPipeWidth;
+  var rightPipeHeight;
   var eggInterval2 = 1e3;
   var gameDuration2 = 15;
   var basketPosition = "left";
@@ -409,7 +422,8 @@
     orange: { score: -5 },
     purple: { score: -10 },
     pink: { score: -2 },
-    red: { score: 0, gameOver: true }
+    // red: {score: 0, gameOver: true}
+    red: { score: 0 }
   };
   var ballImages2 = {};
   var ballImageNames2 = [
@@ -426,12 +440,28 @@
   ];
   var basketImage2 = new Image();
   basketImage2.src = "res/astro_left.png";
+  var flashImage2 = new Image();
+  flashImage2.src = "res/flash.png";
+  var leftPipeImage = new Image();
+  leftPipeImage.src = "res/l_pipe.png";
+  var rightPipeImage = new Image();
+  rightPipeImage.src = "res/r_pipe.png";
+  var flashes = [];
   function setupGamePC() {
     canvasPC = document.getElementById("planetCatcherCanvas");
     if (!canvasPC) {
       console.error("Canvas element not found");
       return;
     }
+    canvasPC.addEventListener("touchstart", (event) => {
+      if (gameOver2) return;
+      const touchX = event.touches[0].clientX;
+      if (touchX < canvasPCWidth / 2) {
+        basketPosition = "left";
+      } else {
+        basketPosition = "right";
+      }
+    });
     ctxPC = canvasPC.getContext("2d");
     if (!ctxPC) {
       console.error("Canvas context not found");
@@ -454,7 +484,7 @@
     if (startButton) startButton.addEventListener("click", startGamePC);
     setInterval(addEgg2, eggInterval2);
     document.getElementById("currentBet").textContent = bet;
-    document.getElementById("scoreValue").textContent = score3 || 0;
+    document.getElementById("scoreValue").textContent = 0;
     checkFirstRun();
     document.getElementById("balanceValue").textContent = localStorage.getItem("currentScore") || 0;
     document.getElementById("failPlatformBlock").style.display = "none";
@@ -463,6 +493,7 @@
     document.getElementById("failPlatformAstroBlock").style.display = "block";
     document.getElementById("failPlatformAstro").style.display = "block";
     document.getElementById("playPC").style.display = "inline-block";
+    timerDisplay2("block");
   }
   function resizeCanvasPC() {
     canvasPCWidth = window.innerWidth;
@@ -472,6 +503,16 @@
     basketPCWidth = canvasPCWidth * 0.2;
     basketPCHeight = canvasPCHeight * 0.05;
     basketSpeed2 = canvasPCWidth * 0.02;
+    eggSpeedBase2 = canvasPCHeight * 5e-3;
+    eggSpeedVariance2 = canvasPCHeight * 3e-3;
+    leftPipeWidth = canvasPCWidth * 0.15;
+    leftPipeHeight = canvasPCHeight * 0.4;
+    rightPipeWidth = leftPipeWidth;
+    rightPipeHeight = leftPipeHeight;
+  }
+  function drawPipes() {
+    ctxPC.drawImage(leftPipeImage, 0, canvasPCHeight - leftPipeHeight, leftPipeWidth, leftPipeHeight);
+    ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, canvasPCHeight - rightPipeHeight, rightPipeWidth, rightPipeHeight);
   }
   function startGamePC() {
     setupGamePC();
@@ -487,14 +528,15 @@
   }
   function endGame2(isVictory) {
     canvasPC.style.display = "none";
+    timerDisplay2("none");
+    let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
     if (isVictory) {
-      let newScore = parseInt(localStorage.getItem("currentScore")) + score3;
+      let newScore = parseInt(localStorage.getItem("currentScore")) + score3 + currentBet;
       saveScore(newScore);
       const finalScore = document.getElementById("finalScore");
       finalScore.textContent = `+${score3}`;
       navigateTo("winPage");
     } else {
-      let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
       navigateTo("failPage");
@@ -519,30 +561,57 @@
   }
   function drawBasket2() {
     let basketX2 = basketPosition === "left" ? canvasPCWidth * 0.25 - basketPCWidth / 2 : canvasPCWidth * 0.75 - basketPCWidth / 2;
-    ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight - 280, basketPCWidth, basketPCHeight);
+    ctxPC.save();
+    if (basketPosition === "right") {
+      ctxPC.scale(-1, 1);
+      basketX2 = -basketX2 - basketPCWidth;
+    }
+    ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
+    ctxPC.restore();
   }
   function calculateParabola(egg) {
     let time = egg.time;
-    let xStart = egg.fromLeft ? 0 : canvasPCWidth;
-    let xEnd = basketPosition === "left" ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
-    let yStart = 0;
-    let yEnd = canvasPCHeight - basketPCHeight - 50;
+    let xStart = egg.fromLeft ? 25 : canvasPCWidth - 25;
+    let xEnd;
+    if (egg.fromLeft) {
+      xEnd = canvasPCWidth / 7;
+    } else {
+      xEnd = canvasPCWidth - 50;
+    }
+    let yStart = 150;
+    let yEnd = canvasPCHeight - basketPCHeight - 100;
     let t = time / 100;
     egg.x = xStart + (xEnd - xStart) * t;
-    egg.y = yStart + (yEnd - yStart) * t * t;
+    egg.y = yStart + (yEnd - yStart) * t;
   }
   function drawEggs2() {
     eggs2.forEach((egg) => {
       const img = ballImages2[egg.color];
       if (img) {
-        ctxPC.drawImage(img, egg.x - 25, egg.y - 25, 50, 50);
+        ctxPC.save();
+        ctxPC.translate(egg.x, egg.y);
+        const rotationDirection = egg.fromLeft ? 1 : -1;
+        ctxPC.rotate(rotationDirection * egg.time * Math.PI / 180);
+        ctxPC.translate(-egg.x, -egg.y);
+        ctxPC.drawImage(img, egg.x - 50, egg.y - 50, 70, 70);
+        ctxPC.restore();
       }
       calculateParabola(egg);
+      egg.time++;
     });
+    flashes.forEach((flash) => {
+      ctxPC.save();
+      ctxPC.globalAlpha = flash.alpha;
+      ctxPC.drawImage(flashImage2, flash.x - 50, flash.y - 50, 100, 100);
+      ctxPC.restore();
+      flash.alpha -= 0.05;
+    });
+    flashes = flashes.filter((flash) => flash.alpha > 0);
   }
   function gameLoopPC() {
     if (gameOver2) return;
     ctxPC.clearRect(0, 0, canvasPCWidth, canvasPCHeight);
+    drawPipes();
     drawBasket2();
     drawEggs2();
     handleCollision2();
@@ -558,6 +627,7 @@
         if (properties.gameOver) {
           endGame2(false);
         }
+        flashes.push({ x: egg.x, y: egg.y, alpha: 1 });
         eggs2 = eggs2.filter((e) => e !== egg);
       }
     });
@@ -569,13 +639,18 @@
     if (gameOver2) return;
     const fromLeft = Math.random() > 0.5;
     const color = colors2[Math.floor(Math.random() * colors2.length)];
+    const startX = fromLeft ? 0 : canvasPCWidth - 50;
+    const startY = fromLeft ? canvasPCHeight - leftPipeHeight : canvasPCHeight - rightPipeHeight;
+    console.log("Adding egg:", { color, fromLeft });
     eggs2.push({
-      x: fromLeft ? 0 : canvasPCWidth,
-      y: 0,
+      x: startX,
+      y: startY,
       color,
       fromLeft,
-      time: 0
+      time: 0,
       // Время траектории
+      rotationSpeed: Math.random() * 2 + 1
+      // Случайная скорость вращения
     });
   }
   document.addEventListener("keydown", (event) => {
@@ -586,6 +661,10 @@
       basketPosition = "right";
     }
   });
+  function timerDisplay2(state) {
+    document.getElementById("timer").style.display = state;
+    document.getElementById("seconds").textContent = gameDuration2;
+  }
 
   // src/slotMachine.js
   var canvasSlot = document.getElementById("slotCanvas");

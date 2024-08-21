@@ -183,8 +183,9 @@ export function startGame() {
 function endGame(isVictory) {
     canvas.style.display = 'none';
     timerDisplay('none');
+    let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
     if (isVictory) {
-        let newScore = parseInt(localStorage.getItem('currentScore')) + score; // Сохраняем текущий результат
+        let newScore = parseInt(localStorage.getItem('currentScore')) + score + currentBet; // Сохраняем текущий результат
         saveScore(newScore);
 
         const finalScore = document.getElementById('finalScore');
@@ -192,7 +193,6 @@ function endGame(isVictory) {
 
         navigateTo('winPage'); // Перенаправляем на страницу победы
     } else {
-        let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
         let newScore = parseInt(localStorage.getItem('currentScore')) - currentBet; // Сохраняем текущий результат
         saveScore(newScore);
 
