@@ -143,15 +143,15 @@ function resizeCanvasPC() {
     eggSpeedVariance = canvasPCHeight * 0.003;
 
     // Размеры труб
-    leftPipeWidth = canvasPCWidth * 0.15;  // Примерное значение
-    leftPipeHeight = canvasPCHeight * 0.4; // Примерное значение
+    leftPipeWidth = canvasPCWidth * 0.32;  // Примерное значение
+    leftPipeHeight = canvasPCHeight * 0.3; // Примерное значение
     rightPipeWidth = leftPipeWidth;
     rightPipeHeight = leftPipeHeight;
 }
 
 function drawPipes() {
-    ctxPC.drawImage(leftPipeImage, 0, canvasPCHeight - leftPipeHeight, leftPipeWidth, leftPipeHeight);
-    ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, canvasPCHeight - rightPipeHeight, rightPipeWidth, rightPipeHeight);
+    ctxPC.drawImage(leftPipeImage, 0, 28, leftPipeWidth, leftPipeHeight);
+    ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, 28, rightPipeWidth, rightPipeHeight);
 }
 
 // Начало игры
@@ -174,6 +174,9 @@ export function startGamePC() {
 function endGame(isVictory) {
     canvasPC.style.display = 'none';
     timerDisplay('none');
+
+    document.getElementById('pipeRight').style.display = 'block';
+    document.getElementById('pipeLeft').style.display = 'block';
 
     let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
     if (isVictory) {
@@ -229,24 +232,62 @@ function drawBasket() {
 }
 
 /// Параболическая траектория шаров
+// function calculateParabola(egg) {
+//     let time = egg.time;
+//
+//     // Используем startX и startY для начальной позиции
+//     let xStart = egg.startX;
+//     let xEnd;
+//
+//     // Определяем конечную точку в зависимости от стороны начала движения
+//     if (egg.fromLeft) {
+//         xEnd = canvasPCWidth / 7; // Конечная точка для шаров, летящих слева
+//     } else {
+//         xEnd = canvasPCWidth - 50; // Конечная точка для шаров, летящих справа
+//     }
+//
+//     let yStart = egg.startY; // Начальная высота (50px от верха)
+//     let yEnd = canvasPCHeight - basketPCHeight - 100; // Недолетают до конца на 50px
+//
+//     let t = time / 100;
+//     egg.x = xStart + (xEnd - xStart) * t;
+//     egg.y = yStart + (yEnd - yStart) * t;
+// }
 function calculateParabola(egg) {
     let time = egg.time;
-    let xStart = egg.fromLeft ? 25 : canvasPCWidth - 25; // Начальная позиция с учетом отступов от краев
-    let xEnd;
 
-    // Определяем конечную точку в зависимости от стороны начала движения
-    if (egg.fromLeft) {
-        xEnd = canvasPCWidth / 7; // Конечная точка для шаров, летящих слева - 1/3 от левого края
+    // Начальные позиции
+    let xStart = egg.startX;
+    let yStart = egg.startY;
+
+    // Конечная точка по X (центр экрана) и Y (высота горки)
+    let xEnd = egg.fromLeft ? canvasPCWidth / 8 : canvasPCWidth - 60; // Центр экрана
+
+    // Уменьшаем ширину горизонтального движения в три раза
+    let horizontalRange = canvasPCWidth * 0.08;
+    xEnd = egg.fromLeft ? xEnd + horizontalRange : xEnd - horizontalRange;
+
+    let yEnd = canvasPCHeight * 0.3; // Высота горки (уменьшена для более резкого склона)
+
+    // Время перехода от параболы к вертикальному падению
+    let transitionTime = 20; // Время на скатывание с горки
+    let totalDuration = 140; // Общее время движения
+
+    if (time < transitionTime) {
+        // Параболическое движение (спуск по горке)
+        let t = time / transitionTime;
+        egg.x = xStart + (xEnd - xStart) * t;
+        egg.y = yStart - (yStart - yEnd) * (1 - t * t); // Спуск по горке
     } else {
-        xEnd = canvasPCWidth - 50; // Конечная точка для шаров, летящих справа - 1/3 от правого края
+        // Вертикальное падение после "горки"
+        let t = (time - transitionTime) / (totalDuration - transitionTime);
+
+        // Зафиксированная конечная точка по x и плавное снижение по y
+        egg.x = xEnd; // Зафиксированная x после "горки"
+        egg.y = yEnd + (canvasPCHeight - yEnd - basketPCHeight - 100) * t; // Плавное вертикальное падение вниз
     }
 
-    let yStart = 150; // Начальная высота на 150px ниже от верха
-    let yEnd = canvasPCHeight - basketPCHeight - 100; // Недолетают до конца на 50px
-
-    let t = time / 100;
-    egg.x = xStart + (xEnd - xStart) * t;
-    egg.y = yStart + (yEnd - yStart) * t;
+    egg.time++; // Увеличиваем время для движения
 }
 
 // Обновляем отрисовку
@@ -271,28 +312,48 @@ function drawEggs() {
         egg.time++; // Увеличиваем время
     });
 
-    // Отображаем вспышки
+    // Отображаем вспышки и текст
     flashes.forEach(flash => {
         ctxPC.save();
-        ctxPC.globalAlpha = flash.alpha; // Прозрачность вспышки
-        ctxPC.drawImage(flashImage, flash.x - 50, flash.y - 50, 100, 100); // Рисуем вспышку
+
+        // Отображаем вспышку
+        ctxPC.globalAlpha = flash.alpha;
+        ctxPC.drawImage(flashImage, flash.x - 50, flash.y - 50, 100, 100);
+
+        // Отображаем текст
+        ctxPC.fillStyle = 'white';
+        ctxPC.font = '700 30px Montserrat'; // Задаем стиль шрифта
+        ctxPC.textAlign = 'left'; // Выравнивание по левому краю
+        ctxPC.textBaseline = 'middle';
+        ctxPC.globalAlpha = flash.textAlpha;
+        ctxPC.fillText(flash.text, flash.x + flash.textOffsetX, flash.y + flash.textOffsetY);
+
         ctxPC.restore();
-        flash.alpha -= 0.05; // Уменьшаем прозрачность для затухания
+
+        // Плавное исчезновение вспышки
+        flash.alpha -= 0.05;
+        flash.textAlpha = Math.max(flash.textAlpha - 0.02, 0); // Плавное исчезновение текста
+
+        // Плавное движение текста вверх
+        flash.textOffsetY -= 1; // Поднимаем текст вверх
     });
 
-    // Удаляем вспышки, которые уже затухли
-    flashes = flashes.filter(flash => flash.alpha > 0);
+    // Удаляем вспышки и текст, которые уже затухли
+    flashes = flashes.filter(flash => flash.alpha > 0 || flash.textAlpha > 0);
 }
 
 // Логика игры
 function gameLoopPC() {
     if (gameOver) return;
     ctxPC.clearRect(0, 0, canvasPCWidth, canvasPCHeight);
-    drawPipes();  // Отрисовываем трубы
+    drawPipes();
     drawBasket();
     drawEggs();
     handleCollision();
     requestAnimationFrame(gameLoopPC);
+
+    document.getElementById('pipeRight').style.display = 'none';
+    document.getElementById('pipeLeft').style.display = 'none';
 }
 
 // Проверка столкновений
@@ -306,7 +367,19 @@ function handleCollision() {
             if (properties.gameOver) {
                 endGame(false);
             }
-            flashes.push({ x: egg.x, y: egg.y, alpha: 1 }); // Добавляем вспышку
+
+            // Добавляем вспышку и текст
+            flashes.push({
+                x: egg.x,
+                y: egg.y,
+                alpha: 1, // Прозрачность вспышки
+                text: properties.score, // Значение для отображения
+                textAlpha: 1, // Прозрачность текста
+                textOffsetX: 60, // Смещение текста по X относительно вспышки
+                textOffsetY: 0, // Смещение текста по Y
+                textDuration: 150 // Длительность отображения текста
+            });
+
             eggs = eggs.filter(e => e !== egg);
         }
     });
@@ -324,13 +397,14 @@ function addEgg() {
     const color = colors[Math.floor(Math.random() * colors.length)];
 
     // Устанавливаем начальную позицию для яиц в зависимости от стороны
-    const startX = fromLeft ? 0 : canvasPCWidth - 50; // Позиция выхода из трубы
-    const startY = fromLeft ? canvasPCHeight - leftPipeHeight : canvasPCHeight - rightPipeHeight; // Выход из трубы
+    const startX = fromLeft ? 70 : canvasPCWidth - 65; // Отступ 30px от краев
+    const startY = 265; // Сдвигаем на 50px от верха
 
-    console.log('Adding egg:', { color, fromLeft });
     eggs.push({
         x: startX,
         y: startY,
+        startX: startX, // Сохраняем начальную позицию по X
+        startY: startY, // Сохраняем начальную позицию по Y
         color: color,
         fromLeft: fromLeft,
         time: 0, // Время траектории

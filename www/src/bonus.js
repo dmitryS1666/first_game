@@ -203,7 +203,6 @@ function endGame(isVictory) {
 }
 
 function startTimer() {
-    console.log('start time');
     let timeRemaining = gameDuration;
     document.getElementById('seconds').textContent = `${timeRemaining}`;
     timer = setInterval(() => {
