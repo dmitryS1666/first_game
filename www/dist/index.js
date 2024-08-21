@@ -721,21 +721,20 @@
   var ballsPerColumn = 10;
   var ballRadius = 30;
   var columnWidth = canvasSlot.width / columnCount;
-  var ballSpacing = 20;
+  var ballSpacing = 15;
   var isSpinning2 = false;
-  var margin = 35;
   var score4 = 0;
+  var topMargin = 30;
+  var bottomMargin = 35;
+  var visibleBallCount = 3;
+  var ballTotalHeight = ballRadius * 2 + ballSpacing;
   var ballImageNames3 = [
     "blue_ball.png",
     "brown_ball.png",
     "yellow_ball.png",
-    "earth_ball.png",
-    "green_ball.png",
     "indigo_ball.png",
     "orange_ball.png",
-    "pink_ball.png",
-    "purple_ball.png",
-    "red_ball.png"
+    "pink_ball.png"
   ];
   var ballImages3 = [];
   var columns = Array.from({ length: columnCount }, () => []);
@@ -782,8 +781,10 @@
       for (let i = 0; i < ballsPerColumn; i++) {
         const ball = {
           imgIndex: i % ballImages3.length,
-          y: i * (ballRadius * 2 + ballSpacing) + margin
-          // Добавляем отступ сверху
+          imgName: ballImageNames3[i % ballImageNames3.length],
+          // Сохраняем имя изображения
+          y: i * ballTotalHeight
+          // Располагаем шары за пределами видимой области
         };
         columns[col].push(ball);
       }
@@ -800,18 +801,23 @@
       ctxSlot.drawImage(slotBackground, 0, 0, canvasSlot.width, canvasSlot.height);
     }
     for (let col = 0; col < columnCount; col++) {
+      const visibleStartY = topMargin;
+      const visibleEndY = canvasSlot.height - bottomMargin;
       for (let i = 0; i < ballsPerColumn; i++) {
         const ball = columns[col][i];
         if (ball && ball.imgIndex !== void 0 && ballImages3[ball.imgIndex]) {
           const img = ballImages3[ball.imgIndex];
           if (img.complete) {
             const x = col * columnWidth + columnWidth / 2 - ballRadius;
-            const y = ball.y % canvasSlot.height - ballRadius;
+            const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
+            const isVisible = y + ballRadius >= visibleStartY && y + ballRadius <= visibleEndY;
+            ctxSlot.globalAlpha = isVisible ? 1 : 0;
             ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
           }
         }
       }
     }
+    ctxSlot.globalAlpha = 1;
   }
   function updateColumns() {
     for (let col = 0; col < columnCount; col++) {
@@ -820,14 +826,60 @@
       }
     }
   }
-  function stopOnLine() {
+  function smoothStopOnLine(columnIndex) {
+    const visibleHeight = canvasSlot.height - topMargin - bottomMargin;
+    const ballTotalHeight2 = ballRadius * 2 + ballSpacing;
+    const visibleBallHeight = ballTotalHeight2 * visibleBallCount;
+    const column = columns[columnIndex];
+    column.forEach((ball) => {
+      const ballHeight = ballRadius * 2 + ballSpacing;
+      let correctedY = ball.y - topMargin;
+      correctedY = Math.floor(correctedY / ballHeight) * ballHeight + topMargin;
+      ball.finalY = correctedY + topMargin;
+    });
+    let animationFrame = 0;
+    const maxFrames = 30;
+    const animationInterval = 1e3 / 60;
+    const animation = setInterval(() => {
+      animationFrame++;
+      const progress = animationFrame / maxFrames;
+      if (progress >= 1) {
+        clearInterval(animation);
+        columns[columnIndex].forEach((ball) => {
+          ball.y = ball.finalY;
+        });
+        drawColumns();
+        return;
+      }
+      columns[columnIndex].forEach((ball) => {
+        ball.y = ball.y + (ball.finalY - ball.y) * progress;
+      });
+      drawColumns();
+    }, animationInterval);
+  }
+  function endGame3() {
+    const ballHeight = ballRadius * 2 + ballSpacing;
+    const secondLineY = topMargin + ballHeight;
+    const visibleStartY = topMargin;
+    const visibleEndY = canvasSlot.height - bottomMargin;
+    let resultMessage = "";
     for (let col = 0; col < columnCount; col++) {
-      for (let i = 0; i < ballsPerColumn; i++) {
-        const ball = columns[col][i];
-        ball.y = Math.round((ball.y - margin) / (ballRadius * 2 + ballSpacing)) * (ballRadius * 2 + ballSpacing) + margin;
+      const ballsInColumn = columns[col];
+      const visibleBalls = ballsInColumn.filter((ball) => {
+        const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
+        return y >= secondLineY - ballRadius && y <= secondLineY + ballRadius && y + ballRadius >= visibleStartY && y - ballRadius <= visibleEndY;
+      });
+      if (visibleBalls.length > 0) {
+        console.log(visibleBalls);
+        resultMessage += `Column ${col + 1}: ${visibleBalls.map((ball) => `${ball.imgName}`).join(", ")}
+`;
       }
     }
-    drawColumns();
+    if (resultMessage) {
+      console.log(resultMessage.trim());
+    } else {
+      console.log("No balls in the second line are visible.");
+    }
   }
   function spin() {
     if (isSpinning2) return;
@@ -841,10 +893,13 @@
     stopDelays.forEach((delay, index) => {
       setTimeout(() => {
         speeds[index] = 0;
+        smoothStopOnLine(index);
         if (index === columnCount - 1) {
-          clearInterval(animation);
-          stopOnLine();
-          isSpinning2 = false;
+          setTimeout(() => {
+            clearInterval(animation);
+            isSpinning2 = false;
+            endGame3();
+          }, 100);
         }
       }, delay);
     });
@@ -857,14 +912,6 @@
     canvasSlot.height = canvasHeight2;
     columnWidth = canvasSlot.width / columnCount;
     ballRadius = canvasWidth2 / 20;
-    for (let col = 0; col < columnCount; col++) {
-      for (let i = 0; i < ballsPerColumn; i++) {
-        const ball = columns[col][i];
-        if (ball) {
-          ball.y = i * (ballRadius * 2 + ballSpacing) + margin;
-        }
-      }
-    }
     drawColumns();
   }
   setInterval(activateOrientationCheck2, 1e3);
@@ -918,6 +965,14 @@
   document.getElementById("plusBetRoulette").addEventListener(
     "click",
     () => plusBet("currentBetRoulette")
+  );
+  document.getElementById("minusBetSlot").addEventListener(
+    "click",
+    () => minusBet("currentBetSlot")
+  );
+  document.getElementById("plusBetSlot").addEventListener(
+    "click",
+    () => plusBet("currentBetSlot")
   );
   function checkFirstRun() {
     const isFirstRun = localStorage.getItem("firstRun");

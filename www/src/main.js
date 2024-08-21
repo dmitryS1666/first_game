@@ -74,6 +74,16 @@ document.getElementById('plusBetRoulette')
         plusBet('currentBetRoulette')
     );
 
+document.getElementById('minusBetSlot')
+    .addEventListener('click', () =>
+        minusBet('currentBetSlot')
+    );
+
+document.getElementById('plusBetSlot')
+    .addEventListener('click', () =>
+        plusBet('currentBetSlot')
+    );
+
 export function checkFirstRun() {
     const isFirstRun = localStorage.getItem('firstRun');
 
