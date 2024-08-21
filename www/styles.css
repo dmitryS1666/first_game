@@ -1343,13 +1343,6 @@ body {
         font-weight: 700;
     }
 
-    #slotMachineContainer .playButton {
-        position: absolute;
-        bottom: 0;
-        text-align: center;
-        width: 100%;
-    }
-
     #rouletteContainer {
         position: relative;
     }
@@ -1439,6 +1432,110 @@ body {
 
     #spinButton {
         margin-left: 15px;
+    }
+
+    #gameScoreSlot .score,
+    #gameScoreSlot .playButton,
+    #gameScoreSlot .bets {
+        width: 32%;
+        float: left;
+        height: inherit;
+        text-align: center;
+    }
+
+    #gameScoreSlot .playButton {
+        width: 50%;
+    }
+
+    #gameScoreSlot {
+        width: 100%;
+        bottom: -5px;
+        position: absolute;
+    }
+
+    #spinSlotButton {
+        margin-left: 15px;
+    }
+
+    #spinSlotButton img {
+        width: 50%;
+    }
+
+    .scoreSlot, .playButton, .betsSlot {
+        float: left;
+    }
+
+    .scoreSlot, .betsSlot {
+        width: 24%;
+        padding-top: 30px;
+    }
+
+    .betsSlot {
+        padding-top: 0px;
+    }
+
+    .playButton {
+        width: 50%;
+    }
+
+    #spinButton img {
+        width: 50%;
+    }
+
+    #minusBetSlot, #plusBetSlot {
+        float: left;
+        width: 50%;
+        background: none;
+        border: none;
+        border-radius: 50%;
+        padding: unset;
+    }
+
+    #currentBetSlot {
+        font-size: 30px;
+        font-weight: 700;
+        float: initial;
+    }
+
+    #minusBetSlot img, #plusBetSlot img {
+        width: 50%;
+    }
+
+    .betSlot .text {
+        display: none;
+    }
+
+    .betSlot, .betControlSlot {
+        width: 90%;
+        float: left;
+        text-align: center;
+    }
+
+    .scoreSlot span,
+    .betSlot span {
+        width: 40%;
+        font-family: Montserrat, serif;
+        color: white;
+        float: left;
+        padding-left: 20px;
+    }
+
+    .scoreSlot .text {
+        font-size: 20px;
+    }
+
+    .scoreSlot .value {
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .betSlot span {
+        padding: unset;
+    }
+
+    .betSlot .text {
+        font-size: 18px;
+        font-weight: 100;
     }
 }
 

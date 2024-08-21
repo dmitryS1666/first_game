@@ -229,6 +229,7 @@
     document.getElementById("failPlatform").style.display = "block";
     document.getElementById("play").style.display = "block";
     document.getElementById("failPlatformAstroBlock").style.display = "none";
+    document.getElementById("pipe").style.display = "none";
     document.getElementById("failPlatformAstro").style.display = "none";
     document.getElementById("playPC").style.display = "none";
   }
@@ -723,6 +724,7 @@
   var ballSpacing = 20;
   var isSpinning2 = false;
   var margin = 35;
+  var score4 = 0;
   var ballImageNames3 = [
     "blue_ball.png",
     "brown_ball.png",
@@ -787,6 +789,10 @@
       }
     }
     drawColumns();
+    document.getElementById("currentBetSlot").textContent = bet;
+    document.getElementById("scoreValueSlot").textContent = score4 || 0;
+    checkFirstRun();
+    document.getElementById("balanceValueSlot").textContent = localStorage.getItem("currentScore") || 0;
   }
   function drawColumns() {
     if (slotBackground.complete) {
@@ -866,8 +872,8 @@
   // src/main.js
   var deposit = 1e3;
   var bet = 50;
-  function saveScore(score4) {
-    localStorage.setItem("currentScore", score4);
+  function saveScore(score5) {
+    localStorage.setItem("currentScore", score5);
   }
   document.getElementById("homeButton").addEventListener(
     "click",
@@ -983,6 +989,7 @@
   function checkOrientation() {
     const orientationMessage = document.getElementById("orientationMessage");
     const slotMachineContainer = document.getElementById("slotMachineContainer");
+    const gameContainer = document.getElementById("gameContainer");
     if (isElementVisible("slotMachineContainer")) {
       const isPortrait = window.matchMedia("(orientation: portrait)").matches;
       if (isPortrait) {
@@ -993,15 +1000,15 @@
         orientationMessage.style.display = "none";
         slotMachineContainer.style.filter = "none";
       }
-    } else if (isElementVisible("planetCatcherCanvas")) {
+    } else if (isElementVisible("gameContainer")) {
       const isLand = window.matchMedia("(orientation: landscape)").matches;
       if (isLand) {
         orientationMessage.innerText = "Please rotate your device vertically";
         orientationMessage.style.display = "flex";
-        slotMachineContainer.style.filter = "blur(10px)";
+        gameContainer.style.filter = "blur(10px)";
       } else {
         orientationMessage.style.display = "none";
-        slotMachineContainer.style.filter = "none";
+        gameContainer.style.filter = "none";
       }
     } else {
       window.removeEventListener("orientationchange", checkOrientation);

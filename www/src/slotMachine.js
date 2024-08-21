@@ -11,6 +11,7 @@ let columnWidth = canvasSlot.width / columnCount;
 const ballSpacing = 20;
 let isSpinning = false;
 const margin = 35; // отступ от верха и низа
+let score = 0;
 
 // Массив с именами картинок
 const ballImageNames = [
@@ -99,6 +100,12 @@ export function initSlotMachine() {
     }
 
     drawColumns();
+
+
+    document.getElementById('currentBetSlot').textContent = bet;
+    document.getElementById('scoreValueSlot').textContent = score || 0;
+    checkFirstRun();
+    document.getElementById('balanceValueSlot').textContent = localStorage.getItem('currentScore') || 0;
 }
 
 // Функция отрисовки колонок, картинок и фона

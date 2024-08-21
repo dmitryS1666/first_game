@@ -140,6 +140,7 @@ export function prepareGame() {
     document.getElementById('failPlatform').style.display = 'block';
     document.getElementById('play').style.display = 'block';
     document.getElementById('failPlatformAstroBlock').style.display = 'none';
+    document.getElementById('pipe').style.display = 'none';
     document.getElementById('failPlatformAstro').style.display = 'none';
     document.getElementById('playPC').style.display = 'none';
 }

@@ -71,10 +71,40 @@
 <!-- Game Page -->
 <div id="slotMachineContainer" class="page" style="display: none;">
     <canvas id="slotCanvas"></canvas>
-    <div class="playButton">
-        <button id="spinSlotButton">
-            <img src="res/spin_button.png">
-        </button>
+
+    <div id="gameScoreSlot">
+        <div class="scoreSlot">
+            <div class="text">
+                <span>Balance</span>
+            </div>
+            <div class="value">
+                <span id="balanceValueSlot"></span>
+            </div>
+            <div class="text">
+                <span>WIN</span>
+            </div>
+            <div class="value">
+                <span id="scoreValueSlot"></span>
+            </div>
+        </div>
+        <div class="playButton">
+            <button id="spinSlotButton">
+                <img src="res/go_button.png">
+            </button>
+        </div>
+        <div class="betsSlot">
+            <div class="betSlot">
+                <span id="currentBetSlot"></span>
+            </div>
+            <div class="betControlSlot">
+                <button id="minusBetSlot">
+                    <img src="res/minusBit.png">
+                </button>
+                <button id="plusBetSlot">
+                    <img src="res/plusBit.png">
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -112,7 +142,7 @@
 
 <!-- Game Page -->
 <div id="gameContainer" class="page" style="display: none;">
-    <div class="pipe">
+    <div id="pipe">
         <img id="pipeLeft" src="res/l_pipe.png">
         <img id="pipeRight" src="res/r_pipe.png">
     </div>
