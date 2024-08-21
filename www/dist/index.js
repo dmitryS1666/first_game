@@ -728,6 +728,7 @@
   var bottomMargin = 35;
   var visibleBallCount = 3;
   var ballTotalHeight = ballRadius * 2 + ballSpacing;
+  var highlightedColumns = [];
   var ballImageNames3 = [
     "blue_ball.png",
     "brown_ball.png",
@@ -736,17 +737,17 @@
     "orange_ball.png",
     "pink_ball.png"
   ];
-  var ballImages3 = [];
   var columns = Array.from({ length: columnCount }, () => []);
   var speeds = Array(columnCount).fill(0);
   var slotBackground;
+  var ballImages3 = [];
   function loadImages(callback) {
     let imagesLoaded = 0;
     slotBackground = new Image();
     slotBackground.src = "res/slotBg.png";
     slotBackground.onload = () => {
       imagesLoaded++;
-      if (imagesLoaded === ballImageNames3.length + 1) {
+      if (imagesLoaded === ballImageNames3.length) {
         callback();
       }
     };
@@ -756,7 +757,7 @@
       img.onload = () => {
         ballImages3[index] = img;
         imagesLoaded++;
-        if (imagesLoaded === ballImageNames3.length + 1) {
+        if (imagesLoaded === ballImageNames3.length) {
           callback();
         }
       };
@@ -803,6 +804,7 @@
     for (let col = 0; col < columnCount; col++) {
       const visibleStartY = topMargin;
       const visibleEndY = canvasSlot.height - bottomMargin;
+      const isHighlighted = highlightedColumns.includes(col);
       for (let i = 0; i < ballsPerColumn; i++) {
         const ball = columns[col][i];
         if (ball && ball.imgIndex !== void 0 && ballImages3[ball.imgIndex]) {
@@ -812,7 +814,13 @@
             const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
             const isVisible = y + ballRadius >= visibleStartY && y + ballRadius <= visibleEndY;
             ctxSlot.globalAlpha = isVisible ? 1 : 0;
+            if (isHighlighted && isVisible) {
+              ctxSlot.drawImage(ballImages3[ballImageNames3.length - 2], col * columnWidth, visibleStartY, columnWidth, visibleEndY - visibleStartY);
+            }
             ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
+            if (isHighlighted && isVisible) {
+              ctxSlot.drawImage(ballImages3[ballImageNames3.length - 1], x, y, ballRadius * 2, ballRadius * 2);
+            }
           }
         }
       }
@@ -857,29 +865,70 @@
       drawColumns();
     }, animationInterval);
   }
-  function endGame3() {
+  function getVisibleBallsInSecondLine() {
     const ballHeight = ballRadius * 2 + ballSpacing;
     const secondLineY = topMargin + ballHeight;
     const visibleStartY = topMargin;
     const visibleEndY = canvasSlot.height - bottomMargin;
-    let resultMessage = "";
+    const ballCounts = {};
+    const ballNames = {};
     for (let col = 0; col < columnCount; col++) {
       const ballsInColumn = columns[col];
       const visibleBalls = ballsInColumn.filter((ball) => {
         const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
         return y >= secondLineY - ballRadius && y <= secondLineY + ballRadius && y + ballRadius >= visibleStartY && y - ballRadius <= visibleEndY;
       });
-      if (visibleBalls.length > 0) {
-        console.log(visibleBalls);
-        resultMessage += `Column ${col + 1}: ${visibleBalls.map((ball) => `${ball.imgName}`).join(", ")}
-`;
+      visibleBalls.forEach((ball) => {
+        const ballName = ball.imgName;
+        if (ballCounts[ballName]) {
+          ballCounts[ballName]++;
+        } else {
+          ballCounts[ballName] = 1;
+        }
+        if (!ballNames[col]) {
+          ballNames[col] = [];
+        }
+        ballNames[col].push(ballName);
+      });
+    }
+    return { ballCounts, ballNames };
+  }
+  function calculateMultiplier(ballCounts) {
+    let multiplier = 0;
+    Object.values(ballCounts).forEach((count) => {
+      if (count >= 2) {
+        switch (count) {
+          case 2:
+            multiplier += 0.75;
+            break;
+          case 3:
+            multiplier += 1.6;
+            break;
+          case 4:
+            multiplier += 2;
+            break;
+        }
       }
+    });
+    if (ballCounts["pink_ball.png"]) {
+      multiplier *= 3;
     }
-    if (resultMessage) {
-      console.log(resultMessage.trim());
+    return multiplier;
+  }
+  function displayResult(ballNames, multiplier) {
+    if (multiplier > 0) {
+      console.log("You win! Multiplier:", multiplier);
     } else {
-      console.log("No balls in the second line are visible.");
+      console.log("You lose.");
     }
+    Object.entries(ballNames).forEach(([col, names]) => {
+      console.log(`Column ${parseInt(col) + 1}: ${names.join(", ")}`);
+    });
+  }
+  function endGame3() {
+    const { ballCounts, ballNames } = getVisibleBallsInSecondLine();
+    const multiplier = calculateMultiplier(ballCounts);
+    displayResult(ballNames, multiplier);
   }
   function spin() {
     if (isSpinning2) return;

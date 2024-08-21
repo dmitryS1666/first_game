@@ -17,6 +17,9 @@ const bottomMargin = 35;
 const visibleBallCount = 3; // Количество видимых шаров
 const ballTotalHeight = ballRadius * 2 + ballSpacing;
 
+// Колонки, которые должны быть подсвечены
+let highlightedColumns = [];
+
 // Массив с именами картинок
 const ballImageNames = [
     'blue_ball.png',
@@ -27,9 +30,6 @@ const ballImageNames = [
     'pink_ball.png',
 ];
 
-// Массив для загрузки изображений
-const ballImages = [];
-
 // Шары в каждой колонке
 const columns = Array.from({ length: columnCount }, () => []);
 
@@ -38,6 +38,9 @@ let speeds = Array(columnCount).fill(0);
 
 // Создаем переменную для фонового изображения
 let slotBackground;
+
+// Массив для загрузки изображений
+const ballImages = [];
 
 // Функция для загрузки изображений
 function loadImages(callback) {
@@ -48,23 +51,38 @@ function loadImages(callback) {
     slotBackground.src = 'res/slotBg.png';  // путь к загруженному фону
     slotBackground.onload = () => {
         imagesLoaded++;
-        if (imagesLoaded === ballImageNames.length + 1) { // проверка на количество загруженных изображений
+        if (imagesLoaded === ballImageNames.length) { // проверка на количество загруженных изображений
             callback();
         }
     };
 
-    // Загрузка изображений шариков
+    // Загрузка изображений шариков и эффектов
     ballImageNames.forEach((name, index) => {
         const img = new Image();
         img.src = `res/balls/${name}`;
         img.onload = () => {
             ballImages[index] = img;
             imagesLoaded++;
-            if (imagesLoaded === ballImageNames.length + 1) {
+            if (imagesLoaded === ballImageNames.length) {
                 callback();
             }
         };
     });
+}
+
+// Функция для подсветки совпадений
+function highlightMatches(ballCounts) {
+    highlightedColumns = [];
+
+    // Определяем, какие колонки нужно подсветить
+    for (let col = 0; col < columnCount; col++) {
+        const count = ballCounts[columns[col][0].imgName] || 0;
+        if (count >= 2) {
+            highlightedColumns.push(col);
+        }
+    }
+
+    drawColumns(); // Перерисовать с подсветкой
 }
 
 // Функция для активации проверки ориентации, если блок видим
@@ -119,6 +137,9 @@ function drawColumns() {
         const visibleStartY = topMargin;
         const visibleEndY = canvasSlot.height - bottomMargin;
 
+        // Проверяем, есть ли подсветка для текущей колонки
+        const isHighlighted = highlightedColumns.includes(col);
+
         for (let i = 0; i < ballsPerColumn; i++) {
             const ball = columns[col][i];
             if (ball && ball.imgIndex !== undefined && ballImages[ball.imgIndex]) {
@@ -132,7 +153,19 @@ function drawColumns() {
 
                     // Установка прозрачности
                     ctxSlot.globalAlpha = isVisible ? 1.0 : 0.0;
+
+                    // Рисуем фоновое изображение для подсветки линии
+                    if (isHighlighted && isVisible) {
+                        ctxSlot.drawImage(ballImages[ballImageNames.length - 2], col * columnWidth, visibleStartY, columnWidth, visibleEndY - visibleStartY); // `flash_line.png`
+                    }
+
+                    // Рисуем само изображение шара
                     ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
+
+                    // Рисуем подсветку для ячейки, если нужно
+                    if (isHighlighted && isVisible) {
+                        ctxSlot.drawImage(ballImages[ballImageNames.length - 1], x, y, ballRadius * 2, ballRadius * 2); // `flash.png`
+                    }
                 }
             }
         }
@@ -194,14 +227,16 @@ function smoothStopOnLine(columnIndex) {
 }
 
 // Проверка второй линии и вывод информации о шарах
-function endGame() {
+// Получение видимых шаров во второй линии
+// Получение видимых шаров во второй линии
+function getVisibleBallsInSecondLine() {
     const ballHeight = ballRadius * 2 + ballSpacing;
-    const secondLineY = topMargin + ballHeight; // Y-положение второй строки
+    const secondLineY = topMargin + ballHeight;
     const visibleStartY = topMargin;
     const visibleEndY = canvasSlot.height - bottomMargin;
 
-    // Сформируем строку с именами изображений шаров во второй строке, которые видны
-    let resultMessage = '';
+    const ballCounts = {}; // Пример: { 'blue_ball.png': 2, 'pink_ball.png': 1 }
+    const ballNames = {};  // Для хранения имен шаров и их количества во второй строке
 
     for (let col = 0; col < columnCount; col++) {
         const ballsInColumn = columns[col];
@@ -212,18 +247,78 @@ function endGame() {
                 y + ballRadius >= visibleStartY && y - ballRadius <= visibleEndY;
         });
 
-        // Добавляем имена видимых шаров во второй строке к результату
-        if (visibleBalls.length > 0) {
-            resultMessage += `Column ${col + 1}: ${visibleBalls.map(ball => `${ball.imgName}`).join(', ')}\n`;
-        }
+        visibleBalls.forEach(ball => {
+            const ballName = ball.imgName;
+            if (ballCounts[ballName]) {
+                ballCounts[ballName]++;
+            } else {
+                ballCounts[ballName] = 1;
+            }
+
+            // Заполняем ballNames для отображения информации
+            if (!ballNames[col]) {
+                ballNames[col] = [];
+            }
+            ballNames[col].push(ballName);
+        });
     }
 
-    // Выводим результат в консоль, если есть видимые шары
-    if (resultMessage) {
-        console.log(resultMessage.trim());
-    } else {
-        console.log('No balls in the second line are visible.');
+    return { ballCounts, ballNames };
+}
+
+// Вывод информации о шарах и вычисление коэффициента умножения
+function calculateMultiplier(ballCounts) {
+    let multiplier = 0;
+
+    // Проверяем количество видимых шаров и считаем коэффициент умножения
+    Object.values(ballCounts).forEach(count => {
+        if (count >= 2) {
+            switch (count) {
+                case 2:
+                    multiplier += 0.75;
+                    break;
+                case 3:
+                    multiplier += 1.6;
+                    break;
+                case 4:
+                    multiplier += 2;
+                    break;
+            }
+        }
+    });
+
+    // Проверка на бонусный шар
+    if (ballCounts['pink_ball.png']) {
+        multiplier *= 3; // Умножаем на 3, если есть бонусный шар
     }
+
+    return multiplier;
+}
+
+// Отображение результата и информации о найденных шарах
+function displayResult(ballNames, multiplier) {
+    if (multiplier > 0) {
+        console.log('You win! Multiplier:', multiplier);
+    } else {
+        console.log('You lose.');
+    }
+
+    // Вывод информации о шарах во второй строке
+    Object.entries(ballNames).forEach(([col, names]) => {
+        console.log(`Column ${parseInt(col) + 1}: ${names.join(', ')}`);
+    });
+}
+
+// Основной метод для завершения игры
+function endGame() {
+    const { ballCounts, ballNames } = getVisibleBallsInSecondLine();
+    const multiplier = calculateMultiplier(ballCounts);
+
+    // Подсвечиваем совпадения
+    // highlightMatches(ballCounts);
+
+    // Отображаем результат
+    displayResult(ballNames, multiplier);
 }
 
 // Старт анимации
