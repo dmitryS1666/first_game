@@ -100,9 +100,9 @@ export function initSlotMachine() {
     document.getElementById('slotMachineContainer').addEventListener('click', spin);
     resizeCanvas();
 
-    setTimeout(() => {
-        activateOrientationCheck();
-    }, 450);
+    // setTimeout(() => {
+    //     activateOrientationCheck();
+    // }, 450);
 
     document.getElementById('spinSlotButton').addEventListener('click', spin);
 
@@ -278,7 +278,7 @@ function calculateMultiplier(ballCounts) {
                     multiplier += 0.75;
                     break;
                 case 3:
-                    multiplier += 1.6;
+                    multiplier += 1.5;
                     break;
                 case 4:
                     multiplier += 2;
@@ -288,7 +288,7 @@ function calculateMultiplier(ballCounts) {
     });
 
     // Проверка на бонусный шар
-    if (ballCounts['pink_ball.png']) {
+    if (multiplier > 0 && ballCounts['pink_ball.png']) {
         multiplier *= 3; // Умножаем на 3, если есть бонусный шар
     }
 
@@ -367,4 +367,4 @@ function resizeCanvas() {
     drawColumns();
 }
 
-setInterval(activateOrientationCheck, 1000);
+// setInterval(activateOrientationCheck, 1000);

@@ -1,5 +1,9 @@
 {
   "scripts": {
     "build": "esbuild src/index.js --bundle --outfile=dist/index.js"
+  },
+  "dependencies": {
+    "@capacitor/screen-orientation": "^6.0.2",
+    "@capacitor/status-bar": "^6.0.1"
   }
 }

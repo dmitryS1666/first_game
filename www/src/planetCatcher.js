@@ -136,7 +136,7 @@ export function setupGamePC() {
     timerDisplay('block');
 }
 
-function resizeCanvasPC() {
+export function resizeCanvasPC() {
     canvasPCWidth = window.innerWidth;
     canvasPCHeight = window.innerHeight;
     canvasPC.width = canvasPCWidth;
@@ -327,7 +327,7 @@ function drawEggs() {
 }
 
 // Логика игры
-function gameLoopPC() {
+export function gameLoopPC() {
     if (gameOver) return;
     ctxPC.clearRect(0, 0, canvasPCWidth, canvasPCHeight);
     drawPipes();

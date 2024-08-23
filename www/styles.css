@@ -3,12 +3,13 @@
     src: url(../res/fonts/space_age.ttf);
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
+html, body {
     width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
     overflow: hidden;
+    position: relative;
     background: url('../res/splash1.png') no-repeat center center fixed; /* Фоновое изображение */
     background-size: cover; /* Масштабирование фона */
 }
@@ -27,9 +28,12 @@ body {
     }
 
     canvas#rouletteCanvas {
-        transform: translateX(-95px);
         -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
         mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 50%);
+        left: 50%;
+        transform: translateX(-50%);
+        position: absolute;
+        top: 20%;
     }
 
     canvas#gameCanvas {
@@ -126,7 +130,7 @@ body {
         position: absolute;
         padding: 0;
         width: 70px;
-        margin-top: 20px;
+        margin-top: 30px;
         background: none;
         border-radius: 50%;
         height: 70px;
@@ -144,8 +148,10 @@ body {
     #mainPage .startButton {
         position: absolute;
         z-index: 1;
-        bottom: 100px;
+        bottom: 80px;
         animation: pulse 2.5s infinite;
+        width: 100%;
+        text-align: center;
     }
 
     #dogWithRocket {
@@ -190,7 +196,7 @@ body {
     /* Картинка gold */
     .goldImage {
         position: absolute;
-        bottom: 260px;
+        bottom: 25%;
         width: 100%;
         height: auto;
         z-index: 0;
@@ -210,7 +216,7 @@ body {
     }
 
     #rocket .flash {
-        top: 70px;
+        top: 10px;
         position: relative;
         animation: shine 1.5s infinite;
     }
@@ -223,10 +229,10 @@ body {
         font-weight: 900;
         font-size: 3.5em;
         position: absolute;
-        top: 300px;
+        top: 30%;
         animation: flash 1.5s infinite;
-        left: 33%;
         line-height: 0;
+        width: 100%;
     }
 
     .goldImage img {
@@ -264,8 +270,9 @@ body {
     #failPage .button {
         position: absolute;
         z-index: 1;
-        bottom: 100px;
+        bottom: 2%;
         animation: pulse 1.5s infinite;
+        width: 100%;
     }
 
     button:active {
@@ -277,7 +284,6 @@ body {
         background: none;
         border: none;
         padding: 0;
-        margin-left: 15px;
     }
 
     #annualDataButton, #privatePolicyButton {
@@ -356,10 +362,9 @@ body {
     /*==============================*/
     #mainMenu {
         position: absolute;
-        bottom: 220px;
-        left: 50%;
-        transform: translateX(-50%);
         text-align: center;
+        width: 100%;
+        height: 100%;
     }
 
     #mainMenu button {
@@ -373,10 +378,13 @@ body {
         list-style-type: none;
         background: url(../res/levels/arrow.png) no-repeat;
         background-position-x: center;
-        background-position-y: 149px;
+        background-position-y: 20%;
         padding: 0;
         margin-top: 70px;
         z-index: 1;
+        width: 30%;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     #mainMenu .levels li {
@@ -399,16 +407,16 @@ body {
     #mainMenu .levels li::before {
         content: attr(data-number);
         position: absolute;
-        top: 30%;
+        top: 25%;
         transform: translateY(-50%);
-        width: 55px;
-        height: 55px;
+        width: 40%;
+        height: 40%;
         background: #828282bf;
         color: #fff;
         border-radius: 50%;
         align-items: center;
         justify-content: center;
-        font-size: 38px;
+        font-size: 30px;
         font-weight: bold;
         z-index: 2;
         font-family: 'SpaceAge', sans-serif;
@@ -430,8 +438,7 @@ body {
     }
 
     #mainMenu .levels ul li img {
-        width: 150px;
-        height: 150px;
+        width: 100%;
         z-index: 1;
     }
 
@@ -441,10 +448,8 @@ body {
     }
 
     .goldMenu {
-        bottom: -150px !important;
-        width: 350px;
-        left: 50%;
-        transform: translateX(-50%);
+        bottom: 2%;
+        width: 100%;
     }
 
     #miniRocket {
@@ -459,21 +464,6 @@ body {
         z-index: 0;
     }
 
-    /*.shinePlanet::before {*/
-    /*    content: '';*/
-    /*    position: absolute;*/
-    /*    top: 50%;*/
-    /*    left: 50%;*/
-    /*    width: 200%; !* Размер круга для создания эффекта затухания *!*/
-    /*    height: 200%;*/
-    /*    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 215, 0, 0) 100%);*/
-    /*    border-radius: 50%;*/
-    /*    transform: translate(-50%, -50%);*/
-    /*    opacity: 0;*/
-    /*    z-index: -1; !* Помещает псевдоэлемент на задний план *!*/
-    /*    filter: blur(15px); !* Добавляет размытие для мягких краев *!*/
-    /*    animation: shine-animation 1.5s ease-out infinite;*/
-    /*}*/
     /*==============================*/
     /* SETTINGS */
     /*==============================*/
@@ -651,14 +641,13 @@ body {
 
     #rouletteContainer {
         position: relative;
-        bottom: -240px;
         overflow: hidden;
-        height: 750px;
+        height: 100%;
     }
 
     #gameScoreRoulette {
         width: 100%;
-        bottom: 100px;
+        bottom: 30px;
         position: absolute;
     }
 
@@ -744,7 +733,7 @@ body {
     }
 
     canvas#rouletteCanvas {
-        transform: translate(26%, 10px);
+        transform: translateX(25%);
         -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 1) 50%);
         mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 1) 50%);
     }
@@ -855,8 +844,9 @@ body {
 
     #mainPage .startButton {
         text-align: center;
-        margin-top: 260px;
+        /* margin-bottom: 33%; */
         z-index: 1;
+        position: absolute;
         bottom: 0;
         width: 100%;
         animation: pulse 2.5s infinite;
@@ -904,11 +894,11 @@ body {
     /* Картинка gold */
     .goldImage {
         position: absolute;
-        bottom: 160px;
+        bottom: 145px;
         width: 30%;
         height: auto;
         z-index: 0;
-        left: 39%;
+        left: 35%;
     }
 
     #rocket {
@@ -935,9 +925,8 @@ body {
         font-weight: 900;
         font-size: 3.5em;
         position: absolute;
-        top: 20px;
         animation: flash 1.5s infinite;
-        left: 47%;
+        width: 100%;
         line-height: 0;
     }
 
@@ -952,7 +941,7 @@ body {
     }
 
     .goldImage .flash {
-        top: 220px;
+        top: 160px;
         position: relative;
         animation: shine 2.5s infinite;
     }
@@ -972,12 +961,16 @@ body {
     }
 
     /* Стили для кнопки */
+    #winPage, #failPage {
+        text-align: center;
+    }
+
     #winPage .button,
     #failPage .button {
         position: absolute;
+        width: 100%;
         z-index: 1;
         bottom: 0;
-        left: 32%;
         animation: pulse 1.5s infinite;
     }
 
@@ -1069,7 +1062,7 @@ body {
     /*==============================*/
     #mainMenu {
         position: absolute;
-        transform: translate(-5%, 100%);
+        transform: translate(-5%, 80%);
         width: 100%;
     }
 
@@ -1094,6 +1087,21 @@ body {
         margin: 0;
     }
 
+    #mainMenu .levels ul:before {
+        content: "";
+        position: absolute;
+        width: 68%;
+        height: 1%;
+        top: 46%;
+        left: 15%;
+        -webkit-transform: rotate(180deg);
+        -moz-transform: rotate(180deg);
+        -ms-transform: rotate(180deg);
+        -o-transform: rotate(180deg);
+        transform: rotate(180deg);
+        border-top: 2px dashed #ffffff87;
+    }
+
     #mainMenu .levels li {
         display: flex;
         justify-content: center;
@@ -1101,12 +1109,12 @@ body {
         z-index: 1;
         border-radius: 30%;
         float: right;
-        margin-right: 50px;
+        margin-right: 20px;
     }
 
-    /*#mainMenu .levels li:nth-child(odd) {*/
-    /*    justify-content: flex-start; !* Нечетные элементы размещаем слева *!*/
-    /*}*/
+    #mainMenu .levels li:nth-child(odd) {
+        justify-content: flex-end; /* Нечетные элементы размещаем слева */
+    }
 
     #mainMenu .levels li:nth-child(even) {
         justify-content: flex-end; /* Четные элементы размещаем справа */
@@ -1144,8 +1152,7 @@ body {
     }
 
     #mainMenu .levels ul li img {
-        width: 150px;
-        height: 150px;
+        width: 80%;
         z-index: 1;
     }
 
@@ -1443,13 +1450,9 @@ body {
         text-align: center;
     }
 
-    #gameScoreSlot .playButton {
-        width: 50%;
-    }
-
     #gameScoreSlot {
         width: 100%;
-        bottom: -5px;
+        bottom: 0;
         position: absolute;
     }
 
@@ -1458,20 +1461,16 @@ body {
     }
 
     #spinSlotButton img {
-        width: 50%;
+        width: 90%;
     }
 
-    .scoreSlot, .playButton, .betsSlot {
+    .scoreSlot, .playButton, .betControlSlot {
         float: left;
     }
 
-    .scoreSlot, .betsSlot {
-        width: 24%;
+    .scoreSlot, .betControlSlot {
+        width: 33%;
         padding-top: 30px;
-    }
-
-    .betsSlot {
-        padding-top: 0px;
     }
 
     .playButton {
@@ -1482,37 +1481,29 @@ body {
         width: 50%;
     }
 
-    #minusBetSlot, #plusBetSlot {
+    #minusBetSlot, #currentBetSlot, #plusBetSlot {
         float: left;
-        width: 50%;
+        width: 33%;
         background: none;
         border: none;
         border-radius: 50%;
         padding: unset;
-    }
-
-    #currentBetSlot {
-        font-size: 30px;
+        color: white;
+        font-family: Montserrat, serif;
         font-weight: 700;
-        float: initial;
+        font-size: 30px;
     }
 
     #minusBetSlot img, #plusBetSlot img {
-        width: 50%;
+        width: 60%;
     }
 
-    .betSlot .text {
-        display: none;
-    }
-
-    .betSlot, .betControlSlot {
-        width: 90%;
-        float: left;
+    .betControlSlot {
         text-align: center;
+        margin-left: 10px;
     }
 
-    .scoreSlot span,
-    .betSlot span {
+    .scoreSlot span {
         width: 40%;
         font-family: Montserrat, serif;
         color: white;
@@ -1527,15 +1518,6 @@ body {
     .scoreSlot .value {
         font-size: 25px;
         font-weight: 700;
-    }
-
-    .betSlot span {
-        padding: unset;
-    }
-
-    .betSlot .text {
-        font-size: 18px;
-        font-weight: 100;
     }
 }
 

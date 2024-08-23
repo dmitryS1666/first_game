@@ -5,8 +5,36 @@
 
 import {setupRoulette} from './roulette'
 import {prepareGame, startGame} from "./bonus";
-import {setupGamePC, startGamePC} from "./planetCatcher";
+import {gameLoopPC, resizeCanvasPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {initSlotMachine} from "./slotMachine";
+
+import { ScreenOrientation } from '@capacitor/screen-orientation';
+
+async function lockToLandscape() {
+    if (Capacitor.getPlatform() !== 'web') {
+        try {
+            await ScreenOrientation.lock({ orientation: 'landscape' });
+            console.log('Screen orientation locked to landscape');
+        } catch (err) {
+            console.error('Error locking orientation:', err);
+        }
+    } else {
+        console.log('ScreenOrientation plugin is not available on web.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Устанавливаем статус-бар прозрачным
+        await StatusBar.setBackgroundColor({ color: 'transparent' });
+        await StatusBar.setOverlaysWebView({ overlay: true });
+
+        // Выключаем скрытие статус-бара (опционально)
+        await StatusBar.show();
+    } catch (error) {
+        console.error('Error setting status bar:', error);
+    }
+});
 
 // Configuration
 export let deposit = 1000; // Начальный депозит игрока
@@ -106,9 +134,10 @@ export function navigateTo(...args) {
     } else {
         switch (args[1]) {
             case 'bonus':
-                console.log('eggs catcher');
-                showHidePage(overlay, preloader, 'gameContainer');
-                prepareGame();
+                navigateTo('mainPage');
+                // console.log('eggs catcher');
+                // showHidePage(overlay, preloader, 'gameContainer');
+                // prepareGame();
                 break;
             case 'roulette':
                 console.log('roulette');
@@ -116,12 +145,14 @@ export function navigateTo(...args) {
                 setupRoulette();
                 break;
             case 'planetCatcher':
-                console.log('planetCatcher');
-                showHidePage(overlay, preloader, 'gameContainer');
-                setupGamePC();
+                navigateTo('mainPage');
+                // console.log('planetCatcher');
+                // showHidePage(overlay, preloader, 'gameContainer');
+                // setupGamePC();
                 break;
             case 'slotMachine':
                 console.log('slotMachine');
+                lockToLandscape();
                 showHidePage(overlay, preloader, 'slotMachineContainer');
                 initSlotMachine();
                 break;
@@ -171,34 +202,43 @@ export function checkOrientation() {
     const slotMachineContainer = document.getElementById('slotMachineContainer');
     const gameContainer = document.getElementById('gameContainer');
 
-    if (isElementVisible('slotMachineContainer')) {  // Проверка видимости блока
-        const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-        if (isPortrait) {
-            // Если вертикальная ориентация, показать сообщение и скрыть игру
-            orientationMessage.innerText = 'Please rotate your device';
-            orientationMessage.style.display = 'flex';
-            slotMachineContainer.style.filter = 'blur(10px)'; // Заблюрить игру
-        } else {
-            // Если горизонтальная ориентация, убрать сообщение и показать игру
-            orientationMessage.style.display = 'none';
-            slotMachineContainer.style.filter = 'none'; // Убрать блюр
-        }
-    } else if (isElementVisible('gameContainer')) {  // Проверка видимости блока
-        const isLand = window.matchMedia("(orientation: landscape)").matches;
-        if (isLand) {
-            // Если горизонтальная ориентация, показать сообщение и скрыть игру
-            orientationMessage.innerText = 'Please rotate your device vertically';
-            orientationMessage.style.display = 'flex';
-            gameContainer.style.filter = 'blur(10px)'; // Заблюрить игру
-        } else {
-            // Если горизонтальная ориентация, убрать сообщение и показать игру
-            orientationMessage.style.display = 'none';
-            gameContainer.style.filter = 'none'; // Убрать блюр
-        }
-    } else {
-        // Если слот-машина не видима, убрать обработчик события
-        window.removeEventListener('orientationchange', checkOrientation);
-    }
+    // if (isElementVisible('slotMachineContainer')) {  // Проверка видимости блока
+    //     const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    //     if (isPortrait) {
+    //         // Если вертикальная ориентация, показать сообщение и скрыть игру
+    //         orientationMessage.innerText = 'Please rotate your device';
+    //         orientationMessage.style.display = 'flex';
+    //         slotMachineContainer.style.filter = 'blur(10px)'; // Заблюрить игру
+    //     } else {
+    //         // Если горизонтальная ориентация, убрать сообщение и показать игру
+    //         orientationMessage.style.display = 'none';
+    //         slotMachineContainer.style.filter = 'none'; // Убрать блюр
+    //         initSlotMachine();
+    //     }
+    // } else {
+    //     // Если слот-машина не видима, убрать обработчик события
+    //     window.removeEventListener('orientationchange', checkOrientation);
+    // }
+
+    // if (isElementVisible('gameContainer')) {  // Проверка видимости блока
+    //     const isLand = window.matchMedia("(orientation: landscape)").matches;
+    //     if (isLand) {
+    //         // Если горизонтальная ориентация, показать сообщение и скрыть игру
+    //         orientationMessage.innerText = 'Please rotate your device vertically';
+    //         orientationMessage.style.display = 'flex';
+    //         gameContainer.style.filter = 'blur(10px)'; // Заблюрить игру
+    //     } else {
+    //         // Если горизонтальная ориентация, убрать сообщение и показать игру
+    //         orientationMessage.style.display = 'none';
+    //         gameContainer.style.filter = 'none'; // Убрать блюр
+    //         prepareGame();
+    //         // resizeCanvasPC(); // Перерисовка канваса
+    //         // gameLoopPC(); // Перезапуск игрового цикла
+    //     }
+    // } else {
+    //     // Если слот-машина не видима, убрать обработчик события
+    //     window.removeEventListener('orientationchange', checkOrientation);
+    // }
 }
 
 // Функция для проверки видимости элемента

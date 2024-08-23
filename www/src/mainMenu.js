@@ -2,7 +2,7 @@
 // --------------------------------------------- //
 // --------------- Основное меню --------------- //
 // --------------------------------------------- //
-import { navigateTo } from './main'
+import {checkOrientation, isElementVisible, navigateTo} from './main'
 
 document.addEventListener('DOMContentLoaded', () => {
     // Функция, которую нужно выполнить, когда элемент станет видимым
@@ -85,4 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
         event.currentTarget.classList.remove('shinePlanet');
     }
 });
+
+// Функция для активации проверки ориентации, если блок видим
+function activateOrientationCheck() {
+    if (isElementVisible('mainMenu')) {
+        window.addEventListener('orientationchange', checkOrientation);
+    } else {
+        window.removeEventListener('orientationchange', checkOrientation);
+    }
+}
+
+setInterval(activateOrientationCheck, 1000);
 
