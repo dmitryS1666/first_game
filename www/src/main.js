@@ -8,21 +8,6 @@ import {prepareGame, startGame} from "./bonus";
 import {gameLoopPC, resizeCanvasPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {initSlotMachine} from "./slotMachine";
 
-import { ScreenOrientation } from '@capacitor/screen-orientation';
-
-async function lockToLandscape() {
-    if (Capacitor.getPlatform() !== 'web') {
-        try {
-            await ScreenOrientation.lock({ orientation: 'landscape' });
-            console.log('Screen orientation locked to landscape');
-        } catch (err) {
-            console.error('Error locking orientation:', err);
-        }
-    } else {
-        console.log('ScreenOrientation plugin is not available on web.');
-    }
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Устанавливаем статус-бар прозрачным
@@ -135,12 +120,12 @@ export function navigateTo(...args) {
         switch (args[1]) {
             case 'bonus':
                 navigateTo('mainPage');
-                // console.log('eggs catcher');
-                // showHidePage(overlay, preloader, 'gameContainer');
-                // prepareGame();
+                console.log('bonus game');
+                showHidePage(overlay, preloader, 'gameContainer');
+                prepareGame();
                 break;
             case 'roulette':
-                console.log('roulette');
+                console.log('roulette game');
                 showHidePage(overlay, preloader, 'rouletteContainer');
                 setupRoulette();
                 break;
@@ -151,8 +136,7 @@ export function navigateTo(...args) {
                 // setupGamePC();
                 break;
             case 'slotMachine':
-                console.log('slotMachine');
-                // lockToLandscape();
+                console.log('slotMachine game');
                 showHidePage(overlay, preloader, 'slotMachineContainer');
                 initSlotMachine();
                 break;
