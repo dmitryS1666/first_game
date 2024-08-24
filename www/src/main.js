@@ -152,7 +152,7 @@ export function navigateTo(...args) {
                 break;
             case 'slotMachine':
                 console.log('slotMachine');
-                lockToLandscape();
+                // lockToLandscape();
                 showHidePage(overlay, preloader, 'slotMachineContainer');
                 initSlotMachine();
                 break;

@@ -87,22 +87,50 @@ function highlightMatches(ballCounts) {
 
 // Функция для активации проверки ориентации, если блок видим
 function activateOrientationCheck() {
+    ensureLandscapeOrientation(); // Проверка ориентации сразу при вызове функции
+
+    window.addEventListener('orientationchange', () => {
+        ensureLandscapeOrientation();
+        resizeCanvas(true); // Передаем true для применения анимации
+    });
+
+    window.addEventListener('resize', () => {
+        ensureLandscapeOrientation();
+        resizeCanvas(true); // Передаем true для применения анимации
+    });
+
     if (isElementVisible('slotMachineContainer')) {
-        window.addEventListener('orientationchange', checkOrientation);
         checkOrientation();
     } else {
         window.removeEventListener('orientationchange', checkOrientation);
+        window.removeEventListener('resize', checkOrientation);
+    }
+}
+
+// Функция для проверки и обработки ориентации экрана
+function ensureLandscapeOrientation() {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const container = document.getElementById('slotMachineContainer');
+    const canvas = document.getElementById('slotCanvas');
+
+    if (isLandscape) {
+        container.classList.remove('rotate');
+        canvas.classList.remove('rotate');
+    } else {
+        container.classList.add('rotate');
+        canvas.classList.add('rotate');
     }
 }
 
 // Инициализация слот-машины после загрузки изображений
 export function initSlotMachine() {
+    ensureLandscapeOrientation(); // Проверяем ориентацию сразу при инициализации
     document.getElementById('slotMachineContainer').addEventListener('click', spin);
     resizeCanvas();
 
-    // setTimeout(() => {
-    //     activateOrientationCheck();
-    // }, 450);
+    setTimeout(() => {
+        activateOrientationCheck();
+    }, 450);
 
     document.getElementById('spinSlotButton').addEventListener('click', spin);
 
@@ -228,7 +256,6 @@ function smoothStopOnLine(columnIndex) {
 
 // Проверка второй линии и вывод информации о шарах
 // Получение видимых шаров во второй линии
-// Получение видимых шаров во второй линии
 function getVisibleBallsInSecondLine() {
     const ballHeight = ballRadius * 2 + ballSpacing;
     const secondLineY = topMargin + ballHeight;
@@ -353,18 +380,28 @@ function spin() {
 // Загружаем изображения перед запуском слот-машины
 loadImages(initSlotMachine);
 
-function resizeCanvas() {
-    const canvasWidth = window.innerWidth * 0.75;
-    const canvasHeight = window.innerHeight * 0.7;
+function resizeCanvas(animate = false) {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const canvasWidth = isLandscape ? window.innerWidth * 0.75 : window.innerHeight * 0.75;
+    const canvasHeight = isLandscape ? window.innerHeight * 0.7 : window.innerWidth * 0.7;
+
+    if (animate && isSpinning) {
+        // Применяем анимацию только если игра запущена
+        canvasSlot.classList.add('rotate');
+    }
 
     canvasSlot.width = canvasWidth;
-    canvasSlot.height = canvasHeight;  // Оставляем высоту канваса неизменной
+    canvasSlot.height = canvasHeight;
 
     columnWidth = canvasSlot.width / columnCount;
     ballRadius = canvasWidth / 20;
 
     // Перерисовать колонки
     drawColumns();
-}
 
-// setInterval(activateOrientationCheck, 1000);
+    if (animate && isSpinning) {
+        setTimeout(() => {
+            canvasSlot.classList.remove('rotate');
+        }, 500); // Время анимации
+    }
+}

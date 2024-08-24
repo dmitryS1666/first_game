@@ -1246,9 +1246,42 @@
       };
     });
   }
+  function activateOrientationCheck2() {
+    ensureLandscapeOrientation();
+    window.addEventListener("orientationchange", () => {
+      ensureLandscapeOrientation();
+      resizeCanvas(true);
+    });
+    window.addEventListener("resize", () => {
+      ensureLandscapeOrientation();
+      resizeCanvas(true);
+    });
+    if (isElementVisible("slotMachineContainer")) {
+      checkOrientation();
+    } else {
+      window.removeEventListener("orientationchange", checkOrientation);
+      window.removeEventListener("resize", checkOrientation);
+    }
+  }
+  function ensureLandscapeOrientation() {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const container = document.getElementById("slotMachineContainer");
+    const canvas2 = document.getElementById("slotCanvas");
+    if (isLandscape) {
+      container.classList.remove("rotate");
+      canvas2.classList.remove("rotate");
+    } else {
+      container.classList.add("rotate");
+      canvas2.classList.add("rotate");
+    }
+  }
   function initSlotMachine() {
+    ensureLandscapeOrientation();
     document.getElementById("slotMachineContainer").addEventListener("click", spin);
     resizeCanvas();
+    setTimeout(() => {
+      activateOrientationCheck2();
+    }, 450);
     document.getElementById("spinSlotButton").addEventListener("click", spin);
     for (let col = 0; col < columnCount; col++) {
       for (let i = 0; i < ballsPerColumn; i++) {
@@ -1426,14 +1459,23 @@
     });
   }
   loadImages(initSlotMachine);
-  function resizeCanvas() {
-    const canvasWidth2 = window.innerWidth * 0.75;
-    const canvasHeight2 = window.innerHeight * 0.7;
+  function resizeCanvas(animate = false) {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const canvasWidth2 = isLandscape ? window.innerWidth * 0.75 : window.innerHeight * 0.75;
+    const canvasHeight2 = isLandscape ? window.innerHeight * 0.7 : window.innerWidth * 0.7;
+    if (animate && isSpinning2) {
+      canvasSlot.classList.add("rotate");
+    }
     canvasSlot.width = canvasWidth2;
     canvasSlot.height = canvasHeight2;
     columnWidth = canvasSlot.width / columnCount;
     ballRadius = canvasWidth2 / 20;
     drawColumns();
+    if (animate && isSpinning2) {
+      setTimeout(() => {
+        canvasSlot.classList.remove("rotate");
+      }, 500);
+    }
   }
 
   // node_modules/@capacitor/screen-orientation/dist/esm/index.js
@@ -1443,18 +1485,6 @@
   });
 
   // src/main.js
-  async function lockToLandscape() {
-    if (Capacitor.getPlatform() !== "web") {
-      try {
-        await ScreenOrientation.lock({ orientation: "landscape" });
-        console.log("Screen orientation locked to landscape");
-      } catch (err) {
-        console.error("Error locking orientation:", err);
-      }
-    } else {
-      console.log("ScreenOrientation plugin is not available on web.");
-    }
-  }
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       await StatusBar.setBackgroundColor({ color: "transparent" });
@@ -1551,7 +1581,6 @@
           break;
         case "slotMachine":
           console.log("slotMachine");
-          lockToLandscape();
           showHidePage(overlay, preloader, "slotMachineContainer");
           initSlotMachine();
           break;
@@ -1651,14 +1680,14 @@
       event.currentTarget.classList.remove("shinePlanet");
     }
   });
-  function activateOrientationCheck2() {
+  function activateOrientationCheck3() {
     if (isElementVisible("mainMenu")) {
       window.addEventListener("orientationchange", checkOrientation);
     } else {
       window.removeEventListener("orientationchange", checkOrientation);
     }
   }
-  setInterval(activateOrientationCheck2, 1e3);
+  setInterval(activateOrientationCheck3, 1e3);
 })();
 /*! Bundled license information:
 

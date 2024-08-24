@@ -632,11 +632,8 @@ html, body {
         font-weight: 700;
     }
 
-    #slotMachineContainer .playButton {
-        position: absolute;
-        bottom: 10px;
-        text-align: center;
-        width: 100%;
+    .scoreSlot, .playButton, .betControlSlot {
+        float: left;
     }
 
     #rouletteContainer {
@@ -645,10 +642,18 @@ html, body {
         height: 100%;
     }
 
+    #gameScoreSlot .betControlSlot {
+        padding-top: 25px;
+    }
+
     #gameScoreRoulette {
         width: 100%;
-        bottom: 30px;
+        bottom: 10px;
         position: absolute;
+    }
+
+    #gameScoreRoulette .betsRoulette{
+        padding-top: 25px;
     }
 
     .scoreRoulette, .playButton, .betsRoulette {
@@ -656,7 +661,7 @@ html, body {
     }
 
     .scoreRoulette, .betsRoulette {
-        width: 24%;
+        width: 25%;
     }
 
     .playButton {
@@ -667,18 +672,17 @@ html, body {
         width: 100%;
     }
 
-    #minusBetRoulette, #plusBetRoulette {
+    #minusBetRoulette, #plusBetRoulette, #currentBetRoulette {
         float: left;
-        width: 50%;
-    }
-
-    #currentBetRoulette {
-        font-size: 30px;
+        width: 33%;
+        font-size: 20px;
         font-weight: 700;
+        color: white;
+        font-family: Montserrat, serif;
     }
 
     #minusBetRoulette img, #plusBetRoulette img {
-        width: 70%;
+        width: 90%;
     }
 
     .betRoulette, .betControlRoulette {
@@ -714,16 +718,94 @@ html, body {
         font-size: 18px;
         font-weight: 100;
     }
+
+    canvas#slotCanvas {
+        display: block;
+        margin: 0 auto;
+        position: absolute;
+        top: 25%;
+        left: 2%;
+        width: 96vw;
+        height: 27vh;
+    }
+
+
+    #gameScoreSlot .playButton {
+        width: 50%;
+        float: left;
+    }
+
+    #gameScoreSlot {
+        width: 100%;
+        bottom: 10px;
+        position: absolute;
+    }
+
+    #spinSlotButton img {
+        width: 100%;
+    }
+
+    .scoreSlot, .playButton, .betControlSlot {
+        float: left;
+    }
+
+    .scoreSlot, .betControlSlot {
+        width: 25%;
+    }
+
+    .playButton {
+        width: 50%;
+    }
+
+    #spinButton img {
+        width: 100%;
+    }
+
+    #minusBetSlot, #currentBetSlot, #plusBetSlot {
+        float: left;
+        width: 33%;
+        background: none;
+        border: none;
+        border-radius: 50%;
+        padding: unset;
+        color: white;
+        font-family: Montserrat, serif;
+        font-weight: 700;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    #minusBetSlot img, #plusBetSlot img {
+        width: 90%;
+    }
+
+    .scoreSlot span {
+        width: 100%;
+        font-family: Montserrat, serif;
+        color: white;
+        float: left;
+        padding-left: 10px;
+    }
+
+    .scoreSlot .text {
+        font-size: 15px;
+    }
+
+    .scoreSlot .value {
+        font-size: 20px;
+        font-weight: 700;
+    }
 }
 
 @media screen and (orientation: landscape) {
-    #slotCanvas {
+    canvas#slotCanvas {
         display: block;
-        margin: 0 auto; /* Центрирование по горизонтали */
-        position: absolute; /* Для центрирования по вертикали */
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -67%); /* Центрирование относительно середины экрана */
+        margin: 0 auto;
+        position: absolute;
+        top: 10%;
+        left: 27%;
+        width: 75vw;
+        height: 70vh;
     }
 
     canvas {
@@ -733,7 +815,7 @@ html, body {
     }
 
     canvas#rouletteCanvas {
-        transform: translateX(25%);
+        transform: translateX(7%);
         -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 1) 50%);
         mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 1) 50%);
     }
@@ -1110,6 +1192,7 @@ html, body {
         border-radius: 30%;
         float: right;
         margin-right: 20px;
+        width: 22%;
     }
 
     #mainMenu .levels li:nth-child(odd) {
@@ -1124,12 +1207,12 @@ html, body {
         content: attr(data-number);
         position: absolute;
         top: 10%;
-        width: 55px;
-        height: 55px;
+        width: 27%;
+        height: 33%;
         border-radius: 50%;
         align-items: center;
         justify-content: center;
-        font-size: 38px;
+        font-size: 29pt;
         font-weight: bold;
         z-index: 2;
         font-family: 'SpaceAge', sans-serif;
@@ -1356,8 +1439,13 @@ html, body {
 
     #gameScoreRoulette {
         width: 100%;
-        bottom: 185px;
+        bottom: 225px;
         position: absolute;
+    }
+
+    #gameScoreRoulette .betControlRoulette {
+        padding-top: 30px;
+        margin-left: 10px;
     }
 
     .scoreRoulette, .playButton, .betsRoulette {
@@ -1365,39 +1453,40 @@ html, body {
     }
 
     .scoreRoulette, .betsRoulette {
-        width: 24%;
-        padding-top: 25px;
+        width: 33%;
+        padding-top: 30px;
     }
 
     .betsRoulette {
-        padding-top: 0px;
+        padding-top: 0;
     }
 
-    .playButton {
-        width: 50%;
+    #gameScoreRoulette .playButton {
+        width: 32%;
+        float: left;
+        height: inherit;
+        text-align: center;
     }
 
     #spinButton img {
         width: 50%;
     }
 
-    #minusBetRoulette, #plusBetRoulette {
+    #minusBetRoulette, #plusBetRoulette, #currentBetRoulette {
         float: left;
-        width: 50%;
+        width: 33%;
         background: none;
         border: none;
         border-radius: 50%;
         padding: unset;
-    }
-
-    #currentBetRoulette {
-        font-size: 30px;
+        color: white;
+        font-family: Montserrat, serif;
         font-weight: 700;
-        float: initial;
+        font-size: 30px;
     }
 
     #minusBetRoulette img, #plusBetRoulette img {
-        width: 50%;
+        width: 60%;
     }
 
     .betRoulette .text {
@@ -1405,7 +1494,7 @@ html, body {
     }
 
     .betRoulette, .betControlRoulette {
-        width: 90%;
+        width: 100%;
         float: left;
         text-align: center;
     }
@@ -1461,7 +1550,7 @@ html, body {
     }
 
     #spinSlotButton img {
-        width: 90%;
+        width: 100%;
     }
 
     .scoreSlot, .playButton, .betControlSlot {
@@ -1478,7 +1567,7 @@ html, body {
     }
 
     #spinButton img {
-        width: 50%;
+        width: 100%;
     }
 
     #minusBetSlot, #currentBetSlot, #plusBetSlot {
