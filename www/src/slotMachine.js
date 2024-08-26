@@ -1,407 +1,187 @@
-import { bet, checkFirstRun, checkOrientation, isElementVisible } from "./main";
+var startSeqs = {};
+var startNum = 0;
 
-const canvasSlot = document.getElementById('slotCanvas');
-const ctxSlot = canvasSlot.getContext('2d');
+// jQuery FN
+$.fn.playSpin = function (options) {
+    if (this.length) {
+        if ($(this).is(':animated')) return; // Return false if this element is animating
+        startSeqs['mainSeq' + (++startNum)] = {};
+        $(this).attr('data-playslot', startNum);
 
-// Параметры игры
-const columnCount = 4;
-const ballsPerColumn = 10; // Увеличено для хранения всех шаров
-let ballRadius = 30; // Радиус шара
-let columnWidth = canvasSlot.width / columnCount;
-const ballSpacing = 15;
-let isSpinning = false;
-let score = 0;
+        var total = this.length;
+        var thisSeq = 0;
 
-const topMargin = 30;
-const bottomMargin = 35;
-const visibleBallCount = 3; // Количество видимых шаров
-const ballTotalHeight = ballRadius * 2 + ballSpacing;
+        // Initialize options
+        if (typeof options == 'undefined') {
+            options = new Object();
+        }
 
-// Колонки, которые должны быть подсвечены
-let highlightedColumns = [];
+        // Pre-define end nums
+        var endNums = [];
+        if (typeof options.endNum != 'undefined') {
+            if ($.isArray(options.endNum)) {
+                endNums = options.endNum;
+            } else {
+                endNums = [options.endNum];
+            }
+        }
 
-// Массив с именами картинок
-const ballImageNames = [
-    'blue_ball.png',
-    'brown_ball.png',
-    'yellow_ball.png',
-    'indigo_ball.png',
-    'orange_ball.png',
-    'pink_ball.png',
-];
+        for (var i = 0; i < this.length; i++) {
+            if (typeof endNums[i] == 'undefined') {
+                endNums.push(0);
+            }
+        }
 
-// Шары в каждой колонке
-const columns = Array.from({ length: columnCount }, () => []);
+        startSeqs['mainSeq' + startNum]['totalSpinning'] = total;
+        return this.each(function () {
+            options.endNum = endNums[thisSeq];
+            startSeqs['mainSeq' + startNum]['subSeq' + (++thisSeq)] = {};
+            startSeqs['mainSeq' + startNum]['subSeq' + thisSeq]['spinning'] = true;
+            var track = {
+                total: total,
+                mainSeq: startNum,
+                subSeq: thisSeq
+            };
+            (new slotMachine(this, options, track));
+        });
+    }
+};
 
-// Скорость вращения колонок
-let speeds = Array(columnCount).fill(0);
+$.fn.stopSpin = function () {
+    if (this.length) {
+        if (!$(this).is(':animated')) return; // Return false if this element is not animating
+        if ($(this)[0].hasAttribute('data-playslot')) {
+            $.each(startSeqs['mainSeq' + $(this).attr('data-playslot')], function(index, obj) {
+                obj['spinning'] = false;
+            });
+        }
+    }
+};
 
-// Создаем переменную для фонового изображения
-let slotBackground;
+var slotMachine = function (el, options, track) {
+    var slot = this;
+    slot.$el = $(el);
 
-// Массив для загрузки изображений
-const ballImages = [];
+    slot.defaultOptions = {
+        easing: 'swing',        // String: easing type for final spin
+        time: 2500,             // Number: total time of spin animation
+        loops: 3,               // Number: times it will spin during the animation
+        manualStop: false,      // Boolean: spin until user manually click to stop
+        useStopTime: false,     // Boolean: use stop time
+        stopTime: 4500,         // Number: total time of stop animation
+        stopSeq: 'random',      // String: sequence of slot machine end animation, random, leftToRight, rightToLeft
+        endNum: 0,              // Number: animation end at which number/ sequence of list
+        onEnd : $.noop,         // Function: run on each element spin end, it is passed endNum
+        onFinish: $.noop,       // Function: run on all element spin end, it is passed endNum
+    };
 
-// Функция для загрузки изображений
-function loadImages(callback) {
-    let imagesLoaded = 0;
+    slot.spinSpeed = 0;
+    slot.loopCount = 0;
 
-    // Загрузка фонового изображения
-    slotBackground = new Image();
-    slotBackground.src = 'res/slotBg.png';  // путь к загруженному фону
-    slotBackground.onload = () => {
-        imagesLoaded++;
-        if (imagesLoaded === ballImageNames.length) { // проверка на количество загруженных изображений
-            callback();
+    slot.init = function () {
+        slot.options = $.extend({}, slot.defaultOptions, options);
+        slot.setup();
+        slot.startSpin();
+    };
+
+    slot.setup = function () {
+        var $li = slot.$el.find('li').first();
+        slot.liHeight = $li.innerHeight();
+        slot.liCount = slot.$el.children().length;
+        slot.listHeight = slot.liHeight * slot.liCount;
+        slot.spinSpeed = slot.options.time / slot.options.loops;
+
+        $li.clone().appendTo(slot.$el); // Clone to last row for smooth animation
+
+        // Configure stopSeq
+        if (slot.options.stopSeq == 'leftToRight') {
+            if (track.subSeq != 1) {
+                slot.options.manualStop = true;
+            }
+        } else if (slot.options.stopSeq == 'rightToLeft') {
+            if (track.total != track.subSeq) {
+                slot.options.manualStop = true;
+            }
         }
     };
 
-    // Загрузка изображений шариков и эффектов
-    ballImageNames.forEach((name, index) => {
-        const img = new Image();
-        img.src = `res/balls/${name}`;
-        img.onload = () => {
-            ballImages[index] = img;
-            imagesLoaded++;
-            if (imagesLoaded === ballImageNames.length) {
-                callback();
-            }
-        };
-    });
-}
+    slot.startSpin = function () {
+        slot.$el
+            .css('top', -slot.listHeight)
+            .animate({'top': '0px'}, slot.spinSpeed, 'linear', function () {
+                slot.lowerSpeed();
+            });
+    };
 
-// Функция для подсветки совпадений
-function highlightMatches(ballCounts) {
-    highlightedColumns = [];
+    slot.lowerSpeed = function () {
+        slot.loopCount++;
 
-    // Определяем, какие колонки нужно подсветить
-    for (let col = 0; col < columnCount; col++) {
-        const count = ballCounts[columns[col][0].imgName] || 0;
-        if (count >= 2) {
-            highlightedColumns.push(col);
+        if (slot.loopCount < slot.options.loops ||
+            (slot.options.manualStop && startSeqs['mainSeq' + track.mainSeq]['subSeq' + track.subSeq]['spinning'])) {
+            slot.startSpin();
+        } else {
+            slot.endSpin();
         }
-    }
+    };
 
-    drawColumns(); // Перерисовать с подсветкой
-}
-
-// Функция для активации проверки ориентации, если блок видим
-function activateOrientationCheck() {
-    ensureLandscapeOrientation(); // Проверка ориентации сразу при вызове функции
-
-    window.addEventListener('orientationchange', () => {
-        ensureLandscapeOrientation();
-        resizeCanvas(true); // Передаем true для применения анимации
-    });
-
-    window.addEventListener('resize', () => {
-        ensureLandscapeOrientation();
-        resizeCanvas(true); // Передаем true для применения анимации
-    });
-
-    if (isElementVisible('slotMachineContainer')) {
-        checkOrientation();
-    } else {
-        window.removeEventListener('orientationchange', checkOrientation);
-        window.removeEventListener('resize', checkOrientation);
-    }
-}
-
-// Функция для проверки и обработки ориентации экрана
-function ensureLandscapeOrientation() {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const container = document.getElementById('slotMachineContainer');
-    const canvas = document.getElementById('slotCanvas');
-
-    if (isLandscape) {
-        container.classList.remove('rotate');
-        canvas.classList.remove('rotate');
-    } else {
-        container.classList.add('rotate');
-        canvas.classList.add('rotate');
-    }
-}
-
-// Инициализация слот-машины после загрузки изображений
-export function initSlotMachine() {
-    ensureLandscapeOrientation(); // Проверяем ориентацию сразу при инициализации
-    document.getElementById('slotMachineContainer').addEventListener('click', spin);
-    resizeCanvas();
-
-    setTimeout(() => {
-        activateOrientationCheck();
-    }, 450);
-
-    document.getElementById('spinSlotButton').addEventListener('click', spin);
-
-    // Инициализация колонок
-    for (let col = 0; col < columnCount; col++) {
-        for (let i = 0; i < ballsPerColumn; i++) {
-            const ball = {
-                imgIndex: i % ballImages.length,
-                imgName: ballImageNames[i % ballImageNames.length], // Сохраняем имя изображения
-                y: i * ballTotalHeight // Располагаем шары за пределами видимой области
-            };
-            columns[col].push(ball);
+    slot.endSpin = function () {
+        if (slot.options.endNum === 0) {
+            slot.options.endNum = slot.randomRange(1, slot.liCount);
         }
-    }
 
-    drawColumns();
+        // Error handling if endNum is out of range
+        if (slot.options.endNum < 0 || slot.options.endNum > slot.liCount) {
+            slot.options.endNum = 1;
+        }
 
-    document.getElementById('currentBetSlot').textContent = bet;
-    document.getElementById('scoreValueSlot').textContent = score || 0;
-    checkFirstRun();
-    document.getElementById('balanceValueSlot').textContent = localStorage.getItem('currentScore') || 0;
-}
+        var finalPos = -((slot.liHeight * slot.options.endNum) - slot.liHeight);
+        var finalTime = ((slot.spinSpeed * 1.5) * (slot.liCount)) / slot.options.endNum;
+        if (slot.options.useStopTime) {
+            finalTime = slot.options.stopTime;
+        }
 
-// Функция отрисовки колонок, картинок и фона
-function drawColumns() {
-    if (slotBackground.complete) {
-        ctxSlot.clearRect(0, 0, canvasSlot.width, canvasSlot.height);
-        ctxSlot.drawImage(slotBackground, 0, 0, canvasSlot.width, canvasSlot.height);
-    }
+        slot.$el
+            .animate({'top': finalPos}, parseInt(finalTime), slot.options.easing, function () {
+                // Adjust position to stop seamlessly
+                slot.$el.css('top', finalPos); // Keep the ul in its final position after animation ends
 
-    for (let col = 0; col < columnCount; col++) {
-        const visibleStartY = topMargin;
-        const visibleEndY = canvasSlot.height - bottomMargin;
+                // Get the value of the stopping element
+                var endValue = slot.$el.children('li').eq(slot.options.endNum - 1).attr('value');
+                slot.endAnimation(endValue);
 
-        // Проверяем, есть ли подсветка для текущей колонки
-        const isHighlighted = highlightedColumns.includes(col);
+                if ($.isFunction(slot.options.onEnd)) {
+                    slot.options.onEnd(endValue);
+                }
 
-        for (let i = 0; i < ballsPerColumn; i++) {
-            const ball = columns[col][i];
-            if (ball && ball.imgIndex !== undefined && ballImages[ball.imgIndex]) {
-                const img = ballImages[ball.imgIndex];
-                if (img.complete) {
-                    const x = col * columnWidth + columnWidth / 2 - ballRadius;
-                    const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
-
-                    // Определение видимости шара
-                    const isVisible = y + ballRadius >= visibleStartY && y + ballRadius <= visibleEndY;
-
-                    // Установка прозрачности
-                    ctxSlot.globalAlpha = isVisible ? 1.0 : 0.0;
-
-                    // Рисуем фоновое изображение для подсветки линии
-                    if (isHighlighted && isVisible) {
-                        ctxSlot.drawImage(ballImages[ballImageNames.length - 2], col * columnWidth, visibleStartY, columnWidth, visibleEndY - visibleStartY); // `flash_line.png`
-                    }
-
-                    // Рисуем само изображение шара
-                    ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
-
-                    // Рисуем подсветку для ячейки, если нужно
-                    if (isHighlighted && isVisible) {
-                        ctxSlot.drawImage(ballImages[ballImageNames.length - 1], x, y, ballRadius * 2, ballRadius * 2); // `flash.png`
+                // onFinish is called when every element has finished spinning
+                if (startSeqs['mainSeq' + track.mainSeq]['totalSpinning'] === 0) {
+                    var totalNum = '|';
+                    $.each(startSeqs['mainSeq' + track.mainSeq], function(index, subSeqs) {
+                        if (typeof subSeqs == 'object') {
+                            totalNum += subSeqs['endNum'] + '|'; // endNum now contains the value
+                        }
+                    });
+                    if ($.isFunction(slot.options.onFinish)) {
+                        slot.options.onFinish(totalNum);
                     }
                 }
-            }
-        }
-    }
-
-    // Возврат прозрачности в стандартное состояние
-    ctxSlot.globalAlpha = 1.0;
-}
-
-// Функция обновления позиции шаров
-function updateColumns() {
-    for (let col = 0; col < columnCount; col++) {
-        for (let i = 0; i < ballsPerColumn; i++) {
-            columns[col][i].y += speeds[col];
-        }
-    }
-}
-
-// Плавное выравнивание
-function smoothStopOnLine(columnIndex) {
-    const visibleHeight = canvasSlot.height - topMargin - bottomMargin;
-    const ballTotalHeight = ballRadius * 2 + ballSpacing;
-    const visibleBallHeight = ballTotalHeight * visibleBallCount;
-
-    // Определяем конечные позиции для всех шаров в колонке
-    const column = columns[columnIndex];
-    column.forEach(ball => {
-        const ballHeight = ballRadius * 2 + ballSpacing;
-        let correctedY = ball.y - topMargin;
-        correctedY = Math.floor(correctedY / ballHeight) * ballHeight + topMargin;
-        ball.finalY = correctedY + topMargin; // Сохраняем целевую позицию
-    });
-
-    let animationFrame = 0;
-    const maxFrames = 30;
-    const animationInterval = 1000 / 60; // 60 fps
-
-    const animation = setInterval(() => {
-        animationFrame++;
-        const progress = animationFrame / maxFrames;
-
-        if (progress >= 1) {
-            clearInterval(animation);
-            // Устанавливаем окончательные позиции
-            columns[columnIndex].forEach(ball => {
-                ball.y = ball.finalY;
             });
-            drawColumns(); // Перерисовать с обновленными позициями
-            return;
+    };
+
+    slot.endAnimation = function(endNum) {
+        if (slot.options.stopSeq == 'leftToRight' && track.total != track.subSeq) {
+            startSeqs['mainSeq' + track.mainSeq]['subSeq' + (track.subSeq + 1)]['spinning'] = false;
+        } else if (slot.options.stopSeq == 'rightToLeft' && track.subSeq != 1) {
+            startSeqs['mainSeq' + track.mainSeq]['subSeq' + (track.subSeq - 1)]['spinning'] = false;
         }
+        startSeqs['mainSeq' + track.mainSeq]['totalSpinning']--;
+        startSeqs['mainSeq' + track.mainSeq]['subSeq' + track.subSeq]['endNum'] = endNum;
+    };
 
-        // Плавная интерполяция
-        columns[columnIndex].forEach(ball => {
-            ball.y = ball.y + (ball.finalY - ball.y) * progress;
-        });
+    slot.randomRange = function (low, high) {
+        return Math.floor(Math.random() * (1 + high - low)) + low;
+    };
 
-        drawColumns(); // Перерисовать с текущими позициями
-    }, animationInterval);
-}
+    this.init();
+};
 
-// Проверка второй линии и вывод информации о шарах
-// Получение видимых шаров во второй линии
-function getVisibleBallsInSecondLine() {
-    const ballHeight = ballRadius * 2 + ballSpacing;
-    const secondLineY = topMargin + ballHeight;
-    const visibleStartY = topMargin;
-    const visibleEndY = canvasSlot.height - bottomMargin;
-
-    const ballCounts = {}; // Пример: { 'blue_ball.png': 2, 'pink_ball.png': 1 }
-    const ballNames = {};  // Для хранения имен шаров и их количества во второй строке
-
-    for (let col = 0; col < columnCount; col++) {
-        const ballsInColumn = columns[col];
-        const visibleBalls = ballsInColumn.filter(ball => {
-            const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
-            // Проверяем, находится ли шар во второй строке и в видимой области
-            return y >= secondLineY - ballRadius && y <= secondLineY + ballRadius &&
-                y + ballRadius >= visibleStartY && y - ballRadius <= visibleEndY;
-        });
-
-        visibleBalls.forEach(ball => {
-            const ballName = ball.imgName;
-            if (ballCounts[ballName]) {
-                ballCounts[ballName]++;
-            } else {
-                ballCounts[ballName] = 1;
-            }
-
-            // Заполняем ballNames для отображения информации
-            if (!ballNames[col]) {
-                ballNames[col] = [];
-            }
-            ballNames[col].push(ballName);
-        });
-    }
-
-    return { ballCounts, ballNames };
-}
-
-// Вывод информации о шарах и вычисление коэффициента умножения
-function calculateMultiplier(ballCounts) {
-    let multiplier = 0;
-
-    // Проверяем количество видимых шаров и считаем коэффициент умножения
-    Object.values(ballCounts).forEach(count => {
-        if (count >= 2) {
-            switch (count) {
-                case 2:
-                    multiplier += 0.75;
-                    break;
-                case 3:
-                    multiplier += 1.5;
-                    break;
-                case 4:
-                    multiplier += 2;
-                    break;
-            }
-        }
-    });
-
-    // Проверка на бонусный шар
-    if (multiplier > 0 && ballCounts['pink_ball.png']) {
-        multiplier *= 3; // Умножаем на 3, если есть бонусный шар
-    }
-
-    return multiplier;
-}
-
-// Отображение результата и информации о найденных шарах
-function displayResult(ballNames, multiplier) {
-    if (multiplier > 0) {
-        console.log('You win! Multiplier:', multiplier);
-    } else {
-        console.log('You lose.');
-    }
-
-    // Вывод информации о шарах во второй строке
-    Object.entries(ballNames).forEach(([col, names]) => {
-        console.log(`Column ${parseInt(col) + 1}: ${names.join(', ')}`);
-    });
-}
-
-// Основной метод для завершения игры
-function endGame() {
-    const { ballCounts, ballNames } = getVisibleBallsInSecondLine();
-    const multiplier = calculateMultiplier(ballCounts);
-
-    // Подсвечиваем совпадения
-    // highlightMatches(ballCounts);
-
-    // Отображаем результат
-    displayResult(ballNames, multiplier);
-}
-
-// Старт анимации
-function spin() {
-    if (isSpinning) return;
-    isSpinning = true;
-
-    speeds = Array(columnCount).fill(10); // задаем одинаковую начальную скорость для всех колонок
-
-    const stopDelays = [1000, 1300, 1600, 1900];
-
-    const animation = setInterval(() => {
-        updateColumns();
-        drawColumns();
-    }, 1000 / 60); // 60fps
-
-    stopDelays.forEach((delay, index) => {
-        setTimeout(() => {
-            speeds[index] = 0;
-            smoothStopOnLine(index); // Плавная корректировка и остановка
-            if (index === columnCount - 1) {
-                setTimeout(() => {
-                    clearInterval(animation);
-                    isSpinning = false;
-                    endGame(); // Проверка второй линии после остановки
-                }, 100); // Небольшая задержка для плавности
-            }
-        }, delay);
-    });
-}
-
-// Загружаем изображения перед запуском слот-машины
-loadImages(initSlotMachine);
-
-function resizeCanvas(animate = false) {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const canvasWidth = isLandscape ? window.innerWidth * 0.75 : window.innerHeight * 0.75;
-    const canvasHeight = isLandscape ? window.innerHeight * 0.7 : window.innerWidth * 0.7;
-
-    if (animate && isSpinning) {
-        // Применяем анимацию только если игра запущена
-        canvasSlot.classList.add('rotate');
-    }
-
-    canvasSlot.width = canvasWidth;
-    canvasSlot.height = canvasHeight;
-
-    columnWidth = canvasSlot.width / columnCount;
-    ballRadius = canvasWidth / 20;
-
-    // Перерисовать колонки
-    drawColumns();
-
-    if (animate && isSpinning) {
-        setTimeout(() => {
-            canvasSlot.classList.remove('rotate');
-        }, 500); // Время анимации
-    }
-}

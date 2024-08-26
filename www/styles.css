@@ -512,7 +512,7 @@ html, body {
         height: 125px;
         position: absolute;
         top: -105px;
-        left: 30%;
+        left: 32%;
     }
 
     #failPlatformAstro {
@@ -547,7 +547,7 @@ html, body {
     #gameScore .statistics {
         display: block;
         width: 100%;
-        height: 150px;
+        height: 100%;
         position: absolute;
         z-index: 3;
     }
@@ -852,7 +852,7 @@ html, body {
     }
 
     #timer {
-        top: 10px;
+        top: 8%;
         left: 50%;
         transform: translateX(-50%);
         color: white;
@@ -1313,7 +1313,7 @@ html, body {
     #gameScore {
         position: absolute;
         bottom: 0;
-        height: 150px;
+        height: 120px;
         width: 100%;
 
         color: white;
@@ -1324,7 +1324,7 @@ html, body {
         width: 15% !important;
         position: absolute;
         top: -105px;
-        left: 43%;
+        left: 42%;
     }
 
     #failPlatformAstro {
@@ -1380,18 +1380,13 @@ html, body {
     #gameScore .score,
     #gameScore .playButton,
     #gameScore .bets {
-        width: 32%;
+        width: 44%;
         float: left;
         height: inherit;
-        text-align: center;
     }
 
     .balanceValue {
         margin-top: 25px;
-    }
-
-    #gameScore .score {
-        padding-left: 10px;
     }
 
     #gameScore .playButton {
@@ -1409,26 +1404,25 @@ html, body {
 
     #gameScore .score .text {
         font-weight: 400;
-        font-size: 16px;
-        width: 35%;
+        font-size: 20px;
+        width: 25%;
         float: left;
         display: grid;
-        text-align: right;
-        line-height: 25px;
-        margin-right: 15%;
+        line-height: 30px;
         margin-top: 25px;
+        padding-left: 15px;
     }
 
     #gameScore .score .value {
         font-weight: 700;
-        font-size: 19px;
+        font-size: 25px;
         width: 25%;
         float: left;
         display: grid;
         text-align: left;
         margin-left: 4%;
         margin-top: 25px;
-        line-height: 25px;
+        line-height: 30px;
     }
 
 
@@ -1439,9 +1433,10 @@ html, body {
     }
 
     #gameScore .bets .bet {
-        margin-top: 15%;
+        margin-top: 5%;
         font-size: 35px;
         font-weight: 700;
+        text-align: right;
     }
 
     #rouletteContainer {
@@ -1577,6 +1572,10 @@ html, body {
 
     .playButton {
         width: 50%;
+    }
+
+    #gameScore .playButton {
+        width: 10%;
     }
 
     #spinButton img {

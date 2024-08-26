@@ -4,8 +4,8 @@
 // --------------------------------------------- //
 
 import {setupRoulette} from './roulette'
-import {prepareGame, startGame} from "./bonus";
-import {gameLoopPC, resizeCanvasPC, setupGamePC, startGamePC} from "./planetCatcher";
+import {endGame, gameOver, prepareGame, startGame} from "./bonus";
+import {endGamePC, gameOverPC, resizeCanvasPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {initSlotMachine} from "./slotMachine";
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -112,6 +112,14 @@ export function navigateTo(...args) {
     overlay.style.display = 'block';
     preloader.style.display = 'block';
 
+    // Завершаем текущую игру, если она еще не завершена
+    if (!gameOver) {
+        endGame(false, true); // Завершаем игру без пересчета результатов
+    }
+    if (!gameOverPC) {
+        endGamePC(false, true); // Завершаем игру без пересчета результатов
+    }
+
     console.log(args);
 
     if (args[1] === undefined) {
@@ -130,10 +138,9 @@ export function navigateTo(...args) {
                 setupRoulette();
                 break;
             case 'planetCatcher':
-                navigateTo('mainPage');
-                // console.log('planetCatcher');
-                // showHidePage(overlay, preloader, 'gameContainer');
-                // setupGamePC();
+                console.log('planetCatcher game');
+                showHidePage(overlay, preloader, 'gameContainer');
+                setupGamePC();
                 break;
             case 'slotMachine':
                 console.log('slotMachine game');
@@ -178,51 +185,6 @@ function plusBet(elementId) {
     } else {
         alert('The bet must not exceed your deposit.');
     }
-}
-
-// Функция для проверки ориентации экрана
-export function checkOrientation() {
-    const orientationMessage = document.getElementById('orientationMessage');
-    const slotMachineContainer = document.getElementById('slotMachineContainer');
-    const gameContainer = document.getElementById('gameContainer');
-
-    // if (isElementVisible('slotMachineContainer')) {  // Проверка видимости блока
-    //     const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-    //     if (isPortrait) {
-    //         // Если вертикальная ориентация, показать сообщение и скрыть игру
-    //         orientationMessage.innerText = 'Please rotate your device';
-    //         orientationMessage.style.display = 'flex';
-    //         slotMachineContainer.style.filter = 'blur(10px)'; // Заблюрить игру
-    //     } else {
-    //         // Если горизонтальная ориентация, убрать сообщение и показать игру
-    //         orientationMessage.style.display = 'none';
-    //         slotMachineContainer.style.filter = 'none'; // Убрать блюр
-    //         initSlotMachine();
-    //     }
-    // } else {
-    //     // Если слот-машина не видима, убрать обработчик события
-    //     window.removeEventListener('orientationchange', checkOrientation);
-    // }
-
-    // if (isElementVisible('gameContainer')) {  // Проверка видимости блока
-    //     const isLand = window.matchMedia("(orientation: landscape)").matches;
-    //     if (isLand) {
-    //         // Если горизонтальная ориентация, показать сообщение и скрыть игру
-    //         orientationMessage.innerText = 'Please rotate your device vertically';
-    //         orientationMessage.style.display = 'flex';
-    //         gameContainer.style.filter = 'blur(10px)'; // Заблюрить игру
-    //     } else {
-    //         // Если горизонтальная ориентация, убрать сообщение и показать игру
-    //         orientationMessage.style.display = 'none';
-    //         gameContainer.style.filter = 'none'; // Убрать блюр
-    //         prepareGame();
-    //         // resizeCanvasPC(); // Перерисовка канваса
-    //         // gameLoopPC(); // Перезапуск игрового цикла
-    //     }
-    // } else {
-    //     // Если слот-машина не видима, убрать обработчик события
-    //     window.removeEventListener('orientationchange', checkOrientation);
-    // }
 }
 
 // Функция для проверки видимости элемента

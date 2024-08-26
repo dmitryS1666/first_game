@@ -8,13 +8,13 @@ import { bet, deposit } from './main'
 
 // Game state
 let timer;
-let gameOver = false;
+export let gameOver = false;
 
 let canvas, ctx;
 let canvasWidth, canvasHeight;
 let basketWidth, basketHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
-const eggInterval = 1000; // milliseconds
+const eggInterval = 1100; // milliseconds
 const gameDuration = 15; // seconds
 let tracks = []; // Массив для хранения следов
 
@@ -80,11 +80,14 @@ function setupGame() {
         return;
     }
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas(); // Инициализация размеров canvas
 
-    basketWidth = 145;
-    basketHeight = 127;
+    // Слушатель на изменение ориентации экрана
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+
+    basketWidth = 160;
+    basketHeight = 125;
 
     basketSpeed = canvasWidth * 0.02;
     eggSpeedBase = canvasHeight * 0.005;
@@ -112,15 +115,12 @@ function setupGame() {
     document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
 }
 
-
 // Resize canvas to fit window
 function resizeCanvas() {
     canvasWidth = window.innerWidth;
     canvasHeight = window.innerHeight;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-    basketWidth = canvasWidth * 0.2;
-    basketHeight = canvasHeight * 0.05;
     basketSpeed = canvasWidth * 0.02;
 }
 
@@ -131,7 +131,6 @@ export function prepareGame() {
     setupKeyboardControls();
 
     score = 0;
-    basketX = (canvasWidth - basketWidth) / 2;
     eggs = [];
     updateScoreDisplay();
     timerDisplay('block');
@@ -147,6 +146,19 @@ export function prepareGame() {
 
 // Start a new game
 export function startGame() {
+    if (gameOver === false) {
+        // Если игра уже началась, не начинаем ее снова
+        console.log('Игра уже активна.');
+        return;
+    }
+
+    // Деактивируем кнопку "Старт" после начала игры
+    const startButton = document.getElementById('play');
+    if (startButton) {
+        startButton.disabled = true; // Блокируем кнопку
+    }
+
+    basketX = (canvasWidth - basketWidth) / 2;
     document.getElementById('failPlatform').style.display = 'none';
     startTimer();
     if (canvas) {
@@ -181,9 +193,16 @@ export function startGame() {
 // }
 
 // End the game
-function endGame(isVictory) {
+export function endGame(isVictory, isInterrupted = false) {
+    if (isInterrupted) {
+        gameOver = true;
+        clearInterval(timer);
+        return;
+    }
+
     canvas.style.display = 'none';
     timerDisplay('none');
+
     let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
     if (isVictory) {
         let newScore = parseInt(localStorage.getItem('currentScore')) + score + currentBet; // Сохраняем текущий результат
@@ -199,7 +218,15 @@ function endGame(isVictory) {
 
         navigateTo('failPage'); // Перенаправляем на страницу поражения
     }
-    gameOver = true;
+
+    gameOver = true; // Игра завершена
+
+    // Активируем кнопку "Старт" после завершения игры
+    const startButton = document.getElementById('play');
+    if (startButton) {
+        startButton.disabled = false; // Разблокируем кнопку
+    }
+
     clearInterval(timer);
 }
 

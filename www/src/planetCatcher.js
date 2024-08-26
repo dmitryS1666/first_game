@@ -3,12 +3,12 @@
 // --------------- Ловец планет ---------------- //
 // --------------------------------------------- //
 
-import {checkFirstRun, checkOrientation, isElementVisible, navigateTo, saveScore} from "./main";
+import {checkFirstRun, navigateTo, saveScore} from "./main";
 import {bet, deposit} from './main';
 
 // Game state
 let timerPC;
-let gameOver = false;
+export let gameOverPC = false;
 
 let canvasPC, ctxPC;
 let canvasPCWidth, canvasPCHeight;
@@ -33,7 +33,7 @@ const colorProperties = {
     orange: {score: -5},
     purple: {score: -10},
     pink: {score: -2},
-    // red: {score: 0, gameOver: true}
+    // red: {score: 0, gameOverPC: true}
     red: {score: 0}
 };
 
@@ -70,10 +70,6 @@ let flashes = [];
 export function setupGamePC() {
     canvasPC = document.getElementById('planetCatcherCanvas');
 
-    setTimeout(() => {
-        activateOrientationCheck();
-    }, 450);
-
     if (!canvasPC) {
         console.error('Canvas element not found');
         return;
@@ -81,7 +77,7 @@ export function setupGamePC() {
 
     // Управление движением корзины с помощью касаний
     canvasPC.addEventListener('touchstart', (event) => {
-        if (gameOver) return;
+        if (gameOverPC) return;
 
         const touchX = event.touches[0].clientX;
 
@@ -116,7 +112,7 @@ export function setupGamePC() {
         ballImages[color] = img;
     });
 
-    const startButton = document.getElementById('startButton');
+    const startButton = document.getElementById('playPC');
     if (startButton) startButton.addEventListener('click', startGamePC);
 
     setInterval(addEgg, eggInterval);
@@ -168,15 +164,28 @@ export function startGamePC() {
     updateScoreDisplay();
     startTimerPC();
     canvasPC.style.display = 'block';
-    gameOver = false;
+    gameOverPC = false;
 
     document.getElementById('failPlatformAstroBlock').style.display = 'none';
+
+    // Деактивируем кнопку "Старт" после начала игры
+    const startButton = document.getElementById('playPC');
+    if (startButton) {
+        startButton.disabled = true; // Блокируем кнопку
+    }
 
     gameLoopPC();
 }
 
 // Конец игры
-function endGame(isVictory) {
+export function endGamePC(isVictory, isInterrupted = false) {
+    // Если игра прервана, не пересчитываем результат
+    if (isInterrupted) {
+        gameOverPC = true;
+        clearInterval(timerPC);
+        return;
+    }
+
     canvasPC.style.display = 'none';
     timerDisplay('none');
 
@@ -199,7 +208,14 @@ function endGame(isVictory) {
         navigateTo('failPage');
     }
 
-    gameOver = true;
+    gameOverPC = true;
+
+    // Активируем кнопку "Старт" после завершения игры
+    const startButton = document.getElementById('startButton');
+    if (startButton) {
+        startButton.disabled = false; // Разблокируем кнопку
+    }
+
     clearInterval(timerPC);
 }
 
@@ -215,7 +231,7 @@ function startTimerPC() {
             document.getElementById('seconds').textContent = `0${timeRemaining}`;
         }
         if (timeRemaining <= 0) {
-            endGame(score >= 0);
+            endGamePC(score >= 0);
         }
     }, 1000);
 }
@@ -328,7 +344,7 @@ function drawEggs() {
 
 // Логика игры
 export function gameLoopPC() {
-    if (gameOver) return;
+    if (gameOverPC) return;
     ctxPC.clearRect(0, 0, canvasPCWidth, canvasPCHeight);
     drawPipes();
     drawBasket();
@@ -348,8 +364,8 @@ function handleCollision() {
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
-            if (properties.gameOver) {
-                endGame(false);
+            if (properties.gameOverPC) {
+                endGamePC(false);
             }
 
             // Добавляем вспышку и текст
@@ -376,7 +392,7 @@ function updateScoreDisplay() {
 
 // Добавляем шар
 function addEgg() {
-    if (gameOver) return;
+    if (gameOverPC) return;
     const fromLeft = Math.random() > 0.5;
     const color = colors[Math.floor(Math.random() * colors.length)];
 
@@ -398,7 +414,7 @@ function addEgg() {
 
 // Управление движением корзины
 document.addEventListener('keydown', (event) => {
-    if (gameOver) return;
+    if (gameOverPC) return;
     if (event.key === 'ArrowLeft') {
         basketPosition = 'left';
     } else if (event.key === 'ArrowRight') {
@@ -411,15 +427,3 @@ function timerDisplay(state) {
     document.getElementById('timer').style.display = state;
     document.getElementById('seconds').textContent = gameDuration;
 }
-
-// Функция для активации проверки ориентации, если блок видим
-function activateOrientationCheck() {
-    if (isElementVisible('gameContainer')) {
-        window.addEventListener('orientationchange', checkOrientation);
-        checkOrientation();
-    } else {
-        window.removeEventListener('orientationchange', checkOrientation);
-    }
-}
-
-setInterval(activateOrientationCheck, 1000);

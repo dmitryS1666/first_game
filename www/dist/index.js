@@ -131,7 +131,7 @@
   var basketSpeed;
   var eggSpeedBase;
   var eggSpeedVariance;
-  var eggInterval = 1e3;
+  var eggInterval = 1100;
   var gameDuration = 15;
   var tracks = [];
   var basketX;
@@ -187,8 +187,9 @@
     }
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
-    basketWidth = 145;
-    basketHeight = 127;
+    window.addEventListener("orientationchange", resizeCanvas);
+    basketWidth = 160;
+    basketHeight = 125;
     basketSpeed = canvasWidth * 0.02;
     eggSpeedBase = canvasHeight * 5e-3;
     eggSpeedVariance = canvasHeight * 3e-3;
@@ -212,8 +213,6 @@
     canvasHeight = window.innerHeight;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-    basketWidth = canvasWidth * 0.2;
-    basketHeight = canvasHeight * 0.05;
     basketSpeed = canvasWidth * 0.02;
   }
   function prepareGame() {
@@ -221,7 +220,6 @@
     setupTouchControls();
     setupKeyboardControls();
     score2 = 0;
-    basketX = (canvasWidth - basketWidth) / 2;
     eggs = [];
     updateScoreDisplay();
     timerDisplay("block");
@@ -234,6 +232,15 @@
     document.getElementById("playPC").style.display = "none";
   }
   function startGame() {
+    if (gameOver === false) {
+      console.log("\u0418\u0433\u0440\u0430 \u0443\u0436\u0435 \u0430\u043A\u0442\u0438\u0432\u043D\u0430.");
+      return;
+    }
+    const startButton = document.getElementById("play");
+    if (startButton) {
+      startButton.disabled = true;
+    }
+    basketX = (canvasWidth - basketWidth) / 2;
     document.getElementById("failPlatform").style.display = "none";
     startTimer();
     if (canvas) {
@@ -242,7 +249,12 @@
       gameLoop();
     }
   }
-  function endGame(isVictory) {
+  function endGame(isVictory, isInterrupted = false) {
+    if (isInterrupted) {
+      gameOver = true;
+      clearInterval(timer);
+      return;
+    }
     canvas.style.display = "none";
     timerDisplay("none");
     let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
@@ -258,6 +270,10 @@
       navigateTo("failPage");
     }
     gameOver = true;
+    const startButton = document.getElementById("play");
+    if (startButton) {
+      startButton.disabled = false;
+    }
     clearInterval(timer);
   }
   function startTimer() {
@@ -392,7 +408,7 @@
 
   // src/planetCatcher.js
   var timerPC;
-  var gameOver2 = false;
+  var gameOverPC = false;
   var canvasPC;
   var ctxPC;
   var canvasPCWidth;
@@ -422,7 +438,7 @@
     orange: { score: -5 },
     purple: { score: -10 },
     pink: { score: -2 },
-    // red: {score: 0, gameOver: true}
+    // red: {score: 0, gameOverPC: true}
     red: { score: 0 }
   };
   var ballImages2 = {};
@@ -449,15 +465,12 @@
   var flashes = [];
   function setupGamePC() {
     canvasPC = document.getElementById("planetCatcherCanvas");
-    setTimeout(() => {
-      activateOrientationCheck();
-    }, 450);
     if (!canvasPC) {
       console.error("Canvas element not found");
       return;
     }
     canvasPC.addEventListener("touchstart", (event) => {
-      if (gameOver2) return;
+      if (gameOverPC) return;
       const touchX = event.touches[0].clientX;
       if (touchX < canvasPCWidth / 2) {
         basketPosition = "left";
@@ -483,7 +496,7 @@
       img.src = `res/balls/${fileName}`;
       ballImages2[color] = img;
     });
-    const startButton = document.getElementById("startButton");
+    const startButton = document.getElementById("playPC");
     if (startButton) startButton.addEventListener("click", startGamePC);
     setInterval(addEgg2, eggInterval2);
     document.getElementById("currentBet").textContent = bet;
@@ -525,11 +538,20 @@
     updateScoreDisplay2();
     startTimerPC();
     canvasPC.style.display = "block";
-    gameOver2 = false;
+    gameOverPC = false;
     document.getElementById("failPlatformAstroBlock").style.display = "none";
+    const startButton = document.getElementById("playPC");
+    if (startButton) {
+      startButton.disabled = true;
+    }
     gameLoopPC();
   }
-  function endGame2(isVictory) {
+  function endGamePC(isVictory, isInterrupted = false) {
+    if (isInterrupted) {
+      gameOverPC = true;
+      clearInterval(timerPC);
+      return;
+    }
     canvasPC.style.display = "none";
     timerDisplay2("none");
     document.getElementById("pipeRight").style.display = "block";
@@ -546,7 +568,11 @@
       saveScore(newScore);
       navigateTo("failPage");
     }
-    gameOver2 = true;
+    gameOverPC = true;
+    const startButton = document.getElementById("startButton");
+    if (startButton) {
+      startButton.disabled = false;
+    }
     clearInterval(timerPC);
   }
   function startTimerPC() {
@@ -560,7 +586,7 @@
         document.getElementById("seconds").textContent = `0${timeRemaining}`;
       }
       if (timeRemaining <= 0) {
-        endGame2(score3 >= 0);
+        endGamePC(score3 >= 0);
       }
     }, 1e3);
   }
@@ -628,7 +654,7 @@
     flashes = flashes.filter((flash) => flash.alpha > 0 || flash.textAlpha > 0);
   }
   function gameLoopPC() {
-    if (gameOver2) return;
+    if (gameOverPC) return;
     ctxPC.clearRect(0, 0, canvasPCWidth, canvasPCHeight);
     drawPipes();
     drawBasket2();
@@ -645,8 +671,8 @@
         const properties = colorProperties2[egg.color];
         score3 += properties.score;
         updateScoreDisplay2();
-        if (properties.gameOver) {
-          endGame2(false);
+        if (properties.gameOverPC) {
+          endGamePC(false);
         }
         flashes.push({
           x: egg.x,
@@ -672,7 +698,7 @@
     document.getElementById("scoreValue").textContent = score3;
   }
   function addEgg2() {
-    if (gameOver2) return;
+    if (gameOverPC) return;
     const fromLeft = Math.random() > 0.5;
     const color = colors2[Math.floor(Math.random() * colors2.length)];
     const startX = fromLeft ? 70 : canvasPCWidth - 65;
@@ -693,7 +719,7 @@
     });
   }
   document.addEventListener("keydown", (event) => {
-    if (gameOver2) return;
+    if (gameOverPC) return;
     if (event.key === "ArrowLeft") {
       basketPosition = "left";
     } else if (event.key === "ArrowRight") {
@@ -704,31 +730,10 @@
     document.getElementById("timer").style.display = state;
     document.getElementById("seconds").textContent = gameDuration2;
   }
-  function activateOrientationCheck() {
-    if (isElementVisible("gameContainer")) {
-      window.addEventListener("orientationchange", checkOrientation);
-      checkOrientation();
-    } else {
-      window.removeEventListener("orientationchange", checkOrientation);
-    }
-  }
-  setInterval(activateOrientationCheck, 1e3);
 
   // src/slotMachine.js
-  var canvasSlot = document.getElementById("slotCanvas");
-  var ctxSlot = canvasSlot.getContext("2d");
-  var columnCount = 4;
-  var ballsPerColumn = 10;
-  var ballRadius = 30;
-  var columnWidth = canvasSlot.width / columnCount;
-  var ballSpacing = 15;
-  var isSpinning2 = false;
-  var score4 = 0;
-  var topMargin = 30;
-  var bottomMargin = 35;
-  var visibleBallCount = 3;
-  var ballTotalHeight = ballRadius * 2 + ballSpacing;
-  var highlightedColumns = [];
+  var startSeqs = {};
+  var startNum = 0;
   var ballImageNames3 = [
     "blue_ball.png",
     "brown_ball.png",
@@ -737,262 +742,178 @@
     "orange_ball.png",
     "pink_ball.png"
   ];
-  var columns = Array.from({ length: columnCount }, () => []);
-  var speeds = Array(columnCount).fill(0);
-  var slotBackground;
-  var ballImages3 = [];
-  function loadImages(callback) {
-    let imagesLoaded = 0;
-    slotBackground = new Image();
-    slotBackground.src = "res/slotBg.png";
-    slotBackground.onload = () => {
-      imagesLoaded++;
-      if (imagesLoaded === ballImageNames3.length) {
-        callback();
+  var slotBackground = "res/slotBg.png";
+  $.fn.playSpin = function(options) {
+    if (this.length) {
+      if ($(this).is(":animated")) return;
+      startSeqs["mainSeq" + ++startNum] = {};
+      $(this).attr("data-playslot", startNum);
+      var total = 4;
+      var thisSeq = 0;
+      if (typeof options === "undefined") {
+        options = {};
+      }
+      var endNums = [];
+      if (typeof options.endNum !== "undefined") {
+        if ($.isArray(options.endNum)) {
+          endNums = options.endNum;
+        } else {
+          endNums = [options.endNum];
+        }
+      }
+      for (var i = 0; i < total; i++) {
+        if (typeof endNums[i] === "undefined") {
+          endNums.push(0);
+        }
+      }
+      startSeqs["mainSeq" + startNum]["totalSpinning"] = total;
+      return this.each(function() {
+        options.endNum = endNums[thisSeq];
+        startSeqs["mainSeq" + startNum]["subSeq" + ++thisSeq] = {};
+        startSeqs["mainSeq" + startNum]["subSeq" + thisSeq]["spinning"] = true;
+        var track = {
+          total,
+          mainSeq: startNum,
+          subSeq: thisSeq
+        };
+        new SlotMachine(this, options, track);
+      });
+    }
+  };
+  $.fn.stopSpin = function() {
+    if (this.length) {
+      if (!$(this).is(":animated")) return;
+      if ($(this)[0].hasAttribute("data-playslot")) {
+        $.each(startSeqs["mainSeq" + $(this).attr("data-playslot")], function(index, obj) {
+          obj["spinning"] = false;
+        });
+      }
+    }
+  };
+  function SlotMachine(el, options, track) {
+    var slot = this;
+    slot.$el = $(el);
+    slot.defaultOptions = {
+      easing: "swing",
+      // Тип easing для финального спина
+      time: 3e3,
+      // Общее время анимации вращения
+      loops: 6,
+      // Количество полных вращений
+      manualStop: false,
+      // Вручную останавливать вращение
+      useStopTime: false,
+      // Использовать время остановки
+      stopTime: 5e3,
+      // Время остановки анимации
+      stopSeq: "random",
+      // Последовательность остановки: random, leftToRight, rightToLeft
+      endNum: 0,
+      // Конечный номер анимации
+      onEnd: $.noop,
+      // Функция, вызываемая при окончании анимации элемента
+      onFinish: $.noop
+      // Функция, вызываемая, когда анимация всех элементов завершена
+    };
+    slot.spinSpeed = 0;
+    slot.loopCount = 0;
+    slot.init = function() {
+      slot.options = $.extend({}, slot.defaultOptions, options);
+      slot.setup();
+      slot.startSpin();
+    };
+    slot.setup = function() {
+      slot.$el.css({
+        "background-image": "url(" + slotBackground + ")",
+        "background-size": "cover",
+        "overflow": "hidden",
+        "position": "relative"
+      });
+      slot.$el.find("li").each(function(index) {
+        var randomBall = ballImageNames3[Math.floor(Math.random() * ballImageNames3.length)];
+        $(this).css({
+          "background-image": "url(res/" + randomBall + ")",
+          "background-size": "cover",
+          "width": "100%",
+          "height": "100%",
+          "position": "absolute",
+          "left": 0,
+          "top": index * 100 + "%"
+        });
+      });
+      var $li = slot.$el.find("li").first();
+      slot.liHeight = $li.outerHeight();
+      slot.liCount = slot.$el.children().length;
+      slot.listHeight = slot.liHeight * slot.liCount;
+      slot.spinSpeed = slot.options.time / slot.options.loops;
+      $li.clone().appendTo(slot.$el);
+      if (slot.options.stopSeq === "leftToRight") {
+        if (track.subSeq !== 1) {
+          slot.options.manualStop = true;
+        }
+      } else if (slot.options.stopSeq === "rightToLeft") {
+        if (track.total !== track.subSeq) {
+          slot.options.manualStop = true;
+        }
       }
     };
-    ballImageNames3.forEach((name, index) => {
-      const img = new Image();
-      img.src = `res/balls/${name}`;
-      img.onload = () => {
-        ballImages3[index] = img;
-        imagesLoaded++;
-        if (imagesLoaded === ballImageNames3.length) {
-          callback();
-        }
-      };
-    });
-  }
-  function activateOrientationCheck2() {
-    ensureLandscapeOrientation();
-    window.addEventListener("orientationchange", () => {
-      ensureLandscapeOrientation();
-      resizeCanvas2(true);
-    });
-    window.addEventListener("resize", () => {
-      ensureLandscapeOrientation();
-      resizeCanvas2(true);
-    });
-    if (isElementVisible("slotMachineContainer")) {
-      checkOrientation();
-    } else {
-      window.removeEventListener("orientationchange", checkOrientation);
-      window.removeEventListener("resize", checkOrientation);
-    }
-  }
-  function ensureLandscapeOrientation() {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const container = document.getElementById("slotMachineContainer");
-    const canvas2 = document.getElementById("slotCanvas");
-    if (isLandscape) {
-      container.classList.remove("rotate");
-      canvas2.classList.remove("rotate");
-    } else {
-      container.classList.add("rotate");
-      canvas2.classList.add("rotate");
-    }
-  }
-  function initSlotMachine() {
-    ensureLandscapeOrientation();
-    document.getElementById("slotMachineContainer").addEventListener("click", spin);
-    resizeCanvas2();
-    setTimeout(() => {
-      activateOrientationCheck2();
-    }, 450);
-    document.getElementById("spinSlotButton").addEventListener("click", spin);
-    for (let col = 0; col < columnCount; col++) {
-      for (let i = 0; i < ballsPerColumn; i++) {
-        const ball = {
-          imgIndex: i % ballImages3.length,
-          imgName: ballImageNames3[i % ballImageNames3.length],
-          // Сохраняем имя изображения
-          y: i * ballTotalHeight
-          // Располагаем шары за пределами видимой области
-        };
-        columns[col].push(ball);
+    slot.startSpin = function() {
+      slot.$el.css("top", -slot.listHeight).animate({ "top": "0px" }, slot.spinSpeed, "linear", function() {
+        slot.lowerSpeed();
+      });
+    };
+    slot.lowerSpeed = function() {
+      slot.loopCount++;
+      if (slot.loopCount < slot.options.loops || slot.options.manualStop && startSeqs["mainSeq" + track.mainSeq]["subSeq" + track.subSeq]["spinning"]) {
+        slot.startSpin();
+      } else {
+        slot.endSpin();
       }
-    }
-    drawColumns();
-    document.getElementById("currentBetSlot").textContent = bet;
-    document.getElementById("scoreValueSlot").textContent = score4 || 0;
-    checkFirstRun();
-    document.getElementById("balanceValueSlot").textContent = localStorage.getItem("currentScore") || 0;
-  }
-  function drawColumns() {
-    if (slotBackground.complete) {
-      ctxSlot.clearRect(0, 0, canvasSlot.width, canvasSlot.height);
-      ctxSlot.drawImage(slotBackground, 0, 0, canvasSlot.width, canvasSlot.height);
-    }
-    for (let col = 0; col < columnCount; col++) {
-      const visibleStartY = topMargin;
-      const visibleEndY = canvasSlot.height - bottomMargin;
-      const isHighlighted = highlightedColumns.includes(col);
-      for (let i = 0; i < ballsPerColumn; i++) {
-        const ball = columns[col][i];
-        if (ball && ball.imgIndex !== void 0 && ballImages3[ball.imgIndex]) {
-          const img = ballImages3[ball.imgIndex];
-          if (img.complete) {
-            const x = col * columnWidth + columnWidth / 2 - ballRadius;
-            const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
-            const isVisible = y + ballRadius >= visibleStartY && y + ballRadius <= visibleEndY;
-            ctxSlot.globalAlpha = isVisible ? 1 : 0;
-            if (isHighlighted && isVisible) {
-              ctxSlot.drawImage(ballImages3[ballImageNames3.length - 2], col * columnWidth, visibleStartY, columnWidth, visibleEndY - visibleStartY);
+    };
+    slot.endSpin = function() {
+      if (slot.options.endNum === 0) {
+        slot.options.endNum = slot.randomRange(1, slot.liCount);
+      }
+      if (slot.options.endNum < 0 || slot.options.endNum > slot.liCount) {
+        slot.options.endNum = 1;
+      }
+      var finalPos = -(slot.liHeight * slot.options.endNum - slot.liHeight);
+      var finalTime = slot.spinSpeed * 1.5 * slot.liCount / slot.options.endNum;
+      if (slot.options.useStopTime) {
+        finalTime = slot.options.stopTime;
+      }
+      slot.$el.css("top", -slot.listHeight).animate({ "top": finalPos }, parseInt(finalTime), slot.options.easing, function() {
+        slot.$el.find("li").last().remove();
+        slot.endAnimation(slot.options.endNum);
+        if ($.isFunction(slot.options.onEnd)) {
+          slot.options.onEnd(slot.options.endNum);
+        }
+        if (startSeqs["mainSeq" + track.mainSeq]["totalSpinning"] === 0) {
+          var totalNum = "";
+          $.each(startSeqs["mainSeq" + track.mainSeq], function(index, subSeqs) {
+            if (typeof subSeqs === "object") {
+              totalNum += subSeqs["endNum"].toString();
             }
-            ctxSlot.drawImage(img, x, y, ballRadius * 2, ballRadius * 2);
-            if (isHighlighted && isVisible) {
-              ctxSlot.drawImage(ballImages3[ballImageNames3.length - 1], x, y, ballRadius * 2, ballRadius * 2);
-            }
+          });
+          if ($.isFunction(slot.options.onFinish)) {
+            slot.options.onFinish(totalNum);
           }
         }
-      }
-    }
-    ctxSlot.globalAlpha = 1;
-  }
-  function updateColumns() {
-    for (let col = 0; col < columnCount; col++) {
-      for (let i = 0; i < ballsPerColumn; i++) {
-        columns[col][i].y += speeds[col];
-      }
-    }
-  }
-  function smoothStopOnLine(columnIndex) {
-    const visibleHeight = canvasSlot.height - topMargin - bottomMargin;
-    const ballTotalHeight2 = ballRadius * 2 + ballSpacing;
-    const visibleBallHeight = ballTotalHeight2 * visibleBallCount;
-    const column = columns[columnIndex];
-    column.forEach((ball) => {
-      const ballHeight = ballRadius * 2 + ballSpacing;
-      let correctedY = ball.y - topMargin;
-      correctedY = Math.floor(correctedY / ballHeight) * ballHeight + topMargin;
-      ball.finalY = correctedY + topMargin;
-    });
-    let animationFrame = 0;
-    const maxFrames = 30;
-    const animationInterval = 1e3 / 60;
-    const animation = setInterval(() => {
-      animationFrame++;
-      const progress = animationFrame / maxFrames;
-      if (progress >= 1) {
-        clearInterval(animation);
-        columns[columnIndex].forEach((ball) => {
-          ball.y = ball.finalY;
-        });
-        drawColumns();
-        return;
-      }
-      columns[columnIndex].forEach((ball) => {
-        ball.y = ball.y + (ball.finalY - ball.y) * progress;
       });
-      drawColumns();
-    }, animationInterval);
-  }
-  function getVisibleBallsInSecondLine() {
-    const ballHeight = ballRadius * 2 + ballSpacing;
-    const secondLineY = topMargin + ballHeight;
-    const visibleStartY = topMargin;
-    const visibleEndY = canvasSlot.height - bottomMargin;
-    const ballCounts = {};
-    const ballNames = {};
-    for (let col = 0; col < columnCount; col++) {
-      const ballsInColumn = columns[col];
-      const visibleBalls = ballsInColumn.filter((ball) => {
-        const y = ball.y % (ballsPerColumn * ballTotalHeight) - ballRadius;
-        return y >= secondLineY - ballRadius && y <= secondLineY + ballRadius && y + ballRadius >= visibleStartY && y - ballRadius <= visibleEndY;
-      });
-      visibleBalls.forEach((ball) => {
-        const ballName = ball.imgName;
-        if (ballCounts[ballName]) {
-          ballCounts[ballName]++;
-        } else {
-          ballCounts[ballName] = 1;
-        }
-        if (!ballNames[col]) {
-          ballNames[col] = [];
-        }
-        ballNames[col].push(ballName);
-      });
-    }
-    return { ballCounts, ballNames };
-  }
-  function calculateMultiplier(ballCounts) {
-    let multiplier = 0;
-    Object.values(ballCounts).forEach((count) => {
-      if (count >= 2) {
-        switch (count) {
-          case 2:
-            multiplier += 0.75;
-            break;
-          case 3:
-            multiplier += 1.5;
-            break;
-          case 4:
-            multiplier += 2;
-            break;
-        }
+    };
+    slot.endAnimation = function(endNum) {
+      if (slot.options.stopSeq === "leftToRight" && track.total !== track.subSeq) {
+        startSeqs["mainSeq" + track.mainSeq]["subSeq" + (track.subSeq + 1)]["spinning"] = false;
+      } else if (slot.options.stopSeq === "rightToLeft" && track.subSeq !== 1) {
+        startSeqs["mainSeq" + track.mainSeq]["subSeq" + (track.subSeq - 1)]["spinning"] = false;
       }
-    });
-    if (multiplier > 0 && ballCounts["pink_ball.png"]) {
-      multiplier *= 3;
-    }
-    return multiplier;
-  }
-  function displayResult(ballNames, multiplier) {
-    if (multiplier > 0) {
-      console.log("You win! Multiplier:", multiplier);
-    } else {
-      console.log("You lose.");
-    }
-    Object.entries(ballNames).forEach(([col, names]) => {
-      console.log(`Column ${parseInt(col) + 1}: ${names.join(", ")}`);
-    });
-  }
-  function endGame3() {
-    const { ballCounts, ballNames } = getVisibleBallsInSecondLine();
-    const multiplier = calculateMultiplier(ballCounts);
-    displayResult(ballNames, multiplier);
-  }
-  function spin() {
-    if (isSpinning2) return;
-    isSpinning2 = true;
-    speeds = Array(columnCount).fill(10);
-    const stopDelays = [1e3, 1300, 1600, 1900];
-    const animation = setInterval(() => {
-      updateColumns();
-      drawColumns();
-    }, 1e3 / 60);
-    stopDelays.forEach((delay, index) => {
-      setTimeout(() => {
-        speeds[index] = 0;
-        smoothStopOnLine(index);
-        if (index === columnCount - 1) {
-          setTimeout(() => {
-            clearInterval(animation);
-            isSpinning2 = false;
-            endGame3();
-          }, 100);
-        }
-      }, delay);
-    });
-  }
-  loadImages(initSlotMachine);
-  function resizeCanvas2(animate = false) {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const canvasWidth2 = isLandscape ? window.innerWidth * 0.75 : window.innerHeight * 0.75;
-    const canvasHeight2 = isLandscape ? window.innerHeight * 0.7 : window.innerWidth * 0.7;
-    if (animate && isSpinning2) {
-      canvasSlot.classList.add("rotate");
-    }
-    canvasSlot.width = canvasWidth2;
-    canvasSlot.height = canvasHeight2;
-    columnWidth = canvasSlot.width / columnCount;
-    ballRadius = canvasWidth2 / 20;
-    drawColumns();
-    if (animate && isSpinning2) {
-      setTimeout(() => {
-        canvasSlot.classList.remove("rotate");
-      }, 500);
-    }
+      startSeqs["mainSeq" + track.mainSeq]["totalSpinning"]--;
+      startSeqs["mainSeq" + track.mainSeq]["subSeq" + track.subSeq]["endNum"] = endNum;
+    };
+    slot.randomRange = function(low, high) {
+      return Math.floor(Math.random() * (1 + high - low)) + low;
+    };
+    this.init();
   }
 
   // src/main.js
@@ -1007,8 +928,8 @@
   });
   var deposit = 1e3;
   var bet = 50;
-  function saveScore(score5) {
-    localStorage.setItem("currentScore", score5);
+  function saveScore(score4) {
+    localStorage.setItem("currentScore", score4);
   }
   document.getElementById("homeButton").addEventListener(
     "click",
@@ -1074,6 +995,12 @@
     const preloader = document.getElementById("preloader");
     overlay.style.display = "block";
     preloader.style.display = "block";
+    if (!gameOver) {
+      endGame(false, true);
+    }
+    if (!gameOverPC) {
+      endGamePC(false, true);
+    }
     console.log(args);
     if (args[1] === void 0) {
       showHidePage(overlay, preloader, args[0]);
@@ -1091,12 +1018,14 @@
           setupRoulette();
           break;
         case "planetCatcher":
-          navigateTo("mainPage");
+          console.log("planetCatcher game");
+          showHidePage(overlay, preloader, "gameContainer");
+          setupGamePC();
           break;
         case "slotMachine":
           console.log("slotMachine game");
           showHidePage(overlay, preloader, "slotMachineContainer");
-          initSlotMachine();
+          (void 0)();
           break;
         default:
           console.log("default");
@@ -1127,17 +1056,6 @@
     } else {
       alert("The bet must not exceed your deposit.");
     }
-  }
-  function checkOrientation() {
-    const orientationMessage = document.getElementById("orientationMessage");
-    const slotMachineContainer = document.getElementById("slotMachineContainer");
-    const gameContainer = document.getElementById("gameContainer");
-  }
-  function isElementVisible(elementId) {
-    const element = document.getElementById(elementId);
-    if (!element) return false;
-    let style = window.getComputedStyle(element);
-    return style.display !== "none" && style.visibility !== "hidden";
   }
 
   // src/mainMenu.js
@@ -1194,12 +1112,4 @@
       event.currentTarget.classList.remove("shinePlanet");
     }
   });
-  function activateOrientationCheck3() {
-    if (isElementVisible("mainMenu")) {
-      window.addEventListener("orientationchange", checkOrientation);
-    } else {
-      window.removeEventListener("orientationchange", checkOrientation);
-    }
-  }
-  setInterval(activateOrientationCheck3, 1e3);
 })();
