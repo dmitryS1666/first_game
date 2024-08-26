@@ -155,6 +155,7 @@ let SlotMachine = function (element, options, rotationData) {
                     let resultString = '|';
                     let ballCounts = {}; // Инициализируем объект для подсчета шаров
 
+                    // Подсчитываем количество каждого шара во второй строке
                     $.each(rotationSequences['sequence' + rotationData.sequenceId], function(index, subRotation) {
                         if (typeof subRotation == 'object') {
                             let ballName = subRotation['targetNum']; // Имя шара
@@ -166,6 +167,31 @@ let SlotMachine = function (element, options, rotationData) {
                     // Вызов функции calculateMultiplier
                     let multiplier = calculateMultiplier(ballCounts);
                     console.log('Коэффициент умножения:', multiplier);
+
+                    // Подсветка всех совпадающих шаров во второй строке, если multiplier > 0
+                    // if (multiplier > 0) {
+                    //     // Определяем все элементы, которые находятся в видимой второй строке
+                    //     let visibleItems = slot.$element.children('li');
+                    //     let secondRowItems = [];
+                    //
+                    //     // Вычисляем индекс первого элемента второй строки
+                    //     let firstItemIndex = Math.floor(Math.abs(finalPosition) / slot.itemHeight) * slot.itemCount;
+                    //
+                    //     // Собираем элементы второй строки
+                    //     for (let i = firstItemIndex; i < firstItemIndex + slot.itemCount; i++) {
+                    //         secondRowItems.push(visibleItems.eq(i));
+                    //     }
+                    //
+                    //     // Подсвечиваем совпадающие шары
+                    //     secondRowItems.forEach(function($item) {
+                    //         let ballName = $item.attr('value'); // Имя шара
+                    //
+                    //         // Проверяем, совпадает ли этот шар с другими в видимой строке
+                    //         if (ballCounts[ballName] > 1) {
+                    //             $item.css('background-image', 'url(res/balls/flash_ball.png)');
+                    //         }
+                    //     });
+                    // }
 
                     if ($.isFunction(slot.options.onComplete)) {
                         slot.options.onComplete(resultString);
