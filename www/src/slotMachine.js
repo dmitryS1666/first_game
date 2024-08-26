@@ -1,187 +1,183 @@
-var startSeqs = {};
-var startNum = 0;
+// Инициализация объекта для хранения последовательностей вращений
+let rotationSequences = {};
 
-// jQuery FN
-$.fn.playSpin = function (options) {
+// Переменная для отслеживания количества начатых вращений
+let rotationCount = 0;
+
+// jQuery метод для запуска анимации вращения
+$.fn.startSpin = function (options) {
+    // Проверяем, есть ли элементы, к которым применяется функция
     if (this.length) {
-        if ($(this).is(':animated')) return; // Return false if this element is animating
-        startSeqs['mainSeq' + (++startNum)] = {};
-        $(this).attr('data-playslot', startNum);
+        // Если элемент уже анимируется, выходим из функции
+        if ($(this).is(':animated')) return;
 
-        var total = this.length;
-        var thisSeq = 0;
+        // Создаем новую основную последовательность вращения
+        rotationSequences['sequence' + (++rotationCount)] = {};
 
-        // Initialize options
+        // Устанавливаем атрибут 'data-rotation' для текущего элемента
+        $(this).attr('data-rotation', rotationCount);
+
+        // Общее количество элементов для вращения
+        let itemCount = this.length;
+        let currentSequence = 0;
+
+        // Инициализация опций, если они не заданы
         if (typeof options == 'undefined') {
-            options = new Object();
+            options = {};
         }
 
-        // Pre-define end nums
-        var endNums = [];
+        // Предварительное определение номеров окончаний вращений
+        let endNumbers = [];
         if (typeof options.endNum != 'undefined') {
             if ($.isArray(options.endNum)) {
-                endNums = options.endNum;
+                endNumbers = options.endNum;
             } else {
-                endNums = [options.endNum];
+                endNumbers = [options.endNum];
             }
         }
 
-        for (var i = 0; i < this.length; i++) {
-            if (typeof endNums[i] == 'undefined') {
-                endNums.push(0);
+        for (let i = 0; i < this.length; i++) {
+            if (typeof endNumbers[i] == 'undefined') {
+                endNumbers.push(0);
             }
         }
 
-        startSeqs['mainSeq' + startNum]['totalSpinning'] = total;
+        // Устанавливаем количество вращающихся элементов
+        rotationSequences['sequence' + rotationCount]['totalRotations'] = itemCount;
+
         return this.each(function () {
-            options.endNum = endNums[thisSeq];
-            startSeqs['mainSeq' + startNum]['subSeq' + (++thisSeq)] = {};
-            startSeqs['mainSeq' + startNum]['subSeq' + thisSeq]['spinning'] = true;
-            var track = {
-                total: total,
-                mainSeq: startNum,
-                subSeq: thisSeq
+            options.endNum = endNumbers[currentSequence];
+            rotationSequences['sequence' + rotationCount]['rotation' + (++currentSequence)] = {};
+            rotationSequences['sequence' + rotationCount]['rotation' + currentSequence]['spinning'] = true;
+
+            let rotationData = {
+                total: itemCount,
+                sequenceId: rotationCount,
+                rotationId: currentSequence
             };
-            (new slotMachine(this, options, track));
+
+            // Создаем новый объект SlotMachine с текущими параметрами
+            (new SlotMachine(this, options, rotationData));
         });
     }
 };
 
-$.fn.stopSpin = function () {
-    if (this.length) {
-        if (!$(this).is(':animated')) return; // Return false if this element is not animating
-        if ($(this)[0].hasAttribute('data-playslot')) {
-            $.each(startSeqs['mainSeq' + $(this).attr('data-playslot')], function(index, obj) {
-                obj['spinning'] = false;
-            });
-        }
-    }
-};
-
-var slotMachine = function (el, options, track) {
-    var slot = this;
-    slot.$el = $(el);
+// Конструктор SlotMachine для создания эффекта слот-машины
+let SlotMachine = function (element, options, rotationData) {
+    let slot = this;
+    slot.$element = $(element);
 
     slot.defaultOptions = {
-        easing: 'swing',        // String: easing type for final spin
-        time: 2500,             // Number: total time of spin animation
-        loops: 3,               // Number: times it will spin during the animation
-        manualStop: false,      // Boolean: spin until user manually click to stop
-        useStopTime: false,     // Boolean: use stop time
-        stopTime: 4500,         // Number: total time of stop animation
-        stopSeq: 'random',      // String: sequence of slot machine end animation, random, leftToRight, rightToLeft
-        endNum: 0,              // Number: animation end at which number/ sequence of list
-        onEnd : $.noop,         // Function: run on each element spin end, it is passed endNum
-        onFinish: $.noop,       // Function: run on all element spin end, it is passed endNum
+        easing: 'swing',        // Стандартный easing для анимации
+        duration: 2500,        // Продолжительность одного цикла вращения
+        cycles: 3,             // Количество циклов вращения
+        manualStop: false,     // Остановка по запросу пользователя
+        useCustomStopTime: false, // Использовать пользовательское время остановки
+        customStopTime: 4500,  // Пользовательское время остановки
+        stopOrder: 'random',   // Порядок остановки анимации
+        targetNum: 0,          // Целевое число/позиция для остановки
+        onElementEnd: $.noop,  // Функция, выполняемая при остановке каждого элемента
+        onComplete: $.noop,    // Функция, выполняемая при завершении всех элементов
     };
 
     slot.spinSpeed = 0;
-    slot.loopCount = 0;
+    slot.cycleCount = 0;
+    slot.isSpinning = true;  // Флаг вращения
 
-    slot.init = function () {
+    slot.initialize = function () {
         slot.options = $.extend({}, slot.defaultOptions, options);
         slot.setup();
         slot.startSpin();
     };
 
     slot.setup = function () {
-        var $li = slot.$el.find('li').first();
-        slot.liHeight = $li.innerHeight();
-        slot.liCount = slot.$el.children().length;
-        slot.listHeight = slot.liHeight * slot.liCount;
-        slot.spinSpeed = slot.options.time / slot.options.loops;
+        let $listItem = slot.$element.find('li').first();
+        slot.itemHeight = $listItem.innerHeight();
+        slot.itemCount = slot.$element.children().length;
+        slot.totalHeight = slot.itemHeight * slot.itemCount;
 
-        $li.clone().appendTo(slot.$el); // Clone to last row for smooth animation
+        // Клонируем элементы для бесшовного эффекта
+        slot.$element.append(slot.$element.children().clone());
 
-        // Configure stopSeq
-        if (slot.options.stopSeq == 'leftToRight') {
-            if (track.subSeq != 1) {
-                slot.options.manualStop = true;
-            }
-        } else if (slot.options.stopSeq == 'rightToLeft') {
-            if (track.total != track.subSeq) {
-                slot.options.manualStop = true;
-            }
-        }
+        slot.spinSpeed = slot.options.duration / slot.options.cycles;
+
+        // Устанавливаем стили для бесшовной анимации
+        slot.$element.css({ position: 'relative', top: 0 });
     };
 
     slot.startSpin = function () {
-        slot.$el
-            .css('top', -slot.listHeight)
-            .animate({'top': '0px'}, slot.spinSpeed, 'linear', function () {
-                slot.lowerSpeed();
+        if (!slot.isSpinning) return;  // Проверяем, вращается ли элемент
+
+        slot.$element
+            .animate({'top': -slot.totalHeight}, slot.spinSpeed, 'linear', function () {
+                slot.$element.css('top', 0); // Сбрасываем позицию для бесшовной анимации
+                slot.cycleCount++;
+
+                if (slot.cycleCount >= slot.options.cycles) {
+                    slot.stopSpin();
+                } else {
+                    slot.startSpin();  // Рекурсивный вызов для следующего цикла
+                }
             });
     };
 
-    slot.lowerSpeed = function () {
-        slot.loopCount++;
-
-        if (slot.loopCount < slot.options.loops ||
-            (slot.options.manualStop && startSeqs['mainSeq' + track.mainSeq]['subSeq' + track.subSeq]['spinning'])) {
-            slot.startSpin();
-        } else {
-            slot.endSpin();
-        }
-    };
-
-    slot.endSpin = function () {
-        if (slot.options.endNum === 0) {
-            slot.options.endNum = slot.randomRange(1, slot.liCount);
+    slot.stopSpin = function () {
+        if (slot.options.targetNum === 0) {
+            slot.options.targetNum = slot.getRandomNumber(1, slot.itemCount);
         }
 
-        // Error handling if endNum is out of range
-        if (slot.options.endNum < 0 || slot.options.endNum > slot.liCount) {
-            slot.options.endNum = 1;
+        // Проверка на выход за пределы
+        if (slot.options.targetNum < 0 || slot.options.targetNum > slot.itemCount) {
+            slot.options.targetNum = 1;
         }
 
-        var finalPos = -((slot.liHeight * slot.options.endNum) - slot.liHeight);
-        var finalTime = ((slot.spinSpeed * 1.5) * (slot.liCount)) / slot.options.endNum;
-        if (slot.options.useStopTime) {
-            finalTime = slot.options.stopTime;
+        // Рассчитываем конечную позицию так, чтобы вторая строка была в центре
+        let finalPosition = -((slot.itemHeight * (slot.options.targetNum - 2)) + slot.itemHeight);
+
+        let finalDuration = ((slot.spinSpeed * 1.5) * (slot.itemCount)) / slot.options.targetNum;
+        if (slot.options.useCustomStopTime) {
+            finalDuration = slot.options.customStopTime;
         }
 
-        slot.$el
-            .animate({'top': finalPos}, parseInt(finalTime), slot.options.easing, function () {
-                // Adjust position to stop seamlessly
-                slot.$el.css('top', finalPos); // Keep the ul in its final position after animation ends
+        slot.$element
+            .animate({'top': finalPosition}, parseInt(finalDuration), slot.options.easing, function () {
+                slot.$element.css('top', finalPosition);
 
-                // Get the value of the stopping element
-                var endValue = slot.$el.children('li').eq(slot.options.endNum - 1).attr('value');
-                slot.endAnimation(endValue);
+                let endValue = slot.$element.children('li').eq(slot.options.targetNum).attr('value');
 
-                if ($.isFunction(slot.options.onEnd)) {
-                    slot.options.onEnd(endValue);
+                slot.completeAnimation(endValue);
+
+                if ($.isFunction(slot.options.onElementEnd)) {
+                    slot.options.onElementEnd(endValue);
                 }
 
-                // onFinish is called when every element has finished spinning
-                if (startSeqs['mainSeq' + track.mainSeq]['totalSpinning'] === 0) {
-                    var totalNum = '|';
-                    $.each(startSeqs['mainSeq' + track.mainSeq], function(index, subSeqs) {
-                        if (typeof subSeqs == 'object') {
-                            totalNum += subSeqs['endNum'] + '|'; // endNum now contains the value
+                if (rotationSequences['sequence' + rotationData.sequenceId]['totalRotations'] === 0) {
+                    let resultString = '|';
+                    $.each(rotationSequences['sequence' + rotationData.sequenceId], function(index, subRotation) {
+                        if (typeof subRotation == 'object') {
+                            resultString += subRotation['targetNum'] + '|';
                         }
                     });
-                    if ($.isFunction(slot.options.onFinish)) {
-                        slot.options.onFinish(totalNum);
+                    if ($.isFunction(slot.options.onComplete)) {
+                        slot.options.onComplete(resultString);
                     }
                 }
             });
     };
 
-    slot.endAnimation = function(endNum) {
-        if (slot.options.stopSeq == 'leftToRight' && track.total != track.subSeq) {
-            startSeqs['mainSeq' + track.mainSeq]['subSeq' + (track.subSeq + 1)]['spinning'] = false;
-        } else if (slot.options.stopSeq == 'rightToLeft' && track.subSeq != 1) {
-            startSeqs['mainSeq' + track.mainSeq]['subSeq' + (track.subSeq - 1)]['spinning'] = false;
+    slot.completeAnimation = function(targetNum) {
+        if (slot.options.stopOrder === 'leftToRight' && rotationData.total !== rotationData.rotationId) {
+            rotationSequences['sequence' + rotationData.sequenceId]['rotation' + (rotationData.rotationId + 1)]['spinning'] = false;
+        } else if (slot.options.stopOrder == 'rightToLeft' && rotationData.rotationId !== 1) {
+            rotationSequences['sequence' + rotationData.sequenceId]['rotation' + (rotationData.rotationId - 1)]['spinning'] = false;
         }
-        startSeqs['mainSeq' + track.mainSeq]['totalSpinning']--;
-        startSeqs['mainSeq' + track.mainSeq]['subSeq' + track.subSeq]['endNum'] = endNum;
+        rotationSequences['sequence' + rotationData.sequenceId]['totalRotations']--;
+        rotationSequences['sequence' + rotationData.sequenceId]['rotation' + rotationData.rotationId]['targetNum'] = targetNum;
     };
 
-    slot.randomRange = function (low, high) {
+    slot.getRandomNumber = function (low, high) {
         return Math.floor(Math.random() * (1 + high - low)) + low;
     };
 
-    this.init();
+    this.initialize();
 };
-
