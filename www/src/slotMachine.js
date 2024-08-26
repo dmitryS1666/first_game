@@ -153,11 +153,20 @@ let SlotMachine = function (element, options, rotationData) {
 
                 if (rotationSequences['sequence' + rotationData.sequenceId]['totalRotations'] === 0) {
                     let resultString = '|';
+                    let ballCounts = {}; // Инициализируем объект для подсчета шаров
+
                     $.each(rotationSequences['sequence' + rotationData.sequenceId], function(index, subRotation) {
                         if (typeof subRotation == 'object') {
-                            resultString += subRotation['targetNum'] + '|';
+                            let ballName = subRotation['targetNum']; // Имя шара
+                            ballCounts[ballName] = (ballCounts[ballName] || 0) + 1;
+                            resultString += ballName + '|';
                         }
                     });
+
+                    // Вызов функции calculateMultiplier
+                    let multiplier = calculateMultiplier(ballCounts);
+                    console.log('Коэффициент умножения:', multiplier);
+
                     if ($.isFunction(slot.options.onComplete)) {
                         slot.options.onComplete(resultString);
                     }
@@ -181,3 +190,32 @@ let SlotMachine = function (element, options, rotationData) {
 
     this.initialize();
 };
+
+// Функция для вычисления коэффициента умножения
+function calculateMultiplier(ballCounts) {
+    let multiplier = 0;
+
+    // Проверяем количество видимых шаров и считаем коэффициент умножения
+    Object.values(ballCounts).forEach(count => {
+        if (count >= 2) {
+            switch (count) {
+                case 2:
+                    multiplier += 0.75;
+                    break;
+                case 3:
+                    multiplier += 1.5;
+                    break;
+                case 4:
+                    multiplier += 2;
+                    break;
+            }
+        }
+    });
+
+    // Проверка на бонусный шар
+    if (multiplier > 0 && ballCounts['pink_ball.png']) {
+        multiplier *= 3; // Умножаем на 3, если есть бонусный шар
+    }
+
+    return multiplier;
+}
