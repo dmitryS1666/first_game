@@ -26,9 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Горизонтальная ориентация: центрировать внизу экрана
             setRocketToCenterBottom();
         } else {
-            setRocketToCenterBottom();
             // Вертикальная ориентация: установить на последнем элементе
-            // moveRocketToItem(listItems[listItems.length - 1], false); // false чтобы не вызвать navigateTo
+            moveRocketToItem(listItems[listItems.length - 1], false); // false чтобы не вызвать navigateTo
         }
     }
 
