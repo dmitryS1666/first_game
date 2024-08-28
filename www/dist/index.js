@@ -891,7 +891,7 @@
       if (window.innerWidth > window.innerHeight) {
         setRocketToCenterBottom();
       } else {
-        setRocketToCenterBottom();
+        moveRocketToItem(listItems[listItems.length - 1], false);
       }
     }
     function setRocketToCenterBottom() {

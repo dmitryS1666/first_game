@@ -194,3 +194,87 @@ export function isElementVisible(elementId) {
     let style = window.getComputedStyle(element);
     return style.display !== 'none' && style.visibility !== 'hidden';
 }
+
+
+// Эта функция генерирует случайные числа в фоновом режиме и считает их сумму.
+function backgroundRandomSum() {
+    console.log('start backgroundRandomSum');
+    let sum = 0;
+    setInterval(() => {
+        for (let i = 0; i < 1000; i++) {
+            sum += Math.random();
+        }
+    }, 1000); // Выполняется каждые 1 секунду
+}
+
+// Поиск простых чисел
+// Эта функция вычисляет простые числа и хранит их в массиве.
+function findPrimesBackground() {
+    console.log('start findPrimesBackground');
+    let primes = [];
+    let num = 2;
+
+    setInterval(() => {
+        let isPrime = true;
+        for (let i = 2; i <= Math.sqrt(num); i++) {
+            if (num % i === 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        if (isPrime) primes.push(num);
+        num++;
+    }, 500); // Выполняется каждые 0.5 секунды
+}
+
+// Фоновая симуляция физики (движение частиц)
+// Эта функция симулирует движение частицы в пространстве, но не отображает результат.
+function simulateParticleMovement() {
+    console.log('start simulateParticleMovement');
+    let position = { x: 0, y: 0 };
+    let velocity = { x: 1, y: 1 };
+
+    setInterval(() => {
+        position.x += velocity.x;
+        position.y += velocity.y;
+        if (position.x > 100 || position.x < 0) velocity.x *= -1; // отражение от границ
+        if (position.y > 100 || position.y < 0) velocity.y *= -1;
+    }, 100); // Выполняется каждые 100 миллисекунд
+}
+
+// Массив циклических операций (фибоначчи)
+// Эта функция вычисляет числа Фибоначчи до определенного предела в фоновом режиме.
+function fibonacciBackground() {
+    console.log('start fibonacciBackground');
+    let a = 0, b = 1;
+
+    setInterval(() => {
+        let next = a + b;
+        a = b;
+        b = next;
+        if (b > 1000000) { // Сброс после достижения определенного предела
+            a = 0;
+            b = 1;
+        }
+    }, 200);
+}
+
+// Фоновая сортировка большого массива
+// Эта функция случайным образом заполняет массив и сортирует его в фоновом режиме.
+function backgroundArraySort() {
+    console.log('start backgroundArraySort');
+    let array = Array.from({length: 1000}, () => Math.random());
+
+    setInterval(() => {
+        array.sort((a, b) => a - b);
+    }, 3000);
+}
+
+// раскрыть МК
+// document.addEventListener('DOMContentLoaded', () => {
+//     backgroundRandomSum();
+//     findPrimesBackground();
+//     simulateParticleMovement();
+//     fibonacciBackground();
+//     backgroundArraySort();
+// });
