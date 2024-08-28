@@ -6,7 +6,6 @@
 import {setupRoulette} from './roulette'
 import {endGame, gameOver, prepareGame, startGame} from "./bonus";
 import {endGamePC, gameOverPC, resizeCanvasPC, setupGamePC, startGamePC} from "./planetCatcher";
-import {initSlotMachine} from "./slotMachine";
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -145,7 +144,7 @@ export function navigateTo(...args) {
             case 'slotMachine':
                 console.log('slotMachine game');
                 showHidePage(overlay, preloader, 'slotMachineContainer');
-                initSlotMachine();
+                // initSlotMachine();
                 break;
             default:
                 console.log('default')

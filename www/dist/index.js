@@ -731,191 +731,6 @@
     document.getElementById("seconds").textContent = gameDuration2;
   }
 
-  // src/slotMachine.js
-  var startSeqs = {};
-  var startNum = 0;
-  var ballImageNames3 = [
-    "blue_ball.png",
-    "brown_ball.png",
-    "yellow_ball.png",
-    "indigo_ball.png",
-    "orange_ball.png",
-    "pink_ball.png"
-  ];
-  var slotBackground = "res/slotBg.png";
-  $.fn.playSpin = function(options) {
-    if (this.length) {
-      if ($(this).is(":animated")) return;
-      startSeqs["mainSeq" + ++startNum] = {};
-      $(this).attr("data-playslot", startNum);
-      var total = 4;
-      var thisSeq = 0;
-      if (typeof options === "undefined") {
-        options = {};
-      }
-      var endNums = [];
-      if (typeof options.endNum !== "undefined") {
-        if ($.isArray(options.endNum)) {
-          endNums = options.endNum;
-        } else {
-          endNums = [options.endNum];
-        }
-      }
-      for (var i = 0; i < total; i++) {
-        if (typeof endNums[i] === "undefined") {
-          endNums.push(0);
-        }
-      }
-      startSeqs["mainSeq" + startNum]["totalSpinning"] = total;
-      return this.each(function() {
-        options.endNum = endNums[thisSeq];
-        startSeqs["mainSeq" + startNum]["subSeq" + ++thisSeq] = {};
-        startSeqs["mainSeq" + startNum]["subSeq" + thisSeq]["spinning"] = true;
-        var track = {
-          total,
-          mainSeq: startNum,
-          subSeq: thisSeq
-        };
-        new SlotMachine(this, options, track);
-      });
-    }
-  };
-  $.fn.stopSpin = function() {
-    if (this.length) {
-      if (!$(this).is(":animated")) return;
-      if ($(this)[0].hasAttribute("data-playslot")) {
-        $.each(startSeqs["mainSeq" + $(this).attr("data-playslot")], function(index, obj) {
-          obj["spinning"] = false;
-        });
-      }
-    }
-  };
-  function SlotMachine(el, options, track) {
-    var slot = this;
-    slot.$el = $(el);
-    slot.defaultOptions = {
-      easing: "swing",
-      // Тип easing для финального спина
-      time: 3e3,
-      // Общее время анимации вращения
-      loops: 6,
-      // Количество полных вращений
-      manualStop: false,
-      // Вручную останавливать вращение
-      useStopTime: false,
-      // Использовать время остановки
-      stopTime: 5e3,
-      // Время остановки анимации
-      stopSeq: "random",
-      // Последовательность остановки: random, leftToRight, rightToLeft
-      endNum: 0,
-      // Конечный номер анимации
-      onEnd: $.noop,
-      // Функция, вызываемая при окончании анимации элемента
-      onFinish: $.noop
-      // Функция, вызываемая, когда анимация всех элементов завершена
-    };
-    slot.spinSpeed = 0;
-    slot.loopCount = 0;
-    slot.init = function() {
-      slot.options = $.extend({}, slot.defaultOptions, options);
-      slot.setup();
-      slot.startSpin();
-    };
-    slot.setup = function() {
-      slot.$el.css({
-        "background-image": "url(" + slotBackground + ")",
-        "background-size": "cover",
-        "overflow": "hidden",
-        "position": "relative"
-      });
-      slot.$el.find("li").each(function(index) {
-        var randomBall = ballImageNames3[Math.floor(Math.random() * ballImageNames3.length)];
-        $(this).css({
-          "background-image": "url(res/" + randomBall + ")",
-          "background-size": "cover",
-          "width": "100%",
-          "height": "100%",
-          "position": "absolute",
-          "left": 0,
-          "top": index * 100 + "%"
-        });
-      });
-      var $li = slot.$el.find("li").first();
-      slot.liHeight = $li.outerHeight();
-      slot.liCount = slot.$el.children().length;
-      slot.listHeight = slot.liHeight * slot.liCount;
-      slot.spinSpeed = slot.options.time / slot.options.loops;
-      $li.clone().appendTo(slot.$el);
-      if (slot.options.stopSeq === "leftToRight") {
-        if (track.subSeq !== 1) {
-          slot.options.manualStop = true;
-        }
-      } else if (slot.options.stopSeq === "rightToLeft") {
-        if (track.total !== track.subSeq) {
-          slot.options.manualStop = true;
-        }
-      }
-    };
-    slot.startSpin = function() {
-      slot.$el.css("top", -slot.listHeight).animate({ "top": "0px" }, slot.spinSpeed, "linear", function() {
-        slot.lowerSpeed();
-      });
-    };
-    slot.lowerSpeed = function() {
-      slot.loopCount++;
-      if (slot.loopCount < slot.options.loops || slot.options.manualStop && startSeqs["mainSeq" + track.mainSeq]["subSeq" + track.subSeq]["spinning"]) {
-        slot.startSpin();
-      } else {
-        slot.endSpin();
-      }
-    };
-    slot.endSpin = function() {
-      if (slot.options.endNum === 0) {
-        slot.options.endNum = slot.randomRange(1, slot.liCount);
-      }
-      if (slot.options.endNum < 0 || slot.options.endNum > slot.liCount) {
-        slot.options.endNum = 1;
-      }
-      var finalPos = -(slot.liHeight * slot.options.endNum - slot.liHeight);
-      var finalTime = slot.spinSpeed * 1.5 * slot.liCount / slot.options.endNum;
-      if (slot.options.useStopTime) {
-        finalTime = slot.options.stopTime;
-      }
-      slot.$el.css("top", -slot.listHeight).animate({ "top": finalPos }, parseInt(finalTime), slot.options.easing, function() {
-        slot.$el.find("li").last().remove();
-        slot.endAnimation(slot.options.endNum);
-        if ($.isFunction(slot.options.onEnd)) {
-          slot.options.onEnd(slot.options.endNum);
-        }
-        if (startSeqs["mainSeq" + track.mainSeq]["totalSpinning"] === 0) {
-          var totalNum = "";
-          $.each(startSeqs["mainSeq" + track.mainSeq], function(index, subSeqs) {
-            if (typeof subSeqs === "object") {
-              totalNum += subSeqs["endNum"].toString();
-            }
-          });
-          if ($.isFunction(slot.options.onFinish)) {
-            slot.options.onFinish(totalNum);
-          }
-        }
-      });
-    };
-    slot.endAnimation = function(endNum) {
-      if (slot.options.stopSeq === "leftToRight" && track.total !== track.subSeq) {
-        startSeqs["mainSeq" + track.mainSeq]["subSeq" + (track.subSeq + 1)]["spinning"] = false;
-      } else if (slot.options.stopSeq === "rightToLeft" && track.subSeq !== 1) {
-        startSeqs["mainSeq" + track.mainSeq]["subSeq" + (track.subSeq - 1)]["spinning"] = false;
-      }
-      startSeqs["mainSeq" + track.mainSeq]["totalSpinning"]--;
-      startSeqs["mainSeq" + track.mainSeq]["subSeq" + track.subSeq]["endNum"] = endNum;
-    };
-    slot.randomRange = function(low, high) {
-      return Math.floor(Math.random() * (1 + high - low)) + low;
-    };
-    this.init();
-  }
-
   // src/main.js
   document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -1025,7 +840,6 @@
         case "slotMachine":
           console.log("slotMachine game");
           showHidePage(overlay, preloader, "slotMachineContainer");
-          (void 0)();
           break;
         default:
           console.log("default");
@@ -1065,10 +879,6 @@
     const listItems = document.querySelectorAll(".levels li");
     function onElementVisible() {
       listItems.forEach((item) => {
-        item.addEventListener("touchstart", addShineClass);
-        item.addEventListener("touchend", removeShineClass);
-        item.addEventListener("mouseover", addShineClass);
-        item.addEventListener("mouseout", removeShineClass);
         item.addEventListener("click", () => {
           moveRocketToItem(item);
         });
@@ -1092,24 +902,209 @@
     function moveRocketToItem(item) {
       const rect = item.getBoundingClientRect();
       const rocketRect = miniRocket.getBoundingClientRect();
-      const offsetX = 50;
+      const offsetX = rect.left + rect.width / 2 - rocketRect.width / 2;
       const offsetY = rect.top + rect.height / 2 - rocketRect.height / 2;
-      miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const isLandscape = screenWidth > screenHeight;
+      miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? "rotate(90deg)" : "rotate(0deg)"}`;
       listItems.forEach((li) => li.classList.remove("active"));
       item.classList.add("active");
       if (!isInitialLoad) {
         setTimeout(() => {
           const levelNumber = item.getAttribute("value");
-          navigateTo("gameContainer", levelNumber);
-          isInitialLoad = true;
         }, 250);
       }
     }
-    function addShineClass(event) {
-      event.currentTarget.classList.add("shinePlanet");
+    function updateRocketPosition() {
+      moveRocketToItem(listItems[listItems.length - 1]);
     }
-    function removeShineClass(event) {
-      event.currentTarget.classList.remove("shinePlanet");
-    }
+    window.addEventListener("resize", updateRocketPosition);
+    window.addEventListener("orientationchange", updateRocketPosition);
   });
+
+  // src/slotMachine.js
+  var rotationSequences = {};
+  var rotationCount = 0;
+  $.fn.startSpin = function(options) {
+    if (this.length) {
+      if ($(this).is(":animated")) return;
+      rotationSequences["sequence" + ++rotationCount] = {};
+      $(this).attr("data-rotation", rotationCount);
+      let itemCount = this.length;
+      let currentSequence = 0;
+      if (typeof options == "undefined") {
+        options = {};
+      }
+      let endNumbers = [];
+      if (typeof options.endNum != "undefined") {
+        if ($.isArray(options.endNum)) {
+          endNumbers = options.endNum;
+        } else {
+          endNumbers = [options.endNum];
+        }
+      }
+      for (let i = 0; i < this.length; i++) {
+        if (typeof endNumbers[i] == "undefined") {
+          endNumbers.push(0);
+        }
+      }
+      rotationSequences["sequence" + rotationCount]["totalRotations"] = itemCount;
+      return this.each(function() {
+        options.endNum = endNumbers[currentSequence];
+        rotationSequences["sequence" + rotationCount]["rotation" + ++currentSequence] = {};
+        rotationSequences["sequence" + rotationCount]["rotation" + currentSequence]["spinning"] = true;
+        let rotationData = {
+          total: itemCount,
+          sequenceId: rotationCount,
+          rotationId: currentSequence
+        };
+        new SlotMachine(this, options, rotationData);
+      });
+    }
+  };
+  var SlotMachine = function(element, options, rotationData) {
+    let slot = this;
+    slot.$element = $(element);
+    slot.defaultOptions = {
+      easing: "swing",
+      // Стандартный easing для анимации
+      duration: 2500,
+      // Продолжительность одного цикла вращения
+      cycles: 3,
+      // Количество циклов вращения
+      manualStop: false,
+      // Остановка по запросу пользователя
+      useCustomStopTime: false,
+      // Использовать пользовательское время остановки
+      customStopTime: 4500,
+      // Пользовательское время остановки
+      stopOrder: "random",
+      // Порядок остановки анимации
+      targetNum: 0,
+      // Целевое число/позиция для остановки
+      onElementEnd: $.noop,
+      // Функция, выполняемая при остановке каждого элемента
+      onComplete: $.noop
+      // Функция, выполняемая при завершении всех элементов
+    };
+    slot.spinSpeed = 0;
+    slot.cycleCount = 0;
+    slot.isSpinning = true;
+    slot.initialize = function() {
+      slot.options = $.extend({}, slot.defaultOptions, options);
+      slot.setup();
+      slot.startSpin();
+    };
+    slot.setup = function() {
+      let $listItem = slot.$element.find("li").first();
+      slot.itemHeight = $listItem.innerHeight();
+      slot.itemCount = slot.$element.children().length;
+      slot.totalHeight = slot.itemHeight * slot.itemCount;
+      slot.$element.append(slot.$element.children().clone());
+      slot.spinSpeed = slot.options.duration / slot.options.cycles;
+      slot.$element.css({ position: "relative", top: 0 });
+    };
+    slot.startSpin = function() {
+      if (!slot.isSpinning) return;
+      slot.$element.animate({ "top": -slot.totalHeight }, slot.spinSpeed, "linear", function() {
+        slot.$element.css("top", 0);
+        slot.cycleCount++;
+        if (slot.cycleCount >= slot.options.cycles) {
+          slot.stopSpin();
+        } else {
+          slot.startSpin();
+        }
+      });
+    };
+    slot.stopSpin = function() {
+      if (slot.options.targetNum === 0) {
+        slot.options.targetNum = slot.getRandomNumber(1, slot.itemCount);
+      }
+      if (slot.options.targetNum < 0 || slot.options.targetNum > slot.itemCount) {
+        slot.options.targetNum = 1;
+      }
+      let finalPosition = -(slot.itemHeight * (slot.options.targetNum - 2) + slot.itemHeight);
+      let finalDuration = slot.spinSpeed * 1.5 * slot.itemCount / slot.options.targetNum;
+      if (slot.options.useCustomStopTime) {
+        finalDuration = slot.options.customStopTime;
+      }
+      slot.$element.animate({ "top": finalPosition }, parseInt(finalDuration), slot.options.easing, function() {
+        slot.$element.css("top", finalPosition);
+        let endValue = slot.$element.children("li").eq(slot.options.targetNum).attr("value");
+        slot.completeAnimation(endValue);
+        if ($.isFunction(slot.options.onElementEnd)) {
+          slot.options.onElementEnd(endValue);
+        }
+        if (rotationSequences["sequence" + rotationData.sequenceId]["totalRotations"] === 0) {
+          let resultString = "|";
+          let ballCounts = {};
+          $.each(rotationSequences["sequence" + rotationData.sequenceId], function(index, subRotation) {
+            if (typeof subRotation == "object") {
+              let ballName = subRotation["targetNum"];
+              let ballIndex = slot.$element.children("li").filter(`[value='${ballName}']`).index();
+              resultString += `${ballIndex}:${ballName}|`;
+              ballCounts[ballName] = (ballCounts[ballName] || 0) + 1;
+            }
+          });
+          let multiplier = calculateMultiplier(ballCounts);
+          console.log("\u041A\u043E\u044D\u0444\u0444\u0438\u0446\u0438\u0435\u043D\u0442 \u0443\u043C\u043D\u043E\u0436\u0435\u043D\u0438\u044F:", multiplier);
+          let secondRowItems = [];
+          let firstItemIndexOfSecondRow = Math.abs(finalPosition) / slot.itemHeight + slot.itemCount;
+          for (let i = 0; i < slot.itemCount; i++) {
+            let index = (Math.floor(firstItemIndexOfSecondRow) + i) % slot.$element.children("li").length;
+            secondRowItems.push(slot.$element.children("li").eq(index));
+          }
+          console.log("\u042D\u043B\u0435\u043C\u0435\u043D\u0442\u044B \u0432\u0442\u043E\u0440\u043E\u0439 \u0432\u0438\u0434\u0438\u043C\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438:");
+          secondRowItems.forEach(function($item, index) {
+            console.log(`\u042D\u043B\u0435\u043C\u0435\u043D\u0442 ${index + 1}:`, $item[0]);
+          });
+          secondRowItems.forEach(function($item) {
+            let ballName = $item.attr("value");
+            if (ballCounts[ballName] > 1) {
+              $item.addClass("flash_ball");
+            }
+          });
+          if ($.isFunction(slot.options.onComplete)) {
+            slot.options.onComplete(resultString);
+          }
+        }
+      });
+    };
+    slot.completeAnimation = function(targetNum) {
+      if (slot.options.stopOrder === "leftToRight" && rotationData.total !== rotationData.rotationId) {
+        rotationSequences["sequence" + rotationData.sequenceId]["rotation" + (rotationData.rotationId + 1)]["spinning"] = false;
+      } else if (slot.options.stopOrder == "rightToLeft" && rotationData.rotationId !== 1) {
+        rotationSequences["sequence" + rotationData.sequenceId]["rotation" + (rotationData.rotationId - 1)]["spinning"] = false;
+      }
+      rotationSequences["sequence" + rotationData.sequenceId]["totalRotations"]--;
+      rotationSequences["sequence" + rotationData.sequenceId]["rotation" + rotationData.rotationId]["targetNum"] = targetNum;
+    };
+    slot.getRandomNumber = function(low, high) {
+      return Math.floor(Math.random() * (1 + high - low)) + low;
+    };
+    this.initialize();
+  };
+  function calculateMultiplier(ballCounts) {
+    let multiplier = 0;
+    Object.values(ballCounts).forEach((count) => {
+      if (count >= 2) {
+        switch (count) {
+          case 2:
+            multiplier += 0.75;
+            break;
+          case 3:
+            multiplier += 1.5;
+            break;
+          case 4:
+            multiplier += 2;
+            break;
+        }
+      }
+    });
+    if (multiplier > 0 && ballCounts["pink_ball.png"]) {
+      multiplier *= 3;
+    }
+    return multiplier;
+  }
 })();

@@ -2,10 +2,9 @@
 // --------------------------------------------- //
 // --------------- Основное меню --------------- //
 // --------------------------------------------- //
-import {isElementVisible, navigateTo} from './main'
+import { isElementVisible, navigateTo } from './main';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Функция, которую нужно выполнить, когда элемент станет видимым
     let isInitialLoad = true; // Флаг для проверки первоначальной загрузки
     const miniRocket = document.getElementById('miniRocket');
     const listItems = document.querySelectorAll('.levels li');
@@ -13,12 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function onElementVisible() {
         listItems.forEach(item => {
             // События для сенсорных экранов
-            item.addEventListener('touchstart', addShineClass);
-            item.addEventListener('touchend', removeShineClass);
-
-            // События для настольных браузеров
-            item.addEventListener('mouseover', addShineClass);
-            item.addEventListener('mouseout', removeShineClass);
+            // item.addEventListener('touchstart', addShineClass);
+            // item.addEventListener('touchend', removeShineClass);
+            //
+            // // События для настольных браузеров
+            // item.addEventListener('mouseover', addShineClass);
+            // item.addEventListener('mouseout', removeShineClass);
 
             item.addEventListener('click', () => {
                 moveRocketToItem(item);
@@ -57,10 +56,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = item.getBoundingClientRect();
         const rocketRect = miniRocket.getBoundingClientRect();
 
-        const offsetX = 50;
+        const offsetX = rect.left + (rect.width / 2) - (rocketRect.width / 2);
         const offsetY = rect.top + (rect.height / 2) - (rocketRect.height / 2);
 
-        miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        // Определяем ориентацию экрана
+        const isLandscape = screenWidth > screenHeight;
+
+        miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? 'rotate(90deg)' : 'rotate(0deg)'}`;
 
         // Удаляем класс active у всех элементов
         listItems.forEach(li => li.classList.remove('active'));
@@ -71,17 +76,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isInitialLoad) {
             setTimeout(() => {
                 const levelNumber = item.getAttribute('value');
-                navigateTo('gameContainer', levelNumber)
-                isInitialLoad = true;
+                // navigateTo('gameContainer', levelNumber);
+                // isInitialLoad = true;
             }, 250);
         }
     }
 
-    function addShineClass(event) {
-        event.currentTarget.classList.add('shinePlanet');
+    function updateRocketPosition() {
+        moveRocketToItem(listItems[listItems.length - 1]);
     }
 
-    function removeShineClass(event) {
-        event.currentTarget.classList.remove('shinePlanet');
-    }
+    // Добавляем обработчик события изменения размера окна
+    window.addEventListener('resize', updateRocketPosition);
+    window.addEventListener('orientationchange', updateRocketPosition);
 });
