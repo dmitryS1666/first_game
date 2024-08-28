@@ -1,8 +1,4 @@
-
-// --------------------------------------------- //
-// --------------- Основное меню --------------- //
-// --------------------------------------------- //
-import { isElementVisible, navigateTo } from './main';
+import {isElementVisible, navigateTo} from './main';
 
 document.addEventListener('DOMContentLoaded', () => {
     let isInitialLoad = true; // Флаг для проверки первоначальной загрузки
@@ -11,14 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function onElementVisible() {
         listItems.forEach(item => {
-            // События для сенсорных экранов
-            // item.addEventListener('touchstart', addShineClass);
-            // item.addEventListener('touchend', removeShineClass);
-            //
-            // // События для настольных браузеров
-            // item.addEventListener('mouseover', addShineClass);
-            // item.addEventListener('mouseout', removeShineClass);
-
+            // События для кликов на элементах списка
             item.addEventListener('click', () => {
                 moveRocketToItem(item);
             });
@@ -26,9 +15,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         miniRocket.style.top = '0';
 
-        // Установить начальное положение ракеты на последнем элементе, но не выполнять редирект
-        moveRocketToItem(listItems[listItems.length - 1]);
+        // Установить начальное положение ракеты в зависимости от ориентации
+        setInitialRocketPosition();
         isInitialLoad = false; // Установить флаг в false после инициализации
+    }
+
+    // Функция для установки начальной позиции ракеты в зависимости от ориентации экрана
+    function setInitialRocketPosition() {
+        if (window.innerWidth > window.innerHeight) {
+            // Горизонтальная ориентация: центрировать внизу экрана
+            setRocketToCenterBottom();
+        } else {
+            setRocketToCenterBottom();
+            // Вертикальная ориентация: установить на последнем элементе
+            // moveRocketToItem(listItems[listItems.length - 1], false); // false чтобы не вызвать navigateTo
+        }
+    }
+
+    // Устанавливает ракету в центр нижней части экрана
+    function setRocketToCenterBottom() {
+        const centerX = window.innerWidth / 2;
+        const bottomY = window.innerHeight - miniRocket.getBoundingClientRect().height;
+
+        miniRocket.style.transform = `translate(${centerX - miniRocket.offsetWidth / 2}px, ${bottomY}px) rotate(0deg)`;
     }
 
     // Получаем элемент, за изменением которого будем следить
@@ -51,13 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Запускаем наблюдение
     observer.observe(element, config);
 
-
-    function moveRocketToItem(item) {
+    function moveRocketToItem(item, shouldNavigate = true) {
         const rect = item.getBoundingClientRect();
         const rocketRect = miniRocket.getBoundingClientRect();
-
-        const offsetX = rect.left + (rect.width / 2) - (rocketRect.width / 2);
-        const offsetY = rect.top + (rect.height / 2) - (rocketRect.height / 2);
 
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
@@ -65,28 +70,40 @@ document.addEventListener('DOMContentLoaded', () => {
         // Определяем ориентацию экрана
         const isLandscape = screenWidth > screenHeight;
 
-        miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? 'rotate(90deg)' : 'rotate(0deg)'}`;
+        let offsetX, offsetY;
+
+        if (isLandscape) {
+            // Горизонтальная ориентация
+            offsetX = rect.left + (rect.width / 2) - (rocketRect.height / 2);
+            offsetY = rect.top + (rect.height / 2) - (rocketRect.width / 2);
+        } else {
+            // Вертикальная ориентация
+            offsetX = rect.left + (rect.width / 2) - (rocketRect.width / 2);
+            offsetY = rect.top + (rect.height / 2) - (rocketRect.height / 2);
+        }
+
+        miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? ' rotate(90deg)' : ' rotate(0deg)'}`;
 
         // Удаляем класс active у всех элементов
         listItems.forEach(li => li.classList.remove('active'));
         // Добавляем класс active только к выбранному элементу
         item.classList.add('active');
 
-        // Если это не первоначальная загрузка, выполняем редирект
-        if (!isInitialLoad) {
+        // Если это не первоначальная загрузка и требуется переход, выполняем редирект
+        if (!isInitialLoad && shouldNavigate) {
             setTimeout(() => {
                 const levelNumber = item.getAttribute('value');
-                // navigateTo('gameContainer', levelNumber);
-                // isInitialLoad = true;
-            }, 250);
+                navigateTo('gameContainer', levelNumber);
+                isInitialLoad = true;
+            }, 350);
         }
     }
 
     function updateRocketPosition() {
-        moveRocketToItem(listItems[listItems.length - 1]);
+        setInitialRocketPosition();
     }
 
-    // Добавляем обработчик события изменения размера окна
+    // Добавляем обработчики событий изменения размера окна и изменения ориентации экрана
     window.addEventListener('resize', updateRocketPosition);
     window.addEventListener('orientationchange', updateRocketPosition);
 });

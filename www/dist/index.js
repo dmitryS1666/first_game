@@ -884,8 +884,20 @@
         });
       });
       miniRocket.style.top = "0";
-      moveRocketToItem(listItems[listItems.length - 1]);
+      setInitialRocketPosition();
       isInitialLoad = false;
+    }
+    function setInitialRocketPosition() {
+      if (window.innerWidth > window.innerHeight) {
+        setRocketToCenterBottom();
+      } else {
+        setRocketToCenterBottom();
+      }
+    }
+    function setRocketToCenterBottom() {
+      const centerX = window.innerWidth / 2;
+      const bottomY = window.innerHeight - miniRocket.getBoundingClientRect().height;
+      miniRocket.style.transform = `translate(${centerX - miniRocket.offsetWidth / 2}px, ${bottomY}px) rotate(0deg)`;
     }
     const element = document.getElementById("mainMenu");
     const observer = new MutationObserver((mutationsList) => {
@@ -899,25 +911,33 @@
     });
     const config = { attributes: true };
     observer.observe(element, config);
-    function moveRocketToItem(item) {
+    function moveRocketToItem(item, shouldNavigate = true) {
       const rect = item.getBoundingClientRect();
       const rocketRect = miniRocket.getBoundingClientRect();
-      const offsetX = rect.left + rect.width / 2 - rocketRect.width / 2;
-      const offsetY = rect.top + rect.height / 2 - rocketRect.height / 2;
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
       const isLandscape = screenWidth > screenHeight;
-      miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? "rotate(90deg)" : "rotate(0deg)"}`;
+      let offsetX, offsetY;
+      if (isLandscape) {
+        offsetX = rect.left + rect.width / 2 - rocketRect.height / 2;
+        offsetY = rect.top + rect.height / 2 - rocketRect.width / 2;
+      } else {
+        offsetX = rect.left + rect.width / 2 - rocketRect.width / 2;
+        offsetY = rect.top + rect.height / 2 - rocketRect.height / 2;
+      }
+      miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? " rotate(90deg)" : " rotate(0deg)"}`;
       listItems.forEach((li) => li.classList.remove("active"));
       item.classList.add("active");
-      if (!isInitialLoad) {
+      if (!isInitialLoad && shouldNavigate) {
         setTimeout(() => {
           const levelNumber = item.getAttribute("value");
-        }, 250);
+          navigateTo("gameContainer", levelNumber);
+          isInitialLoad = true;
+        }, 350);
       }
     }
     function updateRocketPosition() {
-      moveRocketToItem(listItems[listItems.length - 1]);
+      setInitialRocketPosition();
     }
     window.addEventListener("resize", updateRocketPosition);
     window.addEventListener("orientationchange", updateRocketPosition);
