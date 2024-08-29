@@ -162,7 +162,10 @@ export function startGamePC() {
     eggs = [];
     basketPosition = 'left'; // Корзина стартует слева
     updateScoreDisplay();
-    startTimerPC();
+
+    // Сбрасываем таймер перед началом игры
+    clearInterval(timerPC); // Очищаем таймер перед новой игрой
+    startTimerPC(); // Запускаем таймер
     canvasPC.style.display = 'block';
     gameOverPC = false;
 
@@ -186,6 +189,8 @@ export function endGamePC(isVictory, isInterrupted = false) {
         return;
     }
 
+    gameOverPC = true; // Игра завершена
+    clearInterval(timerPC); // Очистка таймера
     canvasPC.style.display = 'none';
     timerDisplay('none');
 
@@ -193,6 +198,13 @@ export function endGamePC(isVictory, isInterrupted = false) {
     document.getElementById('pipeLeft').style.display = 'block';
 
     let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
+
+    // Активируем кнопку "Старт" после завершения игры
+    const startButton = document.getElementById('playPC');
+    if (startButton) {
+        startButton.disabled = false; // Разблокируем кнопку
+    }
+
     if (isVictory) {
         let newScore = parseInt(localStorage.getItem('currentScore')) + score + currentBet;
         saveScore(newScore);
@@ -208,15 +220,8 @@ export function endGamePC(isVictory, isInterrupted = false) {
         navigateTo('failPage');
     }
 
-    gameOverPC = true;
-
-    // Активируем кнопку "Старт" после завершения игры
-    const startButton = document.getElementById('startButton');
-    if (startButton) {
-        startButton.disabled = false; // Разблокируем кнопку
-    }
-
-    clearInterval(timerPC);
+    // Сброс отображения таймера после завершения игры
+    document.getElementById('seconds').textContent = gameDuration;
 }
 
 // Таймер игры

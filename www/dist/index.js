@@ -257,6 +257,12 @@
     }
     canvas.style.display = "none";
     timerDisplay("none");
+    gameOver = true;
+    const startButton = document.getElementById("play");
+    if (startButton) {
+      startButton.disabled = false;
+    }
+    clearInterval(timer);
     let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
     if (isVictory) {
       let newScore = parseInt(localStorage.getItem("currentScore")) + score2 + currentBet;
@@ -269,12 +275,6 @@
       saveScore(newScore);
       navigateTo("failPage");
     }
-    gameOver = true;
-    const startButton = document.getElementById("play");
-    if (startButton) {
-      startButton.disabled = false;
-    }
-    clearInterval(timer);
   }
   function startTimer() {
     let timeRemaining = gameDuration;
@@ -536,6 +536,7 @@
     eggs2 = [];
     basketPosition = "left";
     updateScoreDisplay2();
+    clearInterval(timerPC);
     startTimerPC();
     canvasPC.style.display = "block";
     gameOverPC = false;
@@ -552,11 +553,17 @@
       clearInterval(timerPC);
       return;
     }
+    gameOverPC = true;
+    clearInterval(timerPC);
     canvasPC.style.display = "none";
     timerDisplay2("none");
     document.getElementById("pipeRight").style.display = "block";
     document.getElementById("pipeLeft").style.display = "block";
     let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
+    const startButton = document.getElementById("playPC");
+    if (startButton) {
+      startButton.disabled = false;
+    }
     if (isVictory) {
       let newScore = parseInt(localStorage.getItem("currentScore")) + score3 + currentBet;
       saveScore(newScore);
@@ -568,12 +575,7 @@
       saveScore(newScore);
       navigateTo("failPage");
     }
-    gameOverPC = true;
-    const startButton = document.getElementById("startButton");
-    if (startButton) {
-      startButton.disabled = false;
-    }
-    clearInterval(timerPC);
+    document.getElementById("seconds").textContent = gameDuration2;
   }
   function startTimerPC() {
     let timeRemaining = gameDuration2;

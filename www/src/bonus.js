@@ -168,30 +168,6 @@ export function startGame() {
     }
 }
 
-// function resetGame() {
-//     // Останавливаем текущую игру
-//     if (timer) {
-//         clearInterval(timer);
-//     }
-//
-//     // Сбрасываем состояние игры
-//     score = 0;
-//     bet = 0;
-//     deposit = 1000; // Или любое начальное значение депозита
-//     eggs = [];
-//     tracks = [];
-//     flashFlag = false;
-//     touchFlag = false;
-//     gameOver = false;
-//
-//     // Обновляем отображение
-//     updateScoreDisplay();
-//
-//     // Переключаем видимость
-//     canvas.style.display = 'none';
-//     timerDisplay('none');
-// }
-
 // End the game
 export function endGame(isVictory, isInterrupted = false) {
     if (isInterrupted) {
@@ -202,6 +178,16 @@ export function endGame(isVictory, isInterrupted = false) {
 
     canvas.style.display = 'none';
     timerDisplay('none');
+
+    gameOver = true; // Игра завершена
+
+    // Активируем кнопку "Старт" после завершения игры
+    const startButton = document.getElementById('play');
+    if (startButton) {
+        startButton.disabled = false; // Разблокируем кнопку
+    }
+
+    clearInterval(timer);
 
     let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
     if (isVictory) {
@@ -218,16 +204,6 @@ export function endGame(isVictory, isInterrupted = false) {
 
         navigateTo('failPage'); // Перенаправляем на страницу поражения
     }
-
-    gameOver = true; // Игра завершена
-
-    // Активируем кнопку "Старт" после завершения игры
-    const startButton = document.getElementById('play');
-    if (startButton) {
-        startButton.disabled = false; // Разблокируем кнопку
-    }
-
-    clearInterval(timer);
 }
 
 function startTimer() {
