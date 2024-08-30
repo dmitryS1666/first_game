@@ -105,6 +105,7 @@ function drawTexts() {
 
 // Initialize game
 function setupGame() {
+    document.getElementById('gameCanvas').style.display = 'block';
     canvas = document.getElementById('gameCanvas');
     if (!canvas) {
         console.error('Canvas element not found');
@@ -175,6 +176,7 @@ export function prepareGame() {
     document.getElementById('failPlatformBlock').style.display = 'block';
     document.getElementById('failPlatform').style.display = 'block';
     document.getElementById('play').style.display = 'block';
+    document.getElementById('planetCatcherCanvas').style.display = 'none';
     document.getElementById('failPlatformAstroBlock').style.display = 'none';
     document.getElementById('pipe').style.display = 'none';
     document.getElementById('failPlatformAstro').style.display = 'none';

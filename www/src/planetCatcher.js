@@ -17,7 +17,7 @@ let basketSpeed, eggSpeedBase, eggSpeedVariance;
 let leftPipeWidth, leftPipeHeight;
 let rightPipeWidth, rightPipeHeight;
 const eggInterval = 1000; // milliseconds
-const gameDuration = 15; // seconds
+const gameDuration = 150; // seconds
 let basketPosition = 'left'; // Начальное положение корзины (слева или справа)
 let eggs = [];
 let score = 0;
@@ -105,6 +105,7 @@ function drawTexts() {
 
 // Initialize game
 export function setupGamePC() {
+    document.getElementById('planetCatcherCanvas').style.display = 'block';
     canvasPC = document.getElementById('planetCatcherCanvas');
 
     if (!canvasPC) {
@@ -112,9 +113,13 @@ export function setupGamePC() {
         return;
     }
 
+    // Слушатель на изменение ориентации экрана
+    window.addEventListener('resize', resizeCanvasPC);
+    window.addEventListener('orientationchange', resizeCanvasPC);
+
     // Управление движением корзины с помощью касаний
     canvasPC.addEventListener('touchstart', (event) => {
-        if (gameOverPC) return;
+        // if (gameOverPC) return;
 
         const touchX = event.touches[0].clientX;
 
@@ -133,9 +138,6 @@ export function setupGamePC() {
 
     resizeCanvasPC();
     window.addEventListener('resize', resizeCanvasPC);
-
-    basketPCWidth = 400;
-    basketPCHeight = 392;
 
     basketSpeed = canvasPCWidth * 0.02;
     eggSpeedBase = canvasPCHeight * 0.005;
@@ -159,6 +161,8 @@ export function setupGamePC() {
     checkFirstRun();
     document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
 
+    document.getElementById('pipe').style.display = 'block';
+    document.getElementById('gameCanvas').style.display = 'none';
     document.getElementById('failPlatformBlock').style.display = 'none';
     document.getElementById('failPlatform').style.display = 'none';
     document.getElementById('play').style.display = 'none';
@@ -170,30 +174,48 @@ export function setupGamePC() {
 }
 
 export function resizeCanvasPC() {
-    canvasPCWidth = window.innerWidth;
+    let orientation = window.innerWidth - window.innerHeight;
+    if (orientation > 0) {
+        canvasPCWidth = window.innerWidth - 200;
+        canvasPC.style.transform = 'translateX(100px)';
+
+        basketPCWidth = 313;
+        basketPCHeight = 305;
+    } else {
+        canvasPCWidth = window.innerWidth;
+        canvasPC.style.transform = 'translateX(0)';
+
+        basketPCWidth = 400;
+        basketPCHeight = 392;
+    }
     canvasPCHeight = window.innerHeight;
+
     canvasPC.width = canvasPCWidth;
     canvasPC.height = canvasPCHeight;
-    basketPCWidth = canvasPCWidth * 0.2;
-    basketPCHeight = canvasPCHeight * 0.05;
-    basketSpeed = canvasPCWidth * 0.02;
-    eggSpeedBase = canvasPCHeight * 0.005;
-    eggSpeedVariance = canvasPCHeight * 0.003;
 
     // Размеры труб
-    leftPipeWidth = canvasPCWidth * 0.32;  // Примерное значение
-    leftPipeHeight = canvasPCHeight * 0.3; // Примерное значение
+    leftPipeWidth = 130;// * 0.32;  // Примерное значение
+    leftPipeHeight = 270;// * 0.3; // Примерное значение
+
     rightPipeWidth = leftPipeWidth;
     rightPipeHeight = leftPipeHeight;
 }
 
 function drawPipes() {
-    ctxPC.drawImage(leftPipeImage, 0, 28, leftPipeWidth, leftPipeHeight);
-    ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, 28, rightPipeWidth, rightPipeHeight);
+    let orientation = window.innerWidth - window.innerHeight;
+    if (orientation > 0) {
+        ctxPC.drawImage(leftPipeImage, 0, -160, leftPipeWidth, leftPipeHeight);
+        ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, -160, rightPipeWidth, rightPipeHeight);
+    } else {
+        ctxPC.drawImage(leftPipeImage, 0, 28, leftPipeWidth, leftPipeHeight);
+        ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, 28, rightPipeWidth, rightPipeHeight);
+    }
 }
 
 // Начало игры
 export function startGamePC() {
+    gameOverPC = false;
+
     setupGamePC();
     score = 0;
     eggs = [];
@@ -204,7 +226,6 @@ export function startGamePC() {
     clearInterval(timerPC); // Очищаем таймер перед новой игрой
     startTimerPC(); // Запускаем таймер
     canvasPC.style.display = 'block';
-    gameOverPC = false;
 
     document.getElementById('failPlatformAstroBlock').style.display = 'none';
 
@@ -231,8 +252,7 @@ export function endGamePC(isVictory, isInterrupted = false) {
     canvasPC.style.display = 'none';
     timerDisplay('none');
 
-    document.getElementById('pipeRight').style.display = 'block';
-    document.getElementById('pipeLeft').style.display = 'block';
+    document.getElementById('pipe').style.display = 'block';
 
     let currentBet = parseInt(document.getElementById('currentBet').innerText, 10);
 
@@ -289,12 +309,18 @@ function drawBasket() {
         basketX = -basketX - basketPCWidth; // Корректируем позицию корзины для правильного отражения
     }
 
-    ctxPC.drawImage(basketImage, basketX + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
+    let orientation = window.innerWidth - window.innerHeight;
+    if (orientation > 0) {
+        ctxPC.drawImage(basketImage, basketX + 105, canvasPCHeight - basketPCHeight + 50, basketPCWidth, basketPCHeight);
+    } else {
+        ctxPC.drawImage(basketImage, basketX + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
+    }
+
 
     ctxPC.restore(); // Восстанавливаем исходное состояние контекста
 }
 
-/// Параболическая траектория шаров
+// Параболическая траектория шаров
 function calculateParabola(egg) {
     let time = egg.time;
 
@@ -312,8 +338,8 @@ function calculateParabola(egg) {
     let yEnd = canvasPCHeight * 0.3; // Высота горки (уменьшена для более резкого склона)
 
     // Время перехода от параболы к вертикальному падению
-    let transitionTime = 20; // Время на скатывание с горки
-    let totalDuration = 140; // Общее время движения
+    let transitionTime = 20; // Используем скорость для изменения времени перехода
+    let totalDuration = 140; // Используем скорость для изменения общего времени
 
     if (time < transitionTime) {
         // Параболическое движение (спуск по горке)
@@ -339,14 +365,13 @@ function drawEggs() {
         if (img) {
             ctxPC.save(); // Сохраняем текущее состояние контекста
 
-            // Перемещаем контекст к центру яйца и вращаем
+            // Перемещаем контекст к центру изображения яйца
             ctxPC.translate(egg.x, egg.y);
             const rotationDirection = egg.fromLeft ? 1 : -1; // Направление вращения: влево или вправо
             ctxPC.rotate((rotationDirection * egg.time * Math.PI) / 180); // Вращаем в зависимости от направления
-            ctxPC.translate(-egg.x, -egg.y);
 
-            // Увеличиваем размер шара до 100x100 пикселей
-            ctxPC.drawImage(img, egg.x - 50, egg.y - 50, 70, 70);
+            // Отрисовываем изображение яйца, смещая его на половину ширины и высоты для центрирования
+            ctxPC.drawImage(img, -35, -35, 70, 70);
 
             ctxPC.restore(); // Восстанавливаем исходное состояние контекста
         }
@@ -360,27 +385,27 @@ function drawEggs() {
 
         // Отображаем вспышку
         ctxPC.globalAlpha = flash.alpha;
-        ctxPC.drawImage(flashImage, flash.x - 50, flash.y - 50, 100, 100);
+        ctxPC.drawImage(flashImage, flash.x - 70, flash.y - 70, 140, 140);
 
         // Отображаем текст
-        // ctxPC.fillStyle = 'white';
-        // ctxPC.font = '700 30px Montserrat'; // Задаем стиль шрифта
-        // ctxPC.textAlign = 'left'; // Выравнивание по левому краю
-        // ctxPC.textBaseline = 'middle';
-        // ctxPC.globalAlpha = flash.textAlpha;
+        ctxPC.fillStyle = 'white';
+        ctxPC.font = '700 30px Montserrat'; // Задаем стиль шрифта
+        ctxPC.textAlign = 'left'; // Выравнивание по левому краю
+        ctxPC.textBaseline = 'middle';
+        ctxPC.globalAlpha = flash.textAlpha;
 
         // Добавляем всплывающее сообщение с текстом
-        // let scoreVal = flash.text
+        // let scoreVal = flash.text;
         // ctxPC.fillText((scoreVal > 0 ? '+' + scoreVal.toString() : scoreVal.toString()), flash.x + flash.textOffsetX, flash.y + flash.textOffsetY);
 
         ctxPC.restore();
 
         // Плавное исчезновение вспышки
-        flash.alpha -= 0.05;
-        flash.textAlpha = Math.max(flash.textAlpha - 0.02, 0); // Плавное исчезновение текста
+        flash.alpha -= 0.59;
+        // flash.textAlpha = Math.max(flash.textAlpha - 0.02, 0); // Плавное исчезновение текста
 
         // Плавное движение текста вверх
-        flash.textOffsetY -= 1; // Поднимаем текст вверх
+        // flash.textOffsetY -= 1; // Поднимаем текст вверх
     });
 
     // Удаляем вспышки и текст, которые уже затухли
@@ -398,21 +423,32 @@ export function gameLoopPC() {
     handleCollision();
     requestAnimationFrame(gameLoopPC);
 
-    document.getElementById('pipeRight').style.display = 'none';
-    document.getElementById('pipeLeft').style.display = 'none';
+    document.getElementById('pipe').style.display = 'none';
 }
 
+// Проверка столкновений
 // Проверка столкновений
 function handleCollision() {
     eggs.forEach(egg => {
         let basketX = basketPosition === 'left' ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
-        if (egg.y > canvasPCHeight - basketPCHeight - 50 && egg.x > basketX - basketPCWidth / 2 && egg.x < basketX + basketPCWidth / 2) {
+        let basketTop = canvasPCHeight - basketPCHeight - 50; // Верхняя граница корзины
+
+        // Проверка на касание только верхней части корзины
+        if (egg.y > basketTop && egg.y < basketTop + 50 && // Проверяем, находится ли яйцо в пределах верхней части корзины
+            egg.x > basketX - basketPCWidth / 2 && egg.x < basketX + basketPCWidth / 2) { // Проверяем по горизонтали
+
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
 
+            // Вызов функции вибрации при касании платформы
+            if ("vibrate" in navigator) {
+                navigator.vibrate(100); // Вибрация длительностью 100 миллисекунд
+            }
+
             // Добавляем всплывающее сообщение с текстом
-            addTextDisplay(egg.x, egg.y, properties.score.toString());
+            let scoreVal = properties.score
+            addTextDisplay(egg.x, egg.y, (scoreVal > 0 ? '+' + scoreVal.toString() : scoreVal.toString()));
 
             if (properties.gameOverPC) {
                 endGamePC(false);
@@ -423,11 +459,11 @@ function handleCollision() {
                 x: egg.x,
                 y: egg.y,
                 alpha: 1, // Прозрачность вспышки
-                text: properties.score, // Значение для отображения
-                textAlpha: 1, // Прозрачность текста
-                textOffsetX: 60, // Смещение текста по X относительно вспышки
-                textOffsetY: 0, // Смещение текста по Y
-                textDuration: 150 // Длительность отображения текста
+                // text: properties.score, // Значение для отображения
+                // textAlpha: 1, // Прозрачность текста
+                // textOffsetX: 60, // Смещение текста по X относительно вспышки
+                // textOffsetY: 0, // Смещение текста по Y
+                // textDuration: 150 // Длительность отображения текста
             });
 
             eggs = eggs.filter(e => e !== egg);
@@ -441,25 +477,40 @@ function updateScoreDisplay() {
 }
 
 // Добавляем шар
+// Обновляем функцию добавления шара
 function addEgg() {
     if (gameOverPC) return;
-    const fromLeft = Math.random() > 0.5;
-    const color = colors[Math.floor(Math.random() * colors.length)];
 
-    // Устанавливаем начальную позицию для яиц в зависимости от стороны
-    const startX = fromLeft ? 70 : canvasPCWidth - 65; // Отступ 30px от краев
-    const startY = 265; // Сдвигаем на 50px от верха
+    // Определяем случайный интервал для появления нового шара
+    setTimeout(() => {
+        const fromLeft = Math.random() > 0.5;
+        const color = colors[Math.floor(Math.random() * colors.length)];
 
-    eggs.push({
-        x: startX,
-        y: startY,
-        startX: startX, // Сохраняем начальную позицию по X
-        startY: startY, // Сохраняем начальную позицию по Y
-        color: color,
-        fromLeft: fromLeft,
-        time: 0, // Время траектории
-        rotationSpeed: Math.random() * 2 + 1 // Случайная скорость вращения
-    });
+        // Устанавливаем начальную позицию для яиц в зависимости от стороны
+        const startX = fromLeft ? 70 : canvasPCWidth - 65; // Отступ 30px от краев
+        const startY = 265; // Сдвигаем на 50px от верха
+
+        // Проверяем, нет ли уже шары в этой области
+        const isOverlapping = eggs.some(egg =>
+            Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
+        );
+
+        if (!isOverlapping) {
+            eggs.push({
+                x: startX,
+                y: startY,
+                startX: startX, // Сохраняем начальную позицию по X
+                startY: startY, // Сохраняем начальную позицию по Y
+                color: color,
+                fromLeft: fromLeft,
+                time: 0, // Время траектории
+                rotationSpeed: Math.random() * 2 + 1 // Случайная скорость вращения
+            });
+        }
+
+        // Устанавливаем следующий случайный интервал
+        setTimeout(addEgg, eggInterval + Math.random() * 2000); // Интервал от 1 до 3 секунд
+    }, Math.random() * 2000); // Задержка перед добавлением шара от 0 до 2 секунд
 }
 
 // Управление движением корзины

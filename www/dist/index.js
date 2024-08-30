@@ -203,6 +203,7 @@
     ctx.globalAlpha = 1;
   }
   function setupGame() {
+    document.getElementById("gameCanvas").style.display = "block";
     canvas = document.getElementById("gameCanvas");
     if (!canvas) {
       console.error("Canvas element not found");
@@ -254,6 +255,7 @@
     document.getElementById("failPlatformBlock").style.display = "block";
     document.getElementById("failPlatform").style.display = "block";
     document.getElementById("play").style.display = "block";
+    document.getElementById("planetCatcherCanvas").style.display = "none";
     document.getElementById("failPlatformAstroBlock").style.display = "none";
     document.getElementById("pipe").style.display = "none";
     document.getElementById("failPlatformAstro").style.display = "none";
@@ -454,7 +456,7 @@
   var rightPipeWidth;
   var rightPipeHeight;
   var eggInterval2 = 1e3;
-  var gameDuration2 = 15;
+  var gameDuration2 = 150;
   var basketPosition = "left";
   var eggs2 = [];
   var score3 = 0;
@@ -523,13 +525,15 @@
     ctxPC.globalAlpha = 1;
   }
   function setupGamePC() {
+    document.getElementById("planetCatcherCanvas").style.display = "block";
     canvasPC = document.getElementById("planetCatcherCanvas");
     if (!canvasPC) {
       console.error("Canvas element not found");
       return;
     }
+    window.addEventListener("resize", resizeCanvasPC);
+    window.addEventListener("orientationchange", resizeCanvasPC);
     canvasPC.addEventListener("touchstart", (event) => {
-      if (gameOverPC) return;
       const touchX = event.touches[0].clientX;
       if (touchX < canvasPCWidth / 2) {
         basketPosition = "left";
@@ -544,8 +548,6 @@
     }
     resizeCanvasPC();
     window.addEventListener("resize", resizeCanvasPC);
-    basketPCWidth = 400;
-    basketPCHeight = 392;
     basketSpeed2 = canvasPCWidth * 0.02;
     eggSpeedBase2 = canvasPCHeight * 5e-3;
     eggSpeedVariance2 = canvasPCHeight * 3e-3;
@@ -562,6 +564,8 @@
     document.getElementById("scoreValue").textContent = 0;
     checkFirstRun();
     document.getElementById("balanceValue").textContent = localStorage.getItem("currentScore") || 0;
+    document.getElementById("pipe").style.display = "block";
+    document.getElementById("gameCanvas").style.display = "none";
     document.getElementById("failPlatformBlock").style.display = "none";
     document.getElementById("failPlatform").style.display = "none";
     document.getElementById("play").style.display = "none";
@@ -571,25 +575,38 @@
     timerDisplay2("block");
   }
   function resizeCanvasPC() {
-    canvasPCWidth = window.innerWidth;
+    let orientation = window.innerWidth - window.innerHeight;
+    if (orientation > 0) {
+      canvasPCWidth = window.innerWidth - 200;
+      canvasPC.style.transform = "translateX(100px)";
+      basketPCWidth = 313;
+      basketPCHeight = 305;
+    } else {
+      canvasPCWidth = window.innerWidth;
+      canvasPC.style.transform = "translateX(0)";
+      basketPCWidth = 400;
+      basketPCHeight = 392;
+    }
     canvasPCHeight = window.innerHeight;
     canvasPC.width = canvasPCWidth;
     canvasPC.height = canvasPCHeight;
-    basketPCWidth = canvasPCWidth * 0.2;
-    basketPCHeight = canvasPCHeight * 0.05;
-    basketSpeed2 = canvasPCWidth * 0.02;
-    eggSpeedBase2 = canvasPCHeight * 5e-3;
-    eggSpeedVariance2 = canvasPCHeight * 3e-3;
-    leftPipeWidth = canvasPCWidth * 0.32;
-    leftPipeHeight = canvasPCHeight * 0.3;
+    leftPipeWidth = 130;
+    leftPipeHeight = 270;
     rightPipeWidth = leftPipeWidth;
     rightPipeHeight = leftPipeHeight;
   }
   function drawPipes() {
-    ctxPC.drawImage(leftPipeImage, 0, 28, leftPipeWidth, leftPipeHeight);
-    ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, 28, rightPipeWidth, rightPipeHeight);
+    let orientation = window.innerWidth - window.innerHeight;
+    if (orientation > 0) {
+      ctxPC.drawImage(leftPipeImage, 0, -160, leftPipeWidth, leftPipeHeight);
+      ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, -160, rightPipeWidth, rightPipeHeight);
+    } else {
+      ctxPC.drawImage(leftPipeImage, 0, 28, leftPipeWidth, leftPipeHeight);
+      ctxPC.drawImage(rightPipeImage, canvasPCWidth - rightPipeWidth, 28, rightPipeWidth, rightPipeHeight);
+    }
   }
   function startGamePC() {
+    gameOverPC = false;
     setupGamePC();
     score3 = 0;
     eggs2 = [];
@@ -598,7 +615,6 @@
     clearInterval(timerPC);
     startTimerPC();
     canvasPC.style.display = "block";
-    gameOverPC = false;
     document.getElementById("failPlatformAstroBlock").style.display = "none";
     const startButton = document.getElementById("playPC");
     if (startButton) {
@@ -616,8 +632,7 @@
     clearInterval(timerPC);
     canvasPC.style.display = "none";
     timerDisplay2("none");
-    document.getElementById("pipeRight").style.display = "block";
-    document.getElementById("pipeLeft").style.display = "block";
+    document.getElementById("pipe").style.display = "block";
     let currentBet = parseInt(document.getElementById("currentBet").innerText, 10);
     const startButton = document.getElementById("playPC");
     if (startButton) {
@@ -658,7 +673,12 @@
       ctxPC.scale(-1, 1);
       basketX2 = -basketX2 - basketPCWidth;
     }
-    ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
+    let orientation = window.innerWidth - window.innerHeight;
+    if (orientation > 0) {
+      ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight + 50, basketPCWidth, basketPCHeight);
+    } else {
+      ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
+    }
     ctxPC.restore();
   }
   function calculateParabola(egg) {
@@ -690,8 +710,7 @@
         ctxPC.translate(egg.x, egg.y);
         const rotationDirection = egg.fromLeft ? 1 : -1;
         ctxPC.rotate(rotationDirection * egg.time * Math.PI / 180);
-        ctxPC.translate(-egg.x, -egg.y);
-        ctxPC.drawImage(img, egg.x - 50, egg.y - 50, 70, 70);
+        ctxPC.drawImage(img, -35, -35, 70, 70);
         ctxPC.restore();
       }
       calculateParabola(egg);
@@ -700,11 +719,14 @@
     flashes.forEach((flash) => {
       ctxPC.save();
       ctxPC.globalAlpha = flash.alpha;
-      ctxPC.drawImage(flashImage2, flash.x - 50, flash.y - 50, 100, 100);
+      ctxPC.drawImage(flashImage2, flash.x - 70, flash.y - 70, 140, 140);
+      ctxPC.fillStyle = "white";
+      ctxPC.font = "700 30px Montserrat";
+      ctxPC.textAlign = "left";
+      ctxPC.textBaseline = "middle";
+      ctxPC.globalAlpha = flash.textAlpha;
       ctxPC.restore();
-      flash.alpha -= 0.05;
-      flash.textAlpha = Math.max(flash.textAlpha - 0.02, 0);
-      flash.textOffsetY -= 1;
+      flash.alpha -= 0.59;
     });
     flashes = flashes.filter((flash) => flash.alpha > 0 || flash.textAlpha > 0);
   }
@@ -717,35 +739,35 @@
     drawTexts2();
     handleCollision2();
     requestAnimationFrame(gameLoopPC);
-    document.getElementById("pipeRight").style.display = "none";
-    document.getElementById("pipeLeft").style.display = "none";
+    document.getElementById("pipe").style.display = "none";
   }
   function handleCollision2() {
     eggs2.forEach((egg) => {
       let basketX2 = basketPosition === "left" ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
-      if (egg.y > canvasPCHeight - basketPCHeight - 50 && egg.x > basketX2 - basketPCWidth / 2 && egg.x < basketX2 + basketPCWidth / 2) {
+      let basketTop = canvasPCHeight - basketPCHeight - 50;
+      if (egg.y > basketTop && egg.y < basketTop + 50 && // Проверяем, находится ли яйцо в пределах верхней части корзины
+      egg.x > basketX2 - basketPCWidth / 2 && egg.x < basketX2 + basketPCWidth / 2) {
         const properties = colorProperties2[egg.color];
         score3 += properties.score;
         updateScoreDisplay2();
-        addTextDisplay2(egg.x, egg.y, properties.score.toString());
+        if ("vibrate" in navigator) {
+          navigator.vibrate(100);
+        }
+        let scoreVal = properties.score;
+        addTextDisplay2(egg.x, egg.y, scoreVal > 0 ? "+" + scoreVal.toString() : scoreVal.toString());
         if (properties.gameOverPC) {
           endGamePC(false);
         }
         flashes.push({
           x: egg.x,
           y: egg.y,
-          alpha: 1,
+          alpha: 1
           // Прозрачность вспышки
-          text: properties.score,
-          // Значение для отображения
-          textAlpha: 1,
-          // Прозрачность текста
-          textOffsetX: 60,
-          // Смещение текста по X относительно вспышки
-          textOffsetY: 0,
-          // Смещение текста по Y
-          textDuration: 150
-          // Длительность отображения текста
+          // text: properties.score, // Значение для отображения
+          // textAlpha: 1, // Прозрачность текста
+          // textOffsetX: 60, // Смещение текста по X относительно вспышки
+          // textOffsetY: 0, // Смещение текста по Y
+          // textDuration: 150 // Длительность отображения текста
         });
         eggs2 = eggs2.filter((e) => e !== egg);
       }
@@ -756,24 +778,32 @@
   }
   function addEgg2() {
     if (gameOverPC) return;
-    const fromLeft = Math.random() > 0.5;
-    const color = colors2[Math.floor(Math.random() * colors2.length)];
-    const startX = fromLeft ? 70 : canvasPCWidth - 65;
-    const startY = 265;
-    eggs2.push({
-      x: startX,
-      y: startY,
-      startX,
-      // Сохраняем начальную позицию по X
-      startY,
-      // Сохраняем начальную позицию по Y
-      color,
-      fromLeft,
-      time: 0,
-      // Время траектории
-      rotationSpeed: Math.random() * 2 + 1
-      // Случайная скорость вращения
-    });
+    setTimeout(() => {
+      const fromLeft = Math.random() > 0.5;
+      const color = colors2[Math.floor(Math.random() * colors2.length)];
+      const startX = fromLeft ? 70 : canvasPCWidth - 65;
+      const startY = 265;
+      const isOverlapping = eggs2.some(
+        (egg) => Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
+      );
+      if (!isOverlapping) {
+        eggs2.push({
+          x: startX,
+          y: startY,
+          startX,
+          // Сохраняем начальную позицию по X
+          startY,
+          // Сохраняем начальную позицию по Y
+          color,
+          fromLeft,
+          time: 0,
+          // Время траектории
+          rotationSpeed: Math.random() * 2 + 1
+          // Случайная скорость вращения
+        });
+      }
+      setTimeout(addEgg2, eggInterval2 + Math.random() * 2e3);
+    }, Math.random() * 2e3);
   }
   document.addEventListener("keydown", (event) => {
     if (gameOverPC) return;
@@ -870,6 +900,9 @@
     if (!gameOver) {
       endGame(false, true);
     }
+    console.log("gameOverPC: ");
+    console.log(gameOverPC);
+    console.log("-------------------------");
     if (!gameOverPC) {
       endGamePC(false, true);
     }
@@ -1194,7 +1227,6 @@
       }
     });
     if (multiplier > 0 && balls["pink"]) {
-      console.log(balls["pink"]);
       multiplier *= 3;
     }
     return multiplier;
@@ -1215,7 +1247,7 @@
   }
   function showPopupMessage(message) {
     const popup = document.getElementById("popup-message");
-    popup.textContent = message;
+    popup.textContent = "X" + message;
     popup.classList.add("show");
     setTimeout(() => {
       popup.classList.remove("show");

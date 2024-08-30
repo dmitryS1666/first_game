@@ -115,8 +115,12 @@ export function navigateTo(...args) {
     if (!gameOver) {
         endGame(false, true); // Завершаем игру без пересчета результатов
     }
+
+    console.log('gameOverPC: ');
+    console.log(gameOverPC);
+    console.log('-------------------------');
     if (!gameOverPC) {
-        endGamePC(false, true); // Завершаем игру без пересчета результатов
+        endGamePC(false, true);
     }
 
     console.log(args);
