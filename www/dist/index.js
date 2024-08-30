@@ -103,19 +103,19 @@
   }
   function handleRouletteResult(winningSegment) {
     const segmentAngle = 360 / rouletteSegments.length;
-    let result;
+    let result2;
     let currentBet = parseFloat(document.getElementById("currentBetRoulette").innerText);
     const adjustedTargetAngle = (winningSegment * segmentAngle + 112) % 360;
     score = rouletteSegments[winningSegment];
     if (score === 2 || score === 1.5) {
-      result = parseFloat(score) * currentBet;
+      result2 = parseFloat(score) * currentBet;
     } else {
-      result = parseFloat(score) + currentBet;
+      result2 = parseFloat(score) + currentBet;
     }
-    let newScore = parseInt(localStorage.getItem("currentScore")) + score + result;
+    let newScore = parseInt(localStorage.getItem("currentScore")) + score + result2;
     saveScore(newScore);
     const finalScore = document.getElementById("finalScore");
-    finalScore.textContent = `+${result}`;
+    finalScore.textContent = `+${result2}`;
     navigateTo("winPage");
   }
 
@@ -174,6 +174,34 @@
   var flashFlag = false;
   var trackWidth = 30;
   var trackHeight = 80;
+  var textDisplays = [];
+  function addTextDisplay(x, y, text) {
+    textDisplays.push({
+      x,
+      y,
+      text,
+      alpha: 1,
+      // Начальная непрозрачность
+      speed: 2
+      // Скорость подъема текста
+    });
+  }
+  function drawTexts() {
+    ctx.globalAlpha = 1;
+    textDisplays.forEach((textDisplay, index) => {
+      ctx.fillStyle = "white";
+      ctx.font = "700 30px Montserrat";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(textDisplay.text, textDisplay.x, textDisplay.y);
+      textDisplay.y -= textDisplay.speed;
+      textDisplay.alpha -= 0.02;
+      if (textDisplay.alpha <= 0) {
+        textDisplays.splice(index, 1);
+      }
+    });
+    ctx.globalAlpha = 1;
+  }
   function setupGame() {
     canvas = document.getElementById("gameCanvas");
     if (!canvas) {
@@ -352,6 +380,8 @@
         const properties = colorProperties[egg.color];
         score2 += properties.score;
         updateScoreDisplay();
+        let scoreVal = properties.score;
+        addTextDisplay(egg.x, egg.y, scoreVal > 0 ? "+" + scoreVal.toString() : scoreVal.toString());
         if (properties.gameOver) {
           endGame(false);
         }
@@ -377,6 +407,7 @@
     drawEggs();
     updateEggs();
     handleCollision();
+    drawTexts();
     requestAnimationFrame(gameLoop);
   }
   function addEgg() {
@@ -463,6 +494,34 @@
   var rightPipeImage = new Image();
   rightPipeImage.src = "res/r_pipe.png";
   var flashes = [];
+  var textDisplays2 = [];
+  function addTextDisplay2(x, y, text) {
+    textDisplays2.push({
+      x,
+      y,
+      text,
+      alpha: 1,
+      // Начальная непрозрачность
+      speed: 2
+      // Скорость подъема текста
+    });
+  }
+  function drawTexts2() {
+    ctxPC.globalAlpha = 1;
+    textDisplays2.forEach((textDisplay, index) => {
+      ctxPC.fillStyle = "white";
+      ctxPC.font = "700 30px Montserrat";
+      ctxPC.textAlign = "left";
+      ctxPC.textBaseline = "middle";
+      ctxPC.fillText(textDisplay.text, textDisplay.x, textDisplay.y);
+      textDisplay.y -= textDisplay.speed;
+      textDisplay.alpha -= 0.02;
+      if (textDisplay.alpha <= 0) {
+        textDisplays2.splice(index, 1);
+      }
+    });
+    ctxPC.globalAlpha = 1;
+  }
   function setupGamePC() {
     canvasPC = document.getElementById("planetCatcherCanvas");
     if (!canvasPC) {
@@ -642,12 +701,6 @@
       ctxPC.save();
       ctxPC.globalAlpha = flash.alpha;
       ctxPC.drawImage(flashImage2, flash.x - 50, flash.y - 50, 100, 100);
-      ctxPC.fillStyle = "white";
-      ctxPC.font = "700 30px Montserrat";
-      ctxPC.textAlign = "left";
-      ctxPC.textBaseline = "middle";
-      ctxPC.globalAlpha = flash.textAlpha;
-      ctxPC.fillText(flash.text, flash.x + flash.textOffsetX, flash.y + flash.textOffsetY);
       ctxPC.restore();
       flash.alpha -= 0.05;
       flash.textAlpha = Math.max(flash.textAlpha - 0.02, 0);
@@ -661,6 +714,7 @@
     drawPipes();
     drawBasket2();
     drawEggs2();
+    drawTexts2();
     handleCollision2();
     requestAnimationFrame(gameLoopPC);
     document.getElementById("pipeRight").style.display = "none";
@@ -673,6 +727,7 @@
         const properties = colorProperties2[egg.color];
         score3 += properties.score;
         updateScoreDisplay2();
+        addTextDisplay2(egg.x, egg.y, properties.score.toString());
         if (properties.gameOverPC) {
           endGamePC(false);
         }
@@ -948,7 +1003,11 @@
   // src/slotMachine.js
   var rotationSequences = {};
   var rotationCount = 0;
+  var result;
   $.fn.startSpin = function(options) {
+    result = {};
+    const listItems = document.querySelectorAll("li");
+    listItems.forEach((li) => li.classList.remove("flash_ball"));
     if (this.length) {
       if ($(this).is(":animated")) return;
       rotationSequences["sequence" + ++rotationCount] = {};
@@ -976,16 +1035,23 @@
         options.endNum = endNumbers[currentSequence];
         rotationSequences["sequence" + rotationCount]["rotation" + ++currentSequence] = {};
         rotationSequences["sequence" + rotationCount]["rotation" + currentSequence]["spinning"] = true;
-        let rotationData = {
+        let rotationData2 = {
           total: itemCount,
           sequenceId: rotationCount,
           rotationId: currentSequence
         };
-        new SlotMachine(this, options, rotationData);
+        new SlotMachine(this, options, rotationData2);
       });
     }
+    let spinningSlots = [];
+    this.each(function(index) {
+      rotationData.rotationId = index + 1;
+      let machine = new SlotMachine(this, options, rotationData);
+      spinningSlots.push(machine);
+    });
+    return spinningSlots;
   };
-  var SlotMachine = function(element, options, rotationData) {
+  var SlotMachine = function(element, options, rotationData2) {
     let slot = this;
     slot.$element = $(element);
     slot.defaultOptions = {
@@ -1013,6 +1079,7 @@
     slot.spinSpeed = 0;
     slot.cycleCount = 0;
     slot.isSpinning = true;
+    slot.isCloned = false;
     slot.initialize = function() {
       slot.options = $.extend({}, slot.defaultOptions, options);
       slot.setup();
@@ -1023,11 +1090,22 @@
       slot.itemHeight = $listItem.innerHeight();
       slot.itemCount = slot.$element.children().length;
       slot.totalHeight = slot.itemHeight * slot.itemCount;
-      slot.$element.append(slot.$element.children().clone());
+      if (!slot.isCloned) {
+        slot.$element.append(slot.$element.children().clone());
+        slot.updateIds();
+      }
       slot.spinSpeed = slot.options.duration / slot.options.cycles;
       slot.$element.css({ position: "relative", top: 0 });
     };
+    slot.updateIds = function() {
+      slot.$element.children("li").each(function(index) {
+        let $this = $(this);
+        let newId = "col" + rotationData2.rotationId + "-" + index;
+        $this.attr("id", newId);
+      });
+    };
     slot.startSpin = function() {
+      slot.isCloned = true;
       if (!slot.isSpinning) return;
       slot.$element.animate({ "top": -slot.totalHeight }, slot.spinSpeed, "linear", function() {
         slot.$element.css("top", 0);
@@ -1053,15 +1131,19 @@
       }
       slot.$element.animate({ "top": finalPosition }, parseInt(finalDuration), slot.options.easing, function() {
         slot.$element.css("top", finalPosition);
-        let endValue = slot.$element.children("li").eq(slot.options.targetNum).attr("value");
-        slot.completeAnimation(endValue);
+        let el = slot.$element.children("li").eq(slot.options.targetNum);
+        let endValue = el.attr("value");
+        let endId = el.attr("id");
+        result[endId] = endValue;
+        slot.completeAnimation(el);
         if ($.isFunction(slot.options.onElementEnd)) {
           slot.options.onElementEnd(endValue);
         }
-        if (rotationSequences["sequence" + rotationData.sequenceId]["totalRotations"] === 0) {
+        rotationSequences["sequence" + rotationData2.sequenceId]["totalRotations"]--;
+        if (rotationSequences["sequence" + rotationData2.sequenceId]["totalRotations"] === 0) {
           let resultString = "|";
           let ballCounts = {};
-          $.each(rotationSequences["sequence" + rotationData.sequenceId], function(index, subRotation) {
+          $.each(rotationSequences["sequence" + rotationData2.sequenceId], function(index, subRotation) {
             if (typeof subRotation == "object") {
               let ballName = subRotation["targetNum"];
               let ballIndex = slot.$element.children("li").filter(`[value='${ballName}']`).index();
@@ -1069,46 +1151,33 @@
               ballCounts[ballName] = (ballCounts[ballName] || 0) + 1;
             }
           });
-          let multiplier = calculateMultiplier(ballCounts);
+          let multiplier = calculateMultiplier(result);
           console.log("\u041A\u043E\u044D\u0444\u0444\u0438\u0446\u0438\u0435\u043D\u0442 \u0443\u043C\u043D\u043E\u0436\u0435\u043D\u0438\u044F:", multiplier);
-          let secondRowItems = [];
-          let firstItemIndexOfSecondRow = Math.abs(finalPosition) / slot.itemHeight + slot.itemCount;
-          for (let i = 0; i < slot.itemCount; i++) {
-            let index = (Math.floor(firstItemIndexOfSecondRow) + i) % slot.$element.children("li").length;
-            secondRowItems.push(slot.$element.children("li").eq(index));
-          }
-          console.log("\u042D\u043B\u0435\u043C\u0435\u043D\u0442\u044B \u0432\u0442\u043E\u0440\u043E\u0439 \u0432\u0438\u0434\u0438\u043C\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438:");
-          secondRowItems.forEach(function($item, index) {
-            console.log(`\u042D\u043B\u0435\u043C\u0435\u043D\u0442 ${index + 1}:`, $item[0]);
-          });
-          secondRowItems.forEach(function($item) {
-            let ballName = $item.attr("value");
-            if (ballCounts[ballName] > 1) {
-              $item.addClass("flash_ball");
-            }
-          });
-          if ($.isFunction(slot.options.onComplete)) {
-            slot.options.onComplete(resultString);
+          if (multiplier > 0) {
+            flashResult(result);
+            showPopupMessage(multiplier);
           }
         }
       });
     };
     slot.completeAnimation = function(targetNum) {
-      if (slot.options.stopOrder === "leftToRight" && rotationData.total !== rotationData.rotationId) {
-        rotationSequences["sequence" + rotationData.sequenceId]["rotation" + (rotationData.rotationId + 1)]["spinning"] = false;
-      } else if (slot.options.stopOrder == "rightToLeft" && rotationData.rotationId !== 1) {
-        rotationSequences["sequence" + rotationData.sequenceId]["rotation" + (rotationData.rotationId - 1)]["spinning"] = false;
+      if (slot.options.stopOrder === "leftToRight" && rotationData2.total !== rotationData2.rotationId) {
+        rotationSequences["sequence" + rotationData2.sequenceId]["rotation" + (rotationData2.rotationId + 1)]["spinning"] = false;
+      } else if (slot.options.stopOrder === "rightToLeft" && rotationData2.rotationId !== 1) {
+        rotationSequences["sequence" + rotationData2.sequenceId]["rotation" + (rotationData2.rotationId - 1)]["spinning"] = false;
       }
-      rotationSequences["sequence" + rotationData.sequenceId]["totalRotations"]--;
-      rotationSequences["sequence" + rotationData.sequenceId]["rotation" + rotationData.rotationId]["targetNum"] = targetNum;
+      slot.isSpinning = false;
     };
-    slot.getRandomNumber = function(low, high) {
-      return Math.floor(Math.random() * (1 + high - low)) + low;
+    slot.getRandomNumber = function(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
     };
-    this.initialize();
+    slot.initialize();
   };
-  function calculateMultiplier(ballCounts) {
+  function calculateMultiplier(balls) {
     let multiplier = 0;
+    let ballCounts = transformHashToCount(balls);
+    console.log("ballCounts: ");
+    console.log(ballCounts);
     Object.values(ballCounts).forEach((count) => {
       if (count >= 2) {
         switch (count) {
@@ -1124,9 +1193,32 @@
         }
       }
     });
-    if (multiplier > 0 && ballCounts["pink_ball.png"]) {
+    if (multiplier > 0 && balls["pink"]) {
+      console.log(balls["pink"]);
       multiplier *= 3;
     }
     return multiplier;
+  }
+  function flashResult(resultLine) {
+    for (let key in resultLine) {
+      let item = document.getElementById(key);
+      item.classList.add("flash_ball");
+    }
+  }
+  function transformHashToCount(hash) {
+    let count = {};
+    for (let key in hash) {
+      let value = hash[key];
+      count[value] = (count[value] || 0) + 1;
+    }
+    return count;
+  }
+  function showPopupMessage(message) {
+    const popup = document.getElementById("popup-message");
+    popup.textContent = message;
+    popup.classList.add("show");
+    setTimeout(() => {
+      popup.classList.remove("show");
+    }, 2e3);
   }
 })();

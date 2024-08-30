@@ -66,6 +66,43 @@ rightPipeImage.src = 'res/r_pipe.png';
 // Переменные для вспышки
 let flashes = [];
 
+let textDisplays = []; // Массив для хранения информации о всплывающих текстах
+
+// Функция для создания текста
+function addTextDisplay(x, y, text) {
+    textDisplays.push({
+        x,
+        y,
+        text,
+        alpha: 1, // Начальная непрозрачность
+        speed: 2 // Скорость подъема текста
+    });
+}
+
+// Функция для отрисовки текста
+function drawTexts() {
+    ctxPC.globalAlpha = 1; // Устанавливаем непрозрачность текста
+
+    textDisplays.forEach((textDisplay, index) => {
+        ctxPC.fillStyle = 'white';
+        ctxPC.font = '700 30px Montserrat';
+        ctxPC.textAlign = 'left';
+        ctxPC.textBaseline = 'middle';
+
+        ctxPC.fillText(textDisplay.text, textDisplay.x, textDisplay.y);
+
+        // Обновляем позицию текста для создания эффекта подъема
+        textDisplay.y -= textDisplay.speed;
+        textDisplay.alpha -= 0.02; // Плавное исчезновение
+
+        // Удаляем текст, когда он полностью исчез
+        if (textDisplay.alpha <= 0) {
+            textDisplays.splice(index, 1);
+        }
+    });
+    ctxPC.globalAlpha = 1; // Сброс прозрачности
+}
+
 // Initialize game
 export function setupGamePC() {
     canvasPC = document.getElementById('planetCatcherCanvas');
@@ -326,12 +363,15 @@ function drawEggs() {
         ctxPC.drawImage(flashImage, flash.x - 50, flash.y - 50, 100, 100);
 
         // Отображаем текст
-        ctxPC.fillStyle = 'white';
-        ctxPC.font = '700 30px Montserrat'; // Задаем стиль шрифта
-        ctxPC.textAlign = 'left'; // Выравнивание по левому краю
-        ctxPC.textBaseline = 'middle';
-        ctxPC.globalAlpha = flash.textAlpha;
-        ctxPC.fillText(flash.text, flash.x + flash.textOffsetX, flash.y + flash.textOffsetY);
+        // ctxPC.fillStyle = 'white';
+        // ctxPC.font = '700 30px Montserrat'; // Задаем стиль шрифта
+        // ctxPC.textAlign = 'left'; // Выравнивание по левому краю
+        // ctxPC.textBaseline = 'middle';
+        // ctxPC.globalAlpha = flash.textAlpha;
+
+        // Добавляем всплывающее сообщение с текстом
+        // let scoreVal = flash.text
+        // ctxPC.fillText((scoreVal > 0 ? '+' + scoreVal.toString() : scoreVal.toString()), flash.x + flash.textOffsetX, flash.y + flash.textOffsetY);
 
         ctxPC.restore();
 
@@ -354,6 +394,7 @@ export function gameLoopPC() {
     drawPipes();
     drawBasket();
     drawEggs();
+    drawTexts();
     handleCollision();
     requestAnimationFrame(gameLoopPC);
 
@@ -369,6 +410,10 @@ function handleCollision() {
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
+
+            // Добавляем всплывающее сообщение с текстом
+            addTextDisplay(egg.x, egg.y, properties.score.toString());
+
             if (properties.gameOverPC) {
                 endGamePC(false);
             }

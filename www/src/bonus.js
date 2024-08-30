@@ -66,6 +66,43 @@ let flashFlag = false; // Флаг вспышки
 const trackWidth = 30; // Задайте ширину трека
 const trackHeight = 80; // Задайте высоту трека
 
+let textDisplays = []; // Массив для хранения информации о всплывающих текстах
+
+// Функция для создания текста
+function addTextDisplay(x, y, text) {
+    textDisplays.push({
+        x,
+        y,
+        text,
+        alpha: 1, // Начальная непрозрачность
+        speed: 2 // Скорость подъема текста
+    });
+}
+
+// Функция для отрисовки текста
+function drawTexts() {
+    ctx.globalAlpha = 1; // Устанавливаем непрозрачность текста
+
+    textDisplays.forEach((textDisplay, index) => {
+        ctx.fillStyle = 'white';
+        ctx.font = '700 30px Montserrat';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+
+        ctx.fillText(textDisplay.text, textDisplay.x, textDisplay.y);
+
+        // Обновляем позицию текста для создания эффекта подъема
+        textDisplay.y -= textDisplay.speed;
+        textDisplay.alpha -= 0.02; // Плавное исчезновение
+
+        // Удаляем текст, когда он полностью исчез
+        if (textDisplay.alpha <= 0) {
+            textDisplays.splice(index, 1);
+        }
+    });
+    ctx.globalAlpha = 1; // Сброс прозрачности
+}
+
 // Initialize game
 function setupGame() {
     canvas = document.getElementById('gameCanvas');
@@ -283,18 +320,25 @@ function updateEggs() {
     });
 }
 
-// Check for collisions between eggs and the basket
+// Обновляем функцию handleCollision для добавления всплывающего текста
 function handleCollision() {
     flashFlag = false; // Сбрасываем флаг вспышки
     touchFlag = false; // Сбрасываем флаг касания
+
     eggs.forEach(egg => {
         if (egg.y > canvasHeight - basketHeight - 150 && egg.x > basketX && egg.x < basketX + basketWidth) {
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
+
+            // Добавляем всплывающее сообщение с текстом
+            let scoreVal = properties.score
+            addTextDisplay(egg.x, egg.y, (scoreVal > 0 ? '+' + scoreVal.toString() : scoreVal.toString()));
+
             if (properties.gameOver) {
                 endGame(false); // Поражение
             }
+
             eggs = eggs.filter(e => e !== egg);
             touchFlag = true; // Устанавливаем флаг касания
             flashFlag = true; // Устанавливаем флаг вспышки
@@ -312,7 +356,7 @@ function updateScoreDisplay() {
     document.getElementById('scoreValue').textContent = score;
 }
 
-// Main game loop
+// Основной игровой цикл
 function gameLoop() {
     if (gameOver) return;
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -322,6 +366,7 @@ function gameLoop() {
     drawEggs(); // Рисуем шары
     updateEggs();
     handleCollision();
+    drawTexts(); // Рисуем всплывающий текст
     requestAnimationFrame(gameLoop);
 }
 

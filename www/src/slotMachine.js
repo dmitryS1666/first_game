@@ -265,7 +265,6 @@ function calculateMultiplier(balls) {
 
     // Проверка на бонусный шар
     if (multiplier > 0 && balls['pink']) {
-        console.log(balls['pink']);
         multiplier *= 3; // Умножаем на 3, если есть бонусный шар
     }
 
@@ -295,7 +294,7 @@ function transformHashToCount(hash) {
 // Функция для отображения всплывающего текста
 function showPopupMessage(message) {
     const popup = document.getElementById('popup-message');
-    popup.textContent = message;
+    popup.textContent = 'X' + message;
     popup.classList.add('show');
 
     // Убираем сообщение через 2 секунды
