@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Slot Machine</title>
     <style>
         .panelBody {
@@ -51,8 +52,50 @@
 
         .slotwrapper ul li img {
             vertical-align: top;
-            width: 110px; /* Adjusted to fit the ball size */
-            height: 110px; /* Adjusted to fit the ball size */
+            width: 110px;
+            height: 110px;
+        }
+
+        .flash_ball {
+            background-image: none; /* Исходный фон - отсутствует изображение */
+            background-size: cover;
+            background-position: center;
+            position: relative; /* Для использования псевдоэлемента */
+            animation: shine 2.5s infinite;
+            opacity: 1; /* Изображение становится видимым */
+        }
+
+        .flash_ball::before {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: -10px;
+            right: -10px;
+            bottom: -25px;
+            background: url(res/balls/flash_ball.png) center;
+            z-index: -1;
+            /*opacity: 0; !* Исходная непрозрачность *!*/
+            transition: opacity 0.5s ease-in-out; /* Плавное изменение непрозрачности */
+        }
+
+        /* Стили для всплывающего текста */
+        .popup-message {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 90px;
+            font-weight: 700;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out, transform 3s ease-in-out;
+            pointer-events: none;
+        }
+
+        .popup-message.show {
+            opacity: 1; /* Устанавливаем непрозрачность */
+            transform: translate(-50%, -100px); /* Поднимаем текст вверх */
         }
 
         @media screen and (max-width: 1200px) {
@@ -79,6 +122,7 @@
     </style>
 </head>
 <body>
+<div id="popup-message" class="popup-message"></div>
 <div class="panelBody">
     <div class="slotBg">
         <div class="slotwrapper" id="example6">
@@ -140,13 +184,7 @@
 <!-- Ваш кастомный JS код -->
 <script>
     $('#btn-example6').click(function () {
-        $('#example6 ul').startSpin({
-            onComplete: function (num) {
-                console.log('RESULT: ');
-                console.log(num);
-                console.log('-----------------------------------');
-            }
-        });
+        $('#example6 ul').startSpin();
     });
 </script>
 </body>

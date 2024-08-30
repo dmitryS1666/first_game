@@ -3,9 +3,15 @@ let rotationSequences = {};
 
 // Переменная для отслеживания количества начатых вращений
 let rotationCount = 0;
+let result;
 
 // jQuery метод для запуска анимации вращения
 $.fn.startSpin = function (options) {
+    result = {};
+
+    const listItems = document.querySelectorAll('li');
+    listItems.forEach(li => li.classList.remove('flash_ball'));
+
     // Проверяем, есть ли элементы, к которым применяется функция
     if (this.length) {
         // Если элемент уже анимируется, выходим из функции
@@ -60,6 +66,16 @@ $.fn.startSpin = function (options) {
             (new SlotMachine(this, options, rotationData));
         });
     }
+
+    let spinningSlots = [];
+
+    this.each(function (index) {
+        rotationData.rotationId = index + 1; // Обновляем идентификатор вращения
+        let machine = new SlotMachine(this, options, rotationData);
+        spinningSlots.push(machine);
+    });
+
+    return spinningSlots; // Возвращаем массив всех слот машин
 };
 
 // Конструктор SlotMachine для создания эффекта слот-машины
@@ -83,6 +99,7 @@ let SlotMachine = function (element, options, rotationData) {
     slot.spinSpeed = 0;
     slot.cycleCount = 0;
     slot.isSpinning = true;  // Флаг вращения
+    slot.isCloned = false;   // Флаг для отслеживания клонирования
 
     slot.initialize = function () {
         slot.options = $.extend({}, slot.defaultOptions, options);
@@ -96,16 +113,30 @@ let SlotMachine = function (element, options, rotationData) {
         slot.itemCount = slot.$element.children().length;
         slot.totalHeight = slot.itemHeight * slot.itemCount;
 
-        // Клонируем элементы для бесшовного эффекта
-        slot.$element.append(slot.$element.children().clone());
+        // Клонируем элементы для бесшовного эффекта и обновляем их ID
+        if (!slot.isCloned) {
+            slot.$element.append(slot.$element.children().clone());
+            slot.updateIds();  // Обновляем ID после клонирования
+        }
 
         slot.spinSpeed = slot.options.duration / slot.options.cycles;
 
         // Устанавливаем стили для бесшовной анимации
-        slot.$element.css({ position: 'relative', top: 0 });
+        slot.$element.css({position: 'relative', top: 0});
+    };
+
+    // Функция для обновления уникальных ID
+    slot.updateIds = function () {
+        slot.$element.children('li').each(function (index) {
+            let $this = $(this);
+            // Присваиваем новый уникальный ID
+            let newId = 'col' + rotationData.rotationId + '-' + index;
+            $this.attr('id', newId);
+        });
     };
 
     slot.startSpin = function () {
+        slot.isCloned = true;  // Устанавливаем флаг клонирования
         if (!slot.isSpinning) return;  // Проверяем, вращается ли элемент
 
         slot.$element
@@ -121,6 +152,7 @@ let SlotMachine = function (element, options, rotationData) {
             });
     };
 
+    // Обновите функцию `stopSpin` для вызова всплывающего сообщения
     slot.stopSpin = function () {
         if (slot.options.targetNum === 0) {
             slot.options.targetNum = slot.getRandomNumber(1, slot.itemCount);
@@ -143,20 +175,27 @@ let SlotMachine = function (element, options, rotationData) {
             .animate({'top': finalPosition}, parseInt(finalDuration), slot.options.easing, function () {
                 slot.$element.css('top', finalPosition);
 
-                let endValue = slot.$element.children('li').eq(slot.options.targetNum).attr('value');
+                let el = slot.$element.children('li').eq(slot.options.targetNum);
+                let endValue = el.attr('value');
+                let endId = el.attr('id');
 
-                slot.completeAnimation(endValue);
+                result[endId] = endValue
+
+                slot.completeAnimation(el);
 
                 if ($.isFunction(slot.options.onElementEnd)) {
                     slot.options.onElementEnd(endValue);
                 }
+
+                // Уменьшаем количество вращающихся элементов в текущей последовательности
+                rotationSequences['sequence' + rotationData.sequenceId]['totalRotations']--;
 
                 if (rotationSequences['sequence' + rotationData.sequenceId]['totalRotations'] === 0) {
                     let resultString = '|';
                     let ballCounts = {}; // Инициализируем объект для подсчета шаров
 
                     // Подсчитываем количество каждого шара во второй строке
-                    $.each(rotationSequences['sequence' + rotationData.sequenceId], function(index, subRotation) {
+                    $.each(rotationSequences['sequence' + rotationData.sequenceId], function (index, subRotation) {
                         if (typeof subRotation == 'object') {
                             let ballName = subRotation['targetNum']; // Имя шара
 
@@ -171,65 +210,41 @@ let SlotMachine = function (element, options, rotationData) {
                     });
 
                     // Вызов функции calculateMultiplier
-                    let multiplier = calculateMultiplier(ballCounts);
+                    let multiplier = calculateMultiplier(result);
                     console.log('Коэффициент умножения:', multiplier);
 
-                    // Определяем элементы, принадлежащие второй видимой строке
-                    let secondRowItems = [];
-
-                    // Определяем индекс первого элемента второй видимой строки
-                    let firstItemIndexOfSecondRow = Math.abs(finalPosition) / slot.itemHeight + slot.itemCount;
-
-                    // Находим все элементы `<li>` во второй строке
-                    for (let i = 0; i < slot.itemCount; i++) {
-                        let index = (Math.floor(firstItemIndexOfSecondRow) + i) % slot.$element.children('li').length;
-                        secondRowItems.push(slot.$element.children('li').eq(index));
-                    }
-
-                    // Выводим все элементы второй строки в консоль
-                    console.log('Элементы второй видимой строки:');
-                    secondRowItems.forEach(function($item, index) {
-                        console.log(`Элемент ${index + 1}:`, $item[0]);
-                    });
-
-                    // Подсвечиваем совпадающие шары во второй строке
-                    secondRowItems.forEach(function($item) {
-                        let ballName = $item.attr('value'); // Имя шара
-
-                        // Проверяем, совпадает ли этот шар с другими в видимой строке
-                        if (ballCounts[ballName] > 1) {
-                            // Добавляем класс flash_ball к элементу
-                            $item.addClass('flash_ball');
-                        }
-                    });
-
-                    if ($.isFunction(slot.options.onComplete)) {
-                        slot.options.onComplete(resultString);
+                    if (multiplier > 0) {
+                        flashResult(result);
+                        // добавить рзмер ставки х multiplier
+                        showPopupMessage(multiplier);
                     }
                 }
             });
     };
 
-    slot.completeAnimation = function(targetNum) {
+    slot.completeAnimation = function (targetNum) {
         if (slot.options.stopOrder === 'leftToRight' && rotationData.total !== rotationData.rotationId) {
             rotationSequences['sequence' + rotationData.sequenceId]['rotation' + (rotationData.rotationId + 1)]['spinning'] = false;
-        } else if (slot.options.stopOrder == 'rightToLeft' && rotationData.rotationId !== 1) {
+        } else if (slot.options.stopOrder === 'rightToLeft' && rotationData.rotationId !== 1) {
             rotationSequences['sequence' + rotationData.sequenceId]['rotation' + (rotationData.rotationId - 1)]['spinning'] = false;
         }
-        rotationSequences['sequence' + rotationData.sequenceId]['totalRotations']--;
-        rotationSequences['sequence' + rotationData.sequenceId]['rotation' + rotationData.rotationId]['targetNum'] = targetNum;
+
+        slot.isSpinning = false;  // Флаг окончания вращения
     };
 
-    slot.getRandomNumber = function (low, high) {
-        return Math.floor(Math.random() * (1 + high - low)) + low;
+    slot.getRandomNumber = function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
     };
 
-    this.initialize();
+    slot.initialize(); // Инициализируем слот машину
 };
 
 // Функция для вычисления коэффициента умножения
-function calculateMultiplier(ballCounts) {
+function calculateMultiplier(balls) {
     let multiplier = 0;
+    let ballCounts = transformHashToCount(balls);
+    console.log('ballCounts: ');
+    console.log(ballCounts);
 
     // Проверяем количество видимых шаров и считаем коэффициент умножения
     Object.values(ballCounts).forEach(count => {
@@ -249,9 +264,42 @@ function calculateMultiplier(ballCounts) {
     });
 
     // Проверка на бонусный шар
-    if (multiplier > 0 && ballCounts['pink_ball.png']) {
+    if (multiplier > 0 && balls['pink']) {
+        console.log(balls['pink']);
         multiplier *= 3; // Умножаем на 3, если есть бонусный шар
     }
 
     return multiplier;
+}
+
+function flashResult(resultLine) {
+    for (let key in resultLine) {
+        let item = document.getElementById(key);
+        item.classList.add('flash_ball');
+    }
+}
+
+// Преобразование хэша в формат для подсчета
+function transformHashToCount(hash) {
+    let count = {};
+
+    // Подсчитываем количество каждого шара
+    for (let key in hash) {
+        let value = hash[key];
+        count[value] = (count[value] || 0) + 1;
+    }
+
+    return count;
+}
+
+// Функция для отображения всплывающего текста
+function showPopupMessage(message) {
+    const popup = document.getElementById('popup-message');
+    popup.textContent = message;
+    popup.classList.add('show');
+
+    // Убираем сообщение через 2 секунды
+    setTimeout(() => {
+        popup.classList.remove('show');
+    }, 2000); // Удаляем через 2 секунды
 }
