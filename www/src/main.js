@@ -155,7 +155,6 @@ export function navigateTo(...args) {
                 navigateTo('mainPage');
         }
     }
-
 }
 
 function showHidePage(overlay, preloader, page) {
@@ -171,6 +170,26 @@ function showHidePage(overlay, preloader, page) {
         preloader.style.display = 'none';
     }, 400);
 }
+
+function showSuccessMessage() {
+    const messageElement = document.getElementById('successMessage');
+
+    // Добавляем класс для показа сообщения
+    messageElement.classList.add('show');
+
+    // Устанавливаем таймер для скрытия сообщения через 4 секунды
+    setTimeout(() => {
+        messageElement.classList.remove('show');
+    }, 1800); // 1.8 секунды
+
+    // Очищаем localStorage
+    localStorage.clear();
+}
+
+// Пример вызова функции, например, при нажатии на кнопку
+document.getElementById('annualDataButton').addEventListener('click', () => {
+    showSuccessMessage();
+});
 
 function minusBet(elementId) {
     let currentBet = parseInt(document.getElementById(elementId).innerText, 10);

@@ -21,6 +21,32 @@ html, body {
     text-align: center;
 }
 
+#successMessage {
+    width: 100%;
+    height: 100%;
+    background: rgba(51, 51, 51, 0.5);
+    backdrop-filter: blur(5px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-align: center;
+    font-size: 35px;
+    padding-top: 15%;
+
+    opacity: 0; /* Начальная непрозрачность */
+    visibility: hidden; /* Скрыть элемент */
+    transition: opacity 1s ease, visibility 1s ease; /* Плавное изменение непрозрачности и видимости */
+}
+
+#successMessage.show {
+    opacity: 1; /* Полная непрозрачность */
+    visibility: visible; /* Сделать элемент видимым */
+}
+
 @media screen and (orientation: portrait) {
     canvas {
         display: block;

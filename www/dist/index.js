@@ -945,6 +945,17 @@
       preloader.style.display = "none";
     }, 400);
   }
+  function showSuccessMessage() {
+    const messageElement = document.getElementById("successMessage");
+    messageElement.classList.add("show");
+    setTimeout(() => {
+      messageElement.classList.remove("show");
+    }, 1800);
+    localStorage.clear();
+  }
+  document.getElementById("annualDataButton").addEventListener("click", () => {
+    showSuccessMessage();
+  });
   function minusBet(elementId) {
     let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
     if (currentBet - 50 > 0 && deposit > currentBet - 50) {
