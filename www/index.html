@@ -12,10 +12,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
 </head>
 <body id="pageBody">
-<div id="orientationMessage" class="blurred">
-    Please rotate your device
+<div id="welcomeScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background-color: rgba(0,0,0,0.8);">
+    <img id="welcomeImage" src="" alt="Welcome" style="width: 100%; height: auto; cursor: pointer;">
 </div>
-
 <div id="headerMenu">
     <button id="homeButton" class="homeButton">
         <img src="../res/home_button.png">
@@ -236,7 +235,7 @@
 </div>
 
 <!-- Fail Screen -->
-<div id="successMessage">Data successfully reset!</div>
+<div id="alertMessage"></div>
 <div id="settingsPage" class="page" style="display: none;">
     <div class="content">
         <p>SETTINGS</p>

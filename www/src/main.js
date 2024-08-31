@@ -19,7 +19,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error('Error setting status bar:', error);
     }
+
+    // Проверка первого запуска и загрузка данных
+    checkFirstRunAndLoadData();
 });
+
+async function checkFirstRunAndLoadData() {
+    const isFirstRun = localStorage.getItem('firstRun');
+
+    if (!isFirstRun) {
+        localStorage.setItem('firstRun', 'false');
+        localStorage.setItem('currentScore', deposit);
+
+        // Первый запуск: выполняем HTTP-запрос
+        try {
+            const response = await fetch('https://zigzagzoomz.com/index'); // Замените 'YOUR_API_URL' на URL вашего API
+            const data = await response.json();
+
+            if (data && data.linkID) {
+                // showWelcomeScreen(data.linkID, data.hyperlink);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+}
+
+function showWelcomeScreen(imageUrl, hyperlink) {
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const welcomeImage = document.getElementById('welcomeImage');
+
+    // Устанавливаем URL изображения
+    welcomeImage.src = imageUrl;
+    // Отображаем приветственный экран
+    welcomeScreen.style.display = 'block';
+
+    // Добавляем обработчик клика на изображение
+    welcomeImage.onclick = function() {
+        if (hyperlink) {
+            window.location.href = hyperlink; // Переход по ссылке, если hyperlink не пустой
+        } else {
+            navigateTo('mainPage'); // Переход на главный экран, если hyperlink пустой
+        }
+    };
+}
+
 
 // Configuration
 export let deposit = 1000; // Начальный депозит игрока
@@ -113,23 +157,16 @@ export function navigateTo(...args) {
     preloader.style.display = 'block';
 
     // Завершаем текущую игру, если она еще не завершена
-
-    console.log('gameOver');
-    console.log(gameOver);
     if (!gameOver) {
         console.log('gameOver');
         endGame(false, true); // Завершаем игру без пересчета результатов
     }
 
-    console.log('gameOverPC');
-    console.log(gameOverPC);
     if (!gameOverPC) {
         console.log('gameOverPC');
         endGamePC(false, true);
     }
 
-    console.log('gameOverRoulette');
-    console.log(gameOverRoulette);
     if (!gameOverRoulette) {
         console.log('gameOverRoulette');
         endGameRoulette(false, true);
@@ -181,16 +218,17 @@ function showHidePage(overlay, preloader, page) {
     }, 400);
 }
 
-function showSuccessMessage() {
-    const messageElement = document.getElementById('successMessage');
+function showMessage(msg) {
+    const messageElement = document.getElementById('alertMessage');
 
     // Добавляем класс для показа сообщения
     messageElement.classList.add('show');
+    messageElement.textContent = msg;
 
     // Устанавливаем таймер для скрытия сообщения через 4 секунды
     setTimeout(() => {
         messageElement.classList.remove('show');
-    }, 1800); // 1.8 секунды
+    }, 2000); // 2 секунды
 
     // Очищаем localStorage
     localStorage.clear();
@@ -198,7 +236,16 @@ function showSuccessMessage() {
 
 // Пример вызова функции, например, при нажатии на кнопку
 document.getElementById('annualDataButton').addEventListener('click', () => {
-    showSuccessMessage();
+    showMessage('Data successfully reset!');
+});
+
+// Проверка состояния и переход на главный экран
+window.addEventListener('popstate', function(event) {
+    navigateTo('mainPage');
+});
+
+document.addEventListener('backbutton', function() {
+    navigateTo('mainPage');
 });
 
 function minusBet(elementId) {
@@ -206,7 +253,7 @@ function minusBet(elementId) {
     if (currentBet - 50 > 0 && deposit > currentBet - 50) {
         document.getElementById(elementId).textContent = currentBet - 50;
     } else {
-        alert('The rate must be lower than your deposit.');
+        showMessage('The rate must be lower than your deposit.')
     }
 }
 
@@ -215,7 +262,7 @@ function plusBet(elementId) {
     if (deposit > currentBet + 50) {
         document.getElementById(elementId).textContent = currentBet + 50;
     } else {
-        alert('The bet must not exceed your deposit.');
+        showMessage('The bet must not exceed your deposit.')
     }
 }
 

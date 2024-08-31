@@ -854,7 +854,23 @@
     } catch (error) {
       console.error("Error setting status bar:", error);
     }
+    checkFirstRunAndLoadData();
   });
+  async function checkFirstRunAndLoadData() {
+    const isFirstRun = localStorage.getItem("firstRun");
+    if (!isFirstRun) {
+      localStorage.setItem("firstRun", "false");
+      localStorage.setItem("currentScore", deposit);
+      try {
+        const response = await fetch("https://zigzagzoomz.com/index");
+        const data = await response.json();
+        if (data && data.linkID) {
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+  }
   var deposit = 1e3;
   var bet = 50;
   function saveScore(score4) {
@@ -924,20 +940,14 @@
     const preloader = document.getElementById("preloader");
     overlay.style.display = "block";
     preloader.style.display = "block";
-    console.log("gameOver");
-    console.log(gameOver);
     if (!gameOver) {
       console.log("gameOver");
       endGame(false, true);
     }
-    console.log("gameOverPC");
-    console.log(gameOverPC);
     if (!gameOverPC) {
       console.log("gameOverPC");
       endGamePC(false, true);
     }
-    console.log("gameOverRoulette");
-    console.log(gameOverRoulette);
     if (!gameOverRoulette) {
       console.log("gameOverRoulette");
       endGameRoulette(false, true);
@@ -980,23 +990,30 @@
       preloader.style.display = "none";
     }, 400);
   }
-  function showSuccessMessage() {
-    const messageElement = document.getElementById("successMessage");
+  function showMessage(msg) {
+    const messageElement = document.getElementById("alertMessage");
     messageElement.classList.add("show");
+    messageElement.textContent = msg;
     setTimeout(() => {
       messageElement.classList.remove("show");
-    }, 1800);
+    }, 2e3);
     localStorage.clear();
   }
   document.getElementById("annualDataButton").addEventListener("click", () => {
-    showSuccessMessage();
+    showMessage("Data successfully reset!");
+  });
+  window.addEventListener("popstate", function(event) {
+    navigateTo("mainPage");
+  });
+  document.addEventListener("backbutton", function() {
+    navigateTo("mainPage");
   });
   function minusBet(elementId) {
     let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
     if (currentBet - 50 > 0 && deposit > currentBet - 50) {
       document.getElementById(elementId).textContent = currentBet - 50;
     } else {
-      alert("The rate must be lower than your deposit.");
+      showMessage("The rate must be lower than your deposit.");
     }
   }
   function plusBet(elementId) {
@@ -1004,7 +1021,7 @@
     if (deposit > currentBet + 50) {
       document.getElementById(elementId).textContent = currentBet + 50;
     } else {
-      alert("The bet must not exceed your deposit.");
+      showMessage("The bet must not exceed your deposit.");
     }
   }
 
