@@ -3,12 +3,13 @@
 // ------------------ Рулетка ------------------ //
 // --------------------------------------------- //
 
-import {bet, checkFirstRun, navigateTo, saveScore} from "./main";
+import { bet, checkFirstRun, navigateTo, saveScore } from "./main";
 
 const rouletteSegments = [2, 200, 5000, 400, 500, 600, 1.5, 800];
 let rouletteCanvas, rouletteCtx;
-let isSpinning = false;
+let isSpinning = false; // Флаг для отслеживания вращения рулетки
 let score = 0;
+export let gameOverRoulette = false; // Флаг для отслеживания состояния игры
 
 const rouletteImage = new Image();
 rouletteImage.src = 'res/roulette-image.png'; // Замените на путь к вашему изображению
@@ -20,7 +21,7 @@ export function setupRoulette() {
     rouletteCanvas = document.getElementById('rouletteCanvas');
     rouletteCtx = rouletteCanvas.getContext('2d');
 
-    drawRoulette();
+    drawRoulette(); // Отрисовываем рулетку
 
     // Отрисовываем стрелку поверх рулетки, чтобы она оставалась зафиксированной
     drawPointer();
@@ -33,7 +34,8 @@ export function setupRoulette() {
     document.getElementById('balanceValueRoulette').textContent = localStorage.getItem('currentScore') || 0;
 }
 
-const rotationAngle = 22.5 * (Math.PI / 180); // Величина поворота в радианах
+// Величина поворота в радианах
+const rotationAngle = 22.5 * (Math.PI / 180);
 
 // Функция для отрисовки рулетки
 function drawRoulette() {
@@ -94,6 +96,7 @@ function drawPointer() {
     }
 }
 
+// Функция для запуска вращения рулетки
 function spinRoulette() {
     if (isSpinning) return; // Блокируем повторное вращение
     isSpinning = true;
@@ -112,7 +115,7 @@ function spinRoulette() {
 
     // Рассчитываем полный угол вращения рулетки
     // Вращаем на несколько полных оборотов + на нужный угол
-    const totalSpinAngle = 360 * 3 + (360 - adjustedTargetAngle); // 5 полных оборотов + до нужного сектора
+    const totalSpinAngle = 360 * 3 + (360 - adjustedTargetAngle); // 3 полных оборота + до нужного сектора
 
     let startTime = null;
 
@@ -138,15 +141,20 @@ function spinRoulette() {
             requestAnimationFrame(animate); // Продолжаем анимацию
         } else {
             // После остановки обработка победного сектора
-            handleRouletteResult(winningSegment); // Вывод результата
             isSpinning = false;
+            endGameRoulette(winningSegment); // Вывод результата
         }
     }
 
     requestAnimationFrame(animate); // Запуск анимации
 }
 
-function handleRouletteResult(winningSegment) {
+export function endGameRoulette(winningSegment, isInterrupted = false) {
+    if (isInterrupted) {
+        gameOverRoulette = true;
+        return;
+    }
+
     // Вычисляем угол для отображения результата
     const segmentAngle = 360 / rouletteSegments.length;
     let result;
@@ -168,24 +176,6 @@ function handleRouletteResult(winningSegment) {
     const finalScore = document.getElementById('finalScore');
     finalScore.textContent = `+${result}`;
 
+    gameOverRoulette = true; // Игра завершена
     navigateTo('winPage'); // Перенаправляем на страницу победы
 }
-
-
-// Функция для изменения размеров холста рулетки
-// function resizeCanvas() {
-//     // Устанавливаем размеры холста в зависимости от размеров окна
-//     const canvasWidth = window.innerWidth; // 80% ширины окна
-//     const canvasHeight = window.innerHeight; // 80% высоты окна
-//
-//     // Устанавливаем новые размеры холста
-//     rouletteCanvas.width = canvasWidth;
-//     rouletteCanvas.height = canvasHeight;
-//
-//     // Перерисовываем рулетку и стрелку с учётом новых размеров
-//     drawRoulette();
-//     drawPointer();
-// }
-
-// Добавляем событие для изменения размера окна
-// window.addEventListener('resize', resizeCanvas);

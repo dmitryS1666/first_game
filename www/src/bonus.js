@@ -4,7 +4,7 @@
 // --------------------------------------------- //
 
 import {checkFirstRun, navigateTo, saveScore} from "./main";
-import { bet, deposit } from './main'
+import { bet } from './main'
 
 // Game state
 let timer;
@@ -107,6 +107,13 @@ function drawTexts() {
 function setupGame() {
     document.getElementById('gameCanvas').style.display = 'block';
     canvas = document.getElementById('gameCanvas');
+
+    // Активируем кнопку "Старт" после завершения игры
+    const startButton = document.getElementById('play');
+    if (startButton) {
+        startButton.disabled = false; // Разблокируем кнопку
+    }
+
     if (!canvas) {
         console.error('Canvas element not found');
         return;
@@ -139,11 +146,7 @@ function setupGame() {
         ballImages[color] = img;
     });
 
-    const startButton = document.getElementById('startButton');
-    const restartButton = document.getElementById('restartButton');
-
     if (startButton) startButton.addEventListener('click', startGame);
-    // if (restartButton) restartButton.addEventListener('click', startGame);
 
     setInterval(addEgg, eggInterval);
 

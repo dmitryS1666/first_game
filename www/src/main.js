@@ -3,9 +3,10 @@
 // --------------- Общие функции --------------- //
 // --------------------------------------------- //
 
-import {setupRoulette} from './roulette'
+import {gameOverRoulette, setupRoulette} from './roulette'
 import {endGame, gameOver, prepareGame, startGame} from "./bonus";
-import {endGamePC, gameOverPC, resizeCanvasPC, setupGamePC, startGamePC} from "./planetCatcher";
+import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
+import {endGameRoulette} from "./roulette";
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -116,14 +117,13 @@ export function navigateTo(...args) {
         endGame(false, true); // Завершаем игру без пересчета результатов
     }
 
-    console.log('gameOverPC: ');
-    console.log(gameOverPC);
-    console.log('-------------------------');
     if (!gameOverPC) {
         endGamePC(false, true);
     }
 
-    console.log(args);
+    if (!gameOverRoulette) {
+        endGameRoulette(false, true);
+    }
 
     if (args[1] === undefined) {
         showHidePage(overlay, preloader, args[0]);
