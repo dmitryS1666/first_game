@@ -544,7 +544,8 @@ html, body {
     #failPlatformAstro {
         position: absolute;
         bottom: 130px;
-        left: 2%;
+        left: 8%;
+        width: 85%;
     }
 
     #failPlatformBlock,

@@ -174,8 +174,8 @@ export function setupGamePC() {
 }
 
 export function resizeCanvasPC() {
-    let orientation = window.innerWidth - window.innerHeight;
-    if (orientation > 0) {
+    let isLandscape = window.innerWidth > window.innerHeight;
+    if (isLandscape > 0) {
         canvasPCWidth = window.innerWidth - 200;
         canvasPC.style.transform = 'translateX(100px)';
 
@@ -185,8 +185,8 @@ export function resizeCanvasPC() {
         canvasPCWidth = window.innerWidth;
         canvasPC.style.transform = 'translateX(0)';
 
-        basketPCWidth = 400;
-        basketPCHeight = 392;
+        basketPCWidth = 350;
+        basketPCHeight = 342;
     }
     canvasPCHeight = window.innerHeight;
 
@@ -309,8 +309,8 @@ function drawBasket() {
         basketX = -basketX - basketPCWidth; // Корректируем позицию корзины для правильного отражения
     }
 
-    let orientation = window.innerWidth - window.innerHeight;
-    if (orientation > 0) {
+    let isLandscape = window.innerWidth > window.innerHeight;
+    if (isLandscape) {
         ctxPC.drawImage(basketImage, basketX + 105, canvasPCHeight - basketPCHeight + 50, basketPCWidth, basketPCHeight);
     } else {
         ctxPC.drawImage(basketImage, basketX + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
@@ -323,6 +323,8 @@ function drawBasket() {
 // Параболическая траектория шаров
 function calculateParabola(egg) {
     let time = egg.time;
+    // Определение ориентации экрана и установка коэффициентов скорости
+    let isLandscape = window.innerWidth > window.innerHeight;
 
     // Начальные позиции
     let xStart = egg.startX;
@@ -331,19 +333,26 @@ function calculateParabola(egg) {
     // Конечная точка по X (центр экрана) и Y (высота горки)
     let xEnd = egg.fromLeft ? canvasPCWidth / 8 : canvasPCWidth - 60; // Центр экрана
 
-    // Уменьшаем ширину горизонтального движения в три раза
+    // Уменьшаем ширину горизонтального движения
     let horizontalRange = canvasPCWidth * 0.08;
-    xEnd = egg.fromLeft ? xEnd + horizontalRange : xEnd - horizontalRange;
+    if (isLandscape) {
+        xEnd = egg.fromLeft ? xEnd + horizontalRange : xEnd - horizontalRange;
+    } else {
+        xEnd = egg.fromLeft ? xEnd + horizontalRange + 20 : xEnd - horizontalRange - 20;
+    }
 
-    let yEnd = canvasPCHeight * 0.3; // Высота горки (уменьшена для более резкого склона)
+    let yEnd = canvasPCHeight * 0.3; // Высота горки
 
     // Время перехода от параболы к вертикальному падению
-    let transitionTime = 20; // Используем скорость для изменения времени перехода
-    let totalDuration = 140; // Используем скорость для изменения общего времени
+    let transitionTime = 40;
+    let totalDuration = 140;
+
+    let speedMultiplier = isLandscape ? 0.5 : 1; // Уменьшаем общую скорость падения в 2 раза при горизонтальной ориентации
+    let initialSpeedMultiplier = isLandscape ? 0.33 : 1; // Уменьшаем начальную скорость выкатывания в 3 раза при горизонтальной ориентации
 
     if (time < transitionTime) {
         // Параболическое движение (спуск по горке)
-        let t = time / transitionTime;
+        let t = (time / transitionTime) * initialSpeedMultiplier; // Используем initialSpeedMultiplier для замедления начальной скорости
         egg.x = xStart + (xEnd - xStart) * t;
         egg.y = yStart - (yStart - yEnd) * (1 - t * t); // Спуск по горке
     } else {
@@ -352,10 +361,17 @@ function calculateParabola(egg) {
 
         // Зафиксированная конечная точка по x и плавное снижение по y
         egg.x = xEnd; // Зафиксированная x после "горки"
-        egg.y = yEnd + (canvasPCHeight - yEnd - basketPCHeight - 100) * t; // Плавное вертикальное падение вниз
+
+        if (isLandscape) {
+            let yPos = yEnd + (canvasPCHeight - yEnd - 100) * t; // Плавное вертикальное падение вниз
+            egg.y = yPos > 0 ? yPos : yPos * -1;
+        } else {
+            egg.y = yEnd + (canvasPCHeight - yEnd - basketPCHeight - 100) * t; // Плавное вертикальное падение вниз
+        }
     }
 
-    egg.time++; // Увеличиваем время для движения
+    // Умножаем прирост времени на коэффициент скорости для падения
+    egg.time += speedMultiplier; // Увеличиваем время для движения
 }
 
 // Обновляем отрисовку
@@ -394,18 +410,10 @@ function drawEggs() {
         ctxPC.textBaseline = 'middle';
         ctxPC.globalAlpha = flash.textAlpha;
 
-        // Добавляем всплывающее сообщение с текстом
-        // let scoreVal = flash.text;
-        // ctxPC.fillText((scoreVal > 0 ? '+' + scoreVal.toString() : scoreVal.toString()), flash.x + flash.textOffsetX, flash.y + flash.textOffsetY);
-
         ctxPC.restore();
 
         // Плавное исчезновение вспышки
         flash.alpha -= 0.59;
-        // flash.textAlpha = Math.max(flash.textAlpha - 0.02, 0); // Плавное исчезновение текста
-
-        // Плавное движение текста вверх
-        // flash.textOffsetY -= 1; // Поднимаем текст вверх
     });
 
     // Удаляем вспышки и текст, которые уже затухли
@@ -429,9 +437,17 @@ export function gameLoopPC() {
 // Проверка столкновений
 // Проверка столкновений
 function handleCollision() {
+    let isLandscape = window.innerWidth > window.innerHeight;
+
     eggs.forEach(egg => {
         let basketX = basketPosition === 'left' ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
-        let basketTop = canvasPCHeight - basketPCHeight - 50; // Верхняя граница корзины
+        let basketTop; // Верхняя граница корзины
+
+        if (isLandscape) {
+            basketTop = canvasPCHeight - basketPCHeight + 50;
+        } else {
+            basketTop = canvasPCHeight - basketPCHeight - 50;
+        }
 
         // Проверка на касание только верхней части корзины
         if (egg.y > basketTop && egg.y < basketTop + 50 && // Проверяем, находится ли яйцо в пределах верхней части корзины
@@ -458,12 +474,7 @@ function handleCollision() {
             flashes.push({
                 x: egg.x,
                 y: egg.y,
-                alpha: 1, // Прозрачность вспышки
-                // text: properties.score, // Значение для отображения
-                // textAlpha: 1, // Прозрачность текста
-                // textOffsetX: 60, // Смещение текста по X относительно вспышки
-                // textOffsetY: 0, // Смещение текста по Y
-                // textDuration: 150 // Длительность отображения текста
+                alpha: 1
             });
 
             eggs = eggs.filter(e => e !== egg);

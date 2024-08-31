@@ -575,8 +575,8 @@
     timerDisplay2("block");
   }
   function resizeCanvasPC() {
-    let orientation = window.innerWidth - window.innerHeight;
-    if (orientation > 0) {
+    let isLandscape = window.innerWidth > window.innerHeight;
+    if (isLandscape > 0) {
       canvasPCWidth = window.innerWidth - 200;
       canvasPC.style.transform = "translateX(100px)";
       basketPCWidth = 313;
@@ -584,8 +584,8 @@
     } else {
       canvasPCWidth = window.innerWidth;
       canvasPC.style.transform = "translateX(0)";
-      basketPCWidth = 400;
-      basketPCHeight = 392;
+      basketPCWidth = 350;
+      basketPCHeight = 342;
     }
     canvasPCHeight = window.innerHeight;
     canvasPC.width = canvasPCWidth;
@@ -673,8 +673,8 @@
       ctxPC.scale(-1, 1);
       basketX2 = -basketX2 - basketPCWidth;
     }
-    let orientation = window.innerWidth - window.innerHeight;
-    if (orientation > 0) {
+    let isLandscape = window.innerWidth > window.innerHeight;
+    if (isLandscape) {
       ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight + 50, basketPCWidth, basketPCHeight);
     } else {
       ctxPC.drawImage(basketImage2, basketX2 + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
@@ -683,24 +683,36 @@
   }
   function calculateParabola(egg) {
     let time = egg.time;
+    let isLandscape = window.innerWidth > window.innerHeight;
     let xStart = egg.startX;
     let yStart = egg.startY;
     let xEnd = egg.fromLeft ? canvasPCWidth / 8 : canvasPCWidth - 60;
     let horizontalRange = canvasPCWidth * 0.08;
-    xEnd = egg.fromLeft ? xEnd + horizontalRange : xEnd - horizontalRange;
+    if (isLandscape) {
+      xEnd = egg.fromLeft ? xEnd + horizontalRange : xEnd - horizontalRange;
+    } else {
+      xEnd = egg.fromLeft ? xEnd + horizontalRange + 20 : xEnd - horizontalRange - 20;
+    }
     let yEnd = canvasPCHeight * 0.3;
-    let transitionTime = 20;
+    let transitionTime = 40;
     let totalDuration = 140;
+    let speedMultiplier = isLandscape ? 0.5 : 1;
+    let initialSpeedMultiplier = isLandscape ? 0.33 : 1;
     if (time < transitionTime) {
-      let t = time / transitionTime;
+      let t = time / transitionTime * initialSpeedMultiplier;
       egg.x = xStart + (xEnd - xStart) * t;
       egg.y = yStart - (yStart - yEnd) * (1 - t * t);
     } else {
       let t = (time - transitionTime) / (totalDuration - transitionTime);
       egg.x = xEnd;
-      egg.y = yEnd + (canvasPCHeight - yEnd - basketPCHeight - 100) * t;
+      if (isLandscape) {
+        let yPos = yEnd + (canvasPCHeight - yEnd - 100) * t;
+        egg.y = yPos > 0 ? yPos : yPos * -1;
+      } else {
+        egg.y = yEnd + (canvasPCHeight - yEnd - basketPCHeight - 100) * t;
+      }
     }
-    egg.time++;
+    egg.time += speedMultiplier;
   }
   function drawEggs2() {
     eggs2.forEach((egg) => {
@@ -742,9 +754,15 @@
     document.getElementById("pipe").style.display = "none";
   }
   function handleCollision2() {
+    let isLandscape = window.innerWidth > window.innerHeight;
     eggs2.forEach((egg) => {
       let basketX2 = basketPosition === "left" ? canvasPCWidth * 0.25 : canvasPCWidth * 0.75;
-      let basketTop = canvasPCHeight - basketPCHeight - 50;
+      let basketTop;
+      if (isLandscape) {
+        basketTop = canvasPCHeight - basketPCHeight + 50;
+      } else {
+        basketTop = canvasPCHeight - basketPCHeight - 50;
+      }
       if (egg.y > basketTop && egg.y < basketTop + 50 && // Проверяем, находится ли яйцо в пределах верхней части корзины
       egg.x > basketX2 - basketPCWidth / 2 && egg.x < basketX2 + basketPCWidth / 2) {
         const properties = colorProperties2[egg.color];
@@ -762,12 +780,6 @@
           x: egg.x,
           y: egg.y,
           alpha: 1
-          // Прозрачность вспышки
-          // text: properties.score, // Значение для отображения
-          // textAlpha: 1, // Прозрачность текста
-          // textOffsetX: 60, // Смещение текста по X относительно вспышки
-          // textOffsetY: 0, // Смещение текста по Y
-          // textDuration: 150 // Длительность отображения текста
         });
         eggs2 = eggs2.filter((e) => e !== egg);
       }
