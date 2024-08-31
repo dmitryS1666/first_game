@@ -4,7 +4,7 @@
 // --------------------------------------------- //
 
 import {checkFirstRun, navigateTo, saveScore} from "./main";
-import {bet, deposit} from './main';
+import {bet} from './main';
 
 // Game state
 let timerPC;
@@ -16,8 +16,8 @@ let basketPCWidth, basketPCHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
 let leftPipeWidth, leftPipeHeight;
 let rightPipeWidth, rightPipeHeight;
-const eggInterval = 1000; // milliseconds
-const gameDuration = 150; // seconds
+const eggInterval = 2200; // milliseconds
+const gameDuration = 15; // seconds
 let basketPosition = 'left'; // Начальное положение корзины (слева или справа)
 let eggs = [];
 let score = 0;
@@ -33,8 +33,7 @@ const colorProperties = {
     orange: {score: -5},
     purple: {score: -10},
     pink: {score: -2},
-    // red: {score: 0, gameOverPC: true}
-    red: {score: 0}
+    red: {score: 0, gameOverPC: true}
 };
 
 const ballImages = {};
@@ -108,6 +107,11 @@ export function setupGamePC() {
     document.getElementById('planetCatcherCanvas').style.display = 'block';
     canvasPC = document.getElementById('planetCatcherCanvas');
 
+    const startButton = document.getElementById('playPC');
+    if (startButton) {
+        startButton.disabled = false; // Разблокируем кнопку
+    }
+
     if (!canvasPC) {
         console.error('Canvas element not found');
         return;
@@ -119,8 +123,6 @@ export function setupGamePC() {
 
     // Управление движением корзины с помощью касаний
     canvasPC.addEventListener('touchstart', (event) => {
-        // if (gameOverPC) return;
-
         const touchX = event.touches[0].clientX;
 
         if (touchX < canvasPCWidth / 2) {
@@ -151,7 +153,7 @@ export function setupGamePC() {
         ballImages[color] = img;
     });
 
-    const startButton = document.getElementById('playPC');
+    if (startButton) startButton.removeEventListener('click', startGamePC);
     if (startButton) startButton.addEventListener('click', startGamePC);
 
     setInterval(addEgg, eggInterval);
@@ -316,7 +318,6 @@ function drawBasket() {
         ctxPC.drawImage(basketImage, basketX + 105, canvasPCHeight - basketPCHeight - 130, basketPCWidth, basketPCHeight);
     }
 
-
     ctxPC.restore(); // Восстанавливаем исходное состояние контекста
 }
 
@@ -435,7 +436,6 @@ export function gameLoopPC() {
 }
 
 // Проверка столкновений
-// Проверка столкновений
 function handleCollision() {
     let isLandscape = window.innerWidth > window.innerHeight;
 
@@ -488,7 +488,6 @@ function updateScoreDisplay() {
 }
 
 // Добавляем шар
-// Обновляем функцию добавления шара
 function addEgg() {
     if (gameOverPC) return;
 

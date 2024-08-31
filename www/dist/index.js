@@ -131,7 +131,7 @@
   var basketSpeed;
   var eggSpeedBase;
   var eggSpeedVariance;
-  var eggInterval = 1100;
+  var eggInterval = 2100;
   var gameDuration = 15;
   var tracks = [];
   var basketX;
@@ -455,8 +455,8 @@
   var leftPipeHeight;
   var rightPipeWidth;
   var rightPipeHeight;
-  var eggInterval2 = 1e3;
-  var gameDuration2 = 150;
+  var eggInterval2 = 2200;
+  var gameDuration2 = 15;
   var basketPosition = "left";
   var eggs2 = [];
   var score3 = 0;
@@ -471,8 +471,7 @@
     orange: { score: -5 },
     purple: { score: -10 },
     pink: { score: -2 },
-    // red: {score: 0, gameOverPC: true}
-    red: { score: 0 }
+    red: { score: 0, gameOverPC: true }
   };
   var ballImages2 = {};
   var ballImageNames2 = [
@@ -527,6 +526,10 @@
   function setupGamePC() {
     document.getElementById("planetCatcherCanvas").style.display = "block";
     canvasPC = document.getElementById("planetCatcherCanvas");
+    const startButton = document.getElementById("playPC");
+    if (startButton) {
+      startButton.disabled = false;
+    }
     if (!canvasPC) {
       console.error("Canvas element not found");
       return;
@@ -557,7 +560,7 @@
       img.src = `res/balls/${fileName}`;
       ballImages2[color] = img;
     });
-    const startButton = document.getElementById("playPC");
+    if (startButton) startButton.removeEventListener("click", startGamePC);
     if (startButton) startButton.addEventListener("click", startGamePC);
     setInterval(addEgg2, eggInterval2);
     document.getElementById("currentBet").textContent = bet;

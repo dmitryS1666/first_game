@@ -14,7 +14,7 @@ let canvas, ctx;
 let canvasWidth, canvasHeight;
 let basketWidth, basketHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
-const eggInterval = 1100; // milliseconds
+const eggInterval = 2100; // milliseconds
 const gameDuration = 15; // seconds
 let tracks = []; // Массив для хранения следов
 
