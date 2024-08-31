@@ -1089,11 +1089,8 @@
         }, 350);
       }
     }
-    function updateRocketPosition() {
-      setInitialRocketPosition();
-    }
-    window.addEventListener("resize", updateRocketPosition);
-    window.addEventListener("orientationchange", updateRocketPosition);
+    window.addEventListener("resize", setInitialRocketPosition);
+    window.addEventListener("orientationchange", setInitialRocketPosition);
   });
 
   // src/slotMachine.js

@@ -98,11 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateRocketPosition() {
-        setInitialRocketPosition();
-    }
-
     // Добавляем обработчики событий изменения размера окна и изменения ориентации экрана
-    window.addEventListener('resize', updateRocketPosition);
-    window.addEventListener('orientationchange', updateRocketPosition);
+    window.addEventListener('resize', setInitialRocketPosition);
+    window.addEventListener('orientationchange', setInitialRocketPosition);
 });
