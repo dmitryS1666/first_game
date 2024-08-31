@@ -189,7 +189,6 @@ export function prepareGame() {
 // Start a new game
 export function startGame() {
     if (gameOver === false) {
-        // Если игра уже началась, не начинаем ее снова
         console.log('Игра уже активна.');
         return;
     }
@@ -335,6 +334,11 @@ function handleCollision() {
             const properties = colorProperties[egg.color];
             score += properties.score;
             updateScoreDisplay();
+
+            // Вызов функции вибрации при касании платформы
+            if ("vibrate" in navigator) {
+                navigator.vibrate(100); // Вибрация длительностью 100 миллисекунд
+            }
 
             // Добавляем всплывающее сообщение с текстом
             let scoreVal = properties.score

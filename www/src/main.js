@@ -113,15 +113,25 @@ export function navigateTo(...args) {
     preloader.style.display = 'block';
 
     // Завершаем текущую игру, если она еще не завершена
+
+    console.log('gameOver');
+    console.log(gameOver);
     if (!gameOver) {
+        console.log('gameOver');
         endGame(false, true); // Завершаем игру без пересчета результатов
     }
 
+    console.log('gameOverPC');
+    console.log(gameOverPC);
     if (!gameOverPC) {
+        console.log('gameOverPC');
         endGamePC(false, true);
     }
 
+    console.log('gameOverRoulette');
+    console.log(gameOverRoulette);
     if (!gameOverRoulette) {
+        console.log('gameOverRoulette');
         endGameRoulette(false, true);
     }
 

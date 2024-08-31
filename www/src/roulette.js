@@ -100,6 +100,7 @@ function drawPointer() {
 function spinRoulette() {
     if (isSpinning) return; // Блокируем повторное вращение
     isSpinning = true;
+    gameOverRoulette = false;
 
     const spinDuration = 3000; // Время вращения в миллисекундах
     const segmentAngle = 360 / rouletteSegments.length; // Угол одного сектора
@@ -142,7 +143,9 @@ function spinRoulette() {
         } else {
             // После остановки обработка победного сектора
             isSpinning = false;
-            endGameRoulette(winningSegment); // Вывод результата
+            if(!gameOverRoulette) {
+                endGameRoulette(winningSegment); // Вывод результата
+            }
         }
     }
 
@@ -155,12 +158,8 @@ export function endGameRoulette(winningSegment, isInterrupted = false) {
         return;
     }
 
-    // Вычисляем угол для отображения результата
-    const segmentAngle = 360 / rouletteSegments.length;
     let result;
     let currentBet = parseFloat(document.getElementById('currentBetRoulette').innerText);
-
-    const adjustedTargetAngle = (winningSegment * segmentAngle + 112) % 360; // Добавляем 90 градусов и нормализуем угол
 
     score = rouletteSegments[winningSegment]
 
