@@ -6,6 +6,8 @@ let rotationCount = 0;
 let result;
 let score = 0;
 export let gameOverSlotMachine = false; // Флаг для отслеживания состояния игры
+let isGameRunning = false; // Флаг для отслеживания состояния игры
+let isAnimationStopped = false; // Флаг для управления остановкой
 
 export function setupSlotMachine() {
     document.getElementById('currentBetSlot').textContent = bet;
@@ -21,6 +23,8 @@ export function setupSlotMachine() {
 $.fn.startSpin = function (options) {
     result = {};
     gameOverSlotMachine = false;
+    if (isGameRunning) return; // Если игра уже идет, не начинаем новую
+    updateStartButtonState(); // Обновляем состояние кнопки перед запуском
 
     const listItems = document.querySelectorAll('li');
     listItems.forEach(li => li.classList.remove('flash_ball'));
@@ -111,8 +115,7 @@ let SlotMachine = function (element, options, rotationData) {
 
     slot.spinSpeed = 0;
     slot.cycleCount = 0;
-    slot.isSpinning = true;  // Флаг вращения
-    slot.isCloned = false;   // Флаг для отслеживания клонирования
+    slot.isSpinning = true;
 
     slot.initialize = function () {
         slot.options = $.extend({}, slot.defaultOptions, options);
@@ -126,11 +129,9 @@ let SlotMachine = function (element, options, rotationData) {
         slot.itemCount = slot.$element.children().length;
         slot.totalHeight = slot.itemHeight * slot.itemCount;
 
-        // Клонируем элементы для бесшовного эффекта и обновляем их ID
-        if (!slot.isCloned) {
-            slot.$element.append(slot.$element.children().clone());
-            slot.updateIds();  // Обновляем ID после клонирования
-        }
+        // Клонируем элементы для бесшовного эффекта только при первом запуске
+        slot.$element.append(slot.$element.children().clone());
+        slot.updateIds();
 
         slot.spinSpeed = slot.options.duration / slot.options.cycles;
 
@@ -149,8 +150,11 @@ let SlotMachine = function (element, options, rotationData) {
     };
 
     slot.startSpin = function () {
-        slot.isCloned = true;  // Устанавливаем флаг клонирования
-        if (!slot.isSpinning) return;  // Проверяем, вращается ли элемент
+        slot.spinSlotButton = true;  // Устанавливаем флаг вращения
+        console.log('isAnimationStopped: ');
+        console.log(isAnimationStopped);
+
+        if (!slot.isSpinning || isAnimationStopped) return;  // Проверяем, вращается ли элемент
 
         slot.$element
             .animate({'top': -slot.totalHeight}, slot.spinSpeed, 'linear', function () {
@@ -192,8 +196,7 @@ let SlotMachine = function (element, options, rotationData) {
                 let endValue = el.attr('value');
                 let endId = el.attr('id');
 
-                result[endId] = endValue
-
+                result[endId] = endValue;
                 slot.completeAnimation(el);
 
                 if ($.isFunction(slot.options.onElementEnd)) {
@@ -231,13 +234,13 @@ let SlotMachine = function (element, options, rotationData) {
                         // добавить рзмер ставки х multiplier
                         showPopupMessage(multiplier, currentBet);
                         setTimeout(() => {
-                            if(!gameOverSlotMachine) {
-                                endGameSlotMachine(multiplier)
+                            if (!gameOverSlotMachine) {
+                                endGameSlotMachine(multiplier);
                             }
                         }, 2500);
                     } else {
-                        if(!gameOverSlotMachine) {
-                            endGameSlotMachine(0)
+                        if (!gameOverSlotMachine) {
+                            endGameSlotMachine(0);
                         }
                     }
                 }
@@ -325,6 +328,18 @@ function transformHashToCount(hash) {
     return count;
 }
 
+// Функция для управления состоянием кнопки
+function updateStartButtonState() {
+    const startButton = document.getElementById('spinSlotButton'); // Замените на ID вашей кнопки старта
+    const minusBetSlot = document.getElementById('minusBetSlot'); // Замените на ID вашей кнопки старта
+    const plusBetSlot = document.getElementById('plusBetSlot'); // Замените на ID вашей кнопки старта
+    if (startButton) {
+        startButton.disabled = isGameRunning; // Блокируем кнопку, если игра идет
+        minusBetSlot.disabled = isGameRunning; // Блокируем кнопку, если игра идет
+        plusBetSlot.disabled = isGameRunning; // Блокируем кнопку, если игра идет
+    }
+}
+
 // Функция для отображения всплывающего текста
 function showPopupMessage(message, result) {
     const popup = document.getElementById('popup-message');
@@ -351,9 +366,16 @@ export function resizeSlotCanvas() {
 
 export function endGameSlotMachine(result, isInterrupted = false) {
     if (isInterrupted) {
+        console.log('isInterrupted');
+        console.log(isInterrupted);
         gameOverSlotMachine = true;
+        isGameRunning = false;
+        stopSlotMachineAnimation();
+        // Очистка клонированных элементов
+        resetSlotMachine();
         return;
     }
+
     let currentBet = parseFloat(document.getElementById('currentBetSlot').innerText);
 
     if (result > 0) {
@@ -370,7 +392,46 @@ export function endGameSlotMachine(result, isInterrupted = false) {
         saveScore(newScore);
         navigateTo("failPage");
     }
-    gameOverSlotMachine = true; // Игра завершена
+    gameOverSlotMachine = true;
+    isGameRunning = false;
+
+    // Очистка клонированных элементов
+    resetSlotMachine();
+}
+
+function stopSlotMachineAnimation() {
+    isAnimationStopped = true;
+}
+
+// Функция для очистки клонированных элементов
+// Функция для очистки клонированных элементов, оставляя первые 9 элементов li
+function resetSlotMachine() {
+    // Получаем контейнер с классом slotwrapper, содержащий все списки ul
+    let slotWrapper = document.getElementById('slotMachine');
+
+    if (slotWrapper) {
+        // Получаем все элементы ul внутри контейнера slotwrapper
+        let allUlElements = slotWrapper.querySelectorAll('ul');
+
+        // Проходимся по каждому ul элементу
+        allUlElements.forEach(ul => {
+            // Устанавливаем начальное значение style="top: 0"
+            ul.style.top = '0';
+
+            // Получаем все элементы li внутри текущего ul
+            let allListItems = ul.querySelectorAll('li');
+
+            // Оставляем только первые 9 элементов
+            let itemsToKeep = Array.from(allListItems).slice(0, 9);
+
+            // Удаляем все элементы li из текущего ul
+            ul.innerHTML = '';
+
+            // Добавляем обратно только первые 9 элементов
+            itemsToKeep.forEach(item => ul.appendChild(item));
+        });
+    }
+    isAnimationStopped = false;
 }
 
 window.addEventListener('resize', resizeSlotCanvas);

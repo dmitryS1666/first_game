@@ -851,6 +851,8 @@
   var result;
   var score4 = 0;
   var gameOverSlotMachine = false;
+  var isGameRunning = false;
+  var isAnimationStopped = false;
   function setupSlotMachine() {
     document.getElementById("currentBetSlot").textContent = bet;
     document.getElementById("scoreValueSlot").textContent = score4 || 0;
@@ -863,6 +865,8 @@
   $.fn.startSpin = function(options) {
     result = {};
     gameOverSlotMachine = false;
+    if (isGameRunning) return;
+    updateStartButtonState();
     const listItems = document.querySelectorAll("li");
     listItems.forEach((li) => li.classList.remove("flash_ball"));
     if (this.length) {
@@ -936,7 +940,6 @@
     slot.spinSpeed = 0;
     slot.cycleCount = 0;
     slot.isSpinning = true;
-    slot.isCloned = false;
     slot.initialize = function() {
       slot.options = $.extend({}, slot.defaultOptions, options);
       slot.setup();
@@ -947,10 +950,8 @@
       slot.itemHeight = $listItem.innerHeight();
       slot.itemCount = slot.$element.children().length;
       slot.totalHeight = slot.itemHeight * slot.itemCount;
-      if (!slot.isCloned) {
-        slot.$element.append(slot.$element.children().clone());
-        slot.updateIds();
-      }
+      slot.$element.append(slot.$element.children().clone());
+      slot.updateIds();
       slot.spinSpeed = slot.options.duration / slot.options.cycles;
       slot.$element.css({ position: "relative", top: 0 });
     };
@@ -962,8 +963,10 @@
       });
     };
     slot.startSpin = function() {
-      slot.isCloned = true;
-      if (!slot.isSpinning) return;
+      slot.spinSlotButton = true;
+      console.log("isAnimationStopped: ");
+      console.log(isAnimationStopped);
+      if (!slot.isSpinning || isAnimationStopped) return;
       slot.$element.animate({ "top": -slot.totalHeight }, slot.spinSpeed, "linear", function() {
         slot.$element.css("top", 0);
         slot.cycleCount++;
@@ -1088,6 +1091,16 @@
     }
     return count;
   }
+  function updateStartButtonState() {
+    const startButton = document.getElementById("spinSlotButton");
+    const minusBetSlot = document.getElementById("minusBetSlot");
+    const plusBetSlot = document.getElementById("plusBetSlot");
+    if (startButton) {
+      startButton.disabled = isGameRunning;
+      minusBetSlot.disabled = isGameRunning;
+      plusBetSlot.disabled = isGameRunning;
+    }
+  }
   function showPopupMessage(message, result2) {
     const popup = document.getElementById("popup-message");
     popup.textContent = "X" + message + "\n" + (message * result2).toString();
@@ -1107,7 +1120,12 @@
   }
   function endGameSlotMachine(result2, isInterrupted = false) {
     if (isInterrupted) {
+      console.log("isInterrupted");
+      console.log(isInterrupted);
       gameOverSlotMachine = true;
+      isGameRunning = false;
+      stopSlotMachineAnimation();
+      resetSlotMachine();
       return;
     }
     let currentBet = parseFloat(document.getElementById("currentBetSlot").innerText);
@@ -1124,6 +1142,25 @@
       navigateTo("failPage");
     }
     gameOverSlotMachine = true;
+    isGameRunning = false;
+    resetSlotMachine();
+  }
+  function stopSlotMachineAnimation() {
+    isAnimationStopped = true;
+  }
+  function resetSlotMachine() {
+    let slotWrapper = document.getElementById("slotMachine");
+    if (slotWrapper) {
+      let allUlElements = slotWrapper.querySelectorAll("ul");
+      allUlElements.forEach((ul) => {
+        ul.style.top = "0";
+        let allListItems = ul.querySelectorAll("li");
+        let itemsToKeep = Array.from(allListItems).slice(0, 9);
+        ul.innerHTML = "";
+        itemsToKeep.forEach((item) => ul.appendChild(item));
+      });
+    }
+    isAnimationStopped = false;
   }
   window.addEventListener("resize", resizeSlotCanvas);
   window.addEventListener("orientationchange", resizeSlotCanvas);
