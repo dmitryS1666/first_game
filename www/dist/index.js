@@ -845,260 +845,24 @@
     document.getElementById("seconds").textContent = gameDuration2;
   }
 
-  // src/main.js
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      await StatusBar.setBackgroundColor({ color: "transparent" });
-      await StatusBar.setOverlaysWebView({ overlay: true });
-      await StatusBar.show();
-    } catch (error) {
-      console.error("Error setting status bar:", error);
-    }
-    checkFirstRunAndLoadData();
-  });
-  async function checkFirstRunAndLoadData() {
-    const isFirstRun = localStorage.getItem("firstRun");
-    if (!isFirstRun) {
-      localStorage.setItem("firstRun", "false");
-      localStorage.setItem("currentScore", deposit);
-      try {
-        const response = await fetch("https://zigzagzoomz.com/index");
-        const data = await response.json();
-        if (data && data.linkID) {
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-  }
-  var deposit = 1e3;
-  var bet = 50;
-  function saveScore(score4) {
-    localStorage.setItem("currentScore", score4);
-  }
-  document.getElementById("homeButton").addEventListener(
-    "click",
-    () => navigateTo("mainPage")
-  );
-  document.getElementById("settingButton").addEventListener(
-    "click",
-    () => navigateTo("settingsPage")
-  );
-  document.getElementById("menuButton").addEventListener(
-    "click",
-    () => navigateTo("mainMenu")
-  );
-  document.getElementById("winMenuButton").addEventListener(
-    "click",
-    () => navigateTo("mainMenu")
-  );
-  document.getElementById("failMenuButton").addEventListener(
-    "click",
-    () => navigateTo("mainMenu")
-  );
-  document.getElementById("play").addEventListener(
-    "click",
-    () => startGame()
-  );
-  document.getElementById("playPC").addEventListener(
-    "click",
-    () => startGamePC()
-  );
-  document.getElementById("minusBet").addEventListener(
-    "click",
-    () => minusBet("currentBet")
-  );
-  document.getElementById("plusBet").addEventListener(
-    "click",
-    () => plusBet("currentBet")
-  );
-  document.getElementById("minusBetRoulette").addEventListener(
-    "click",
-    () => minusBet("currentBetRoulette")
-  );
-  document.getElementById("plusBetRoulette").addEventListener(
-    "click",
-    () => plusBet("currentBetRoulette")
-  );
-  document.getElementById("minusBetSlot").addEventListener(
-    "click",
-    () => minusBet("currentBetSlot")
-  );
-  document.getElementById("plusBetSlot").addEventListener(
-    "click",
-    () => plusBet("currentBetSlot")
-  );
-  function checkFirstRun() {
-    const isFirstRun = localStorage.getItem("firstRun");
-    if (!isFirstRun) {
-      localStorage.setItem("firstRun", "false");
-      localStorage.setItem("currentScore", deposit);
-    }
-  }
-  function navigateTo(...args) {
-    const overlay = document.getElementById("overlay");
-    const preloader = document.getElementById("preloader");
-    overlay.style.display = "block";
-    preloader.style.display = "block";
-    if (!gameOver) {
-      console.log("gameOver");
-      endGame(false, true);
-    }
-    if (!gameOverPC) {
-      console.log("gameOverPC");
-      endGamePC(false, true);
-    }
-    if (!gameOverRoulette) {
-      console.log("gameOverRoulette");
-      endGameRoulette(false, true);
-    }
-    if (args[1] === void 0) {
-      showHidePage(overlay, preloader, args[0]);
-    } else {
-      switch (args[1]) {
-        case "bonus":
-          navigateTo("mainPage");
-          console.log("bonus game");
-          showHidePage(overlay, preloader, "gameContainer");
-          prepareGame();
-          break;
-        case "roulette":
-          console.log("roulette game");
-          showHidePage(overlay, preloader, "rouletteContainer");
-          setupRoulette();
-          break;
-        case "planetCatcher":
-          console.log("planetCatcher game");
-          showHidePage(overlay, preloader, "gameContainer");
-          setupGamePC();
-          break;
-        case "slotMachine":
-          console.log("slotMachine game");
-          showHidePage(overlay, preloader, "slotMachineContainer");
-          break;
-        default:
-          console.log("default");
-          navigateTo("mainPage");
-      }
-    }
-  }
-  function showHidePage(overlay, preloader, page) {
-    setTimeout(() => {
-      document.querySelectorAll(".page").forEach((page2) => page2.style.display = "none");
-      document.getElementById(page).style.display = "block";
-      overlay.style.display = "none";
-      preloader.style.display = "none";
-    }, 400);
-  }
-  function showMessage(msg) {
-    const messageElement = document.getElementById("alertMessage");
-    messageElement.classList.add("show");
-    messageElement.textContent = msg;
-    setTimeout(() => {
-      messageElement.classList.remove("show");
-    }, 2e3);
-    localStorage.clear();
-  }
-  document.getElementById("annualDataButton").addEventListener("click", () => {
-    showMessage("Data successfully reset!");
-  });
-  window.addEventListener("popstate", function(event) {
-    navigateTo("mainPage");
-  });
-  document.addEventListener("backbutton", function() {
-    navigateTo("mainPage");
-  });
-  function minusBet(elementId) {
-    let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
-    if (currentBet - 50 > 0 && deposit > currentBet - 50) {
-      document.getElementById(elementId).textContent = currentBet - 50;
-    } else {
-      showMessage("The rate must be lower than your deposit.");
-    }
-  }
-  function plusBet(elementId) {
-    let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
-    if (deposit > currentBet + 50) {
-      document.getElementById(elementId).textContent = currentBet + 50;
-    } else {
-      showMessage("The bet must not exceed your deposit.");
-    }
-  }
-
-  // src/mainMenu.js
-  document.addEventListener("DOMContentLoaded", () => {
-    let isInitialLoad = true;
-    const miniRocket = document.getElementById("miniRocket");
-    const listItems = document.querySelectorAll(".levels li");
-    function onElementVisible() {
-      listItems.forEach((item) => {
-        item.addEventListener("click", () => {
-          moveRocketToItem(item);
-        });
-      });
-      miniRocket.style.top = "0";
-      setInitialRocketPosition();
-      isInitialLoad = false;
-    }
-    function setInitialRocketPosition() {
-      if (window.innerWidth > window.innerHeight) {
-        setRocketToCenterBottom();
-      } else {
-        moveRocketToItem(listItems[listItems.length - 1], false);
-      }
-    }
-    function setRocketToCenterBottom() {
-      const centerX = window.innerWidth / 2;
-      const bottomY = window.innerHeight - miniRocket.getBoundingClientRect().height;
-      miniRocket.style.transform = `translate(${centerX - miniRocket.offsetWidth / 2}px, ${bottomY}px) rotate(0deg)`;
-    }
-    const element = document.getElementById("mainMenu");
-    const observer = new MutationObserver((mutationsList) => {
-      for (const mutation of mutationsList) {
-        if (mutation.type === "attributes" && mutation.attributeName === "style") {
-          if (element.style.display !== "none") {
-            onElementVisible();
-          }
-        }
-      }
-    });
-    const config = { attributes: true };
-    observer.observe(element, config);
-    function moveRocketToItem(item, shouldNavigate = true) {
-      const rect = item.getBoundingClientRect();
-      const rocketRect = miniRocket.getBoundingClientRect();
-      const screenWidth = window.innerWidth;
-      const screenHeight = window.innerHeight;
-      const isLandscape = screenWidth > screenHeight;
-      let offsetX, offsetY;
-      if (isLandscape) {
-        offsetX = rect.left + rect.width / 2 - rocketRect.height / 2;
-        offsetY = rect.top + rect.height / 2 - rocketRect.width / 2;
-      } else {
-        offsetX = rect.left + rect.width / 2 - rocketRect.width / 2;
-        offsetY = rect.top + rect.height / 2 - rocketRect.height / 2;
-      }
-      miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? " rotate(90deg)" : " rotate(0deg)"}`;
-      listItems.forEach((li) => li.classList.remove("active"));
-      item.classList.add("active");
-      if (!isInitialLoad && shouldNavigate) {
-        setTimeout(() => {
-          const levelNumber = item.getAttribute("value");
-          navigateTo("gameContainer", levelNumber);
-          isInitialLoad = true;
-        }, 350);
-      }
-    }
-    window.addEventListener("resize", setInitialRocketPosition);
-    window.addEventListener("orientationchange", setInitialRocketPosition);
-  });
-
   // src/slotMachine.js
   var rotationSequences = {};
   var rotationCount = 0;
   var result;
+  var score4 = 0;
+  var gameOverSlotMachine = false;
+  function setupSlotMachine() {
+    document.getElementById("currentBetSlot").textContent = bet;
+    document.getElementById("scoreValueSlot").textContent = score4 || 0;
+    checkFirstRun();
+    document.getElementById("balanceValueSlot").textContent = localStorage.getItem("currentScore") || 0;
+    setTimeout(() => {
+      resizeSlotCanvas();
+    }, 450);
+  }
   $.fn.startSpin = function(options) {
     result = {};
+    gameOverSlotMachine = false;
     const listItems = document.querySelectorAll("li");
     listItems.forEach((li) => li.classList.remove("flash_ball"));
     if (this.length) {
@@ -1245,15 +1009,24 @@
             }
           });
           let multiplier = calculateMultiplier(result);
-          console.log("\u041A\u043E\u044D\u0444\u0444\u0438\u0446\u0438\u0435\u043D\u0442 \u0443\u043C\u043D\u043E\u0436\u0435\u043D\u0438\u044F:", multiplier);
           if (multiplier > 0) {
-            flashResult(result);
-            showPopupMessage(multiplier);
+            let currentBet = parseFloat(document.getElementById("currentBetSlot").innerText);
+            addFlashResult(result);
+            showPopupMessage(multiplier, currentBet);
+            setTimeout(() => {
+              if (!gameOverSlotMachine) {
+                endGameSlotMachine(multiplier);
+              }
+            }, 2500);
+          } else {
+            if (!gameOverSlotMachine) {
+              endGameSlotMachine(0);
+            }
           }
         }
       });
     };
-    slot.completeAnimation = function(targetNum) {
+    slot.completeAnimation = function() {
       if (slot.options.stopOrder === "leftToRight" && rotationData2.total !== rotationData2.rotationId) {
         rotationSequences["sequence" + rotationData2.sequenceId]["rotation" + (rotationData2.rotationId + 1)]["spinning"] = false;
       } else if (slot.options.stopOrder === "rightToLeft" && rotationData2.rotationId !== 1) {
@@ -1269,8 +1042,6 @@
   function calculateMultiplier(balls) {
     let multiplier = 0;
     let ballCounts = transformHashToCount(balls);
-    console.log("ballCounts: ");
-    console.log(ballCounts);
     Object.values(ballCounts).forEach((count) => {
       if (count >= 2) {
         switch (count) {
@@ -1291,10 +1062,22 @@
     }
     return multiplier;
   }
-  function flashResult(resultLine) {
+  function addFlashResult(resultLine) {
     for (let key in resultLine) {
       let item = document.getElementById(key);
       item.classList.add("flash_ball");
+    }
+  }
+  function removeFlashResult(liList) {
+    liList.forEach((item) => {
+      let li = document.getElementById(item.id);
+      if (li && li.classList) {
+        li.classList.remove("flash_ball");
+      }
+    });
+    const popup = document.getElementById("popup-message");
+    if (popup && popup.classList) {
+      popup.style.opacity = "0";
     }
   }
   function transformHashToCount(hash) {
@@ -1305,12 +1088,299 @@
     }
     return count;
   }
-  function showPopupMessage(message) {
+  function showPopupMessage(message, result2) {
     const popup = document.getElementById("popup-message");
-    popup.textContent = "X" + message;
-    popup.classList.add("show");
+    popup.textContent = "X" + message + "\n" + (message * result2).toString();
+    popup.style.opacity = "1";
     setTimeout(() => {
       popup.classList.remove("show");
+      popup.style.opacity = "0";
     }, 2e3);
   }
+  function resizeSlotCanvas() {
+    console.log("exec resize slotCanvas");
+    let el = document.getElementById("fonSlotMachine");
+    let ulDiv = document.getElementById("slotMachine");
+    let liChild = ulDiv.querySelectorAll("li");
+    ulDiv.style.height = (el.offsetHeight - 20).toString() + "px";
+    removeFlashResult(liChild);
+  }
+  function endGameSlotMachine(result2, isInterrupted = false) {
+    if (isInterrupted) {
+      gameOverSlotMachine = true;
+      return;
+    }
+    let currentBet = parseFloat(document.getElementById("currentBetSlot").innerText);
+    if (result2 > 0) {
+      let multiplier = parseFloat(result2);
+      let newScore = parseInt(localStorage.getItem("currentScore")) + currentBet * multiplier;
+      const finalScore = document.getElementById("finalScore");
+      finalScore.textContent = `+${currentBet * multiplier}`;
+      saveScore(newScore);
+      navigateTo("winPage");
+    } else {
+      let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
+      saveScore(newScore);
+      navigateTo("failPage");
+    }
+    gameOverSlotMachine = true;
+  }
+  window.addEventListener("resize", resizeSlotCanvas);
+  window.addEventListener("orientationchange", resizeSlotCanvas);
+
+  // src/main.js
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      await StatusBar.setBackgroundColor({ color: "transparent" });
+      await StatusBar.setOverlaysWebView({ overlay: true });
+      await StatusBar.show();
+    } catch (error) {
+      console.error("Error setting status bar:", error);
+    }
+    checkFirstRunAndLoadData();
+  });
+  async function checkFirstRunAndLoadData() {
+    const isFirstRun = localStorage.getItem("firstRun");
+    if (!isFirstRun) {
+      localStorage.setItem("firstRun", "false");
+      localStorage.setItem("currentScore", deposit);
+      try {
+        const response = await fetch("https://zigzagzoomz.com/index");
+        const data = await response.json();
+        if (data && data.linkID) {
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+  }
+  var deposit = 1e3;
+  var bet = 50;
+  function saveScore(score5) {
+    localStorage.setItem("currentScore", score5);
+  }
+  document.getElementById("homeButton").addEventListener(
+    "click",
+    () => navigateTo("mainPage")
+  );
+  document.getElementById("settingButton").addEventListener(
+    "click",
+    () => navigateTo("settingsPage")
+  );
+  document.getElementById("menuButton").addEventListener(
+    "click",
+    () => navigateTo("mainMenu")
+  );
+  document.getElementById("winMenuButton").addEventListener(
+    "click",
+    () => navigateTo("mainMenu")
+  );
+  document.getElementById("failMenuButton").addEventListener(
+    "click",
+    () => navigateTo("mainMenu")
+  );
+  document.getElementById("play").addEventListener(
+    "click",
+    () => startGame()
+  );
+  document.getElementById("playPC").addEventListener(
+    "click",
+    () => startGamePC()
+  );
+  document.getElementById("minusBet").addEventListener(
+    "click",
+    () => minusBet("currentBet")
+  );
+  document.getElementById("plusBet").addEventListener(
+    "click",
+    () => plusBet("currentBet")
+  );
+  document.getElementById("minusBetRoulette").addEventListener(
+    "click",
+    () => minusBet("currentBetRoulette")
+  );
+  document.getElementById("plusBetRoulette").addEventListener(
+    "click",
+    () => plusBet("currentBetRoulette")
+  );
+  document.getElementById("minusBetSlot").addEventListener(
+    "click",
+    () => minusBet("currentBetSlot")
+  );
+  document.getElementById("plusBetSlot").addEventListener(
+    "click",
+    () => plusBet("currentBetSlot")
+  );
+  function checkFirstRun() {
+    const isFirstRun = localStorage.getItem("firstRun");
+    if (!isFirstRun) {
+      localStorage.setItem("firstRun", "false");
+      localStorage.setItem("currentScore", deposit);
+    }
+  }
+  function navigateTo(...args) {
+    const overlay = document.getElementById("overlay");
+    const preloader = document.getElementById("preloader");
+    overlay.style.display = "block";
+    preloader.style.display = "block";
+    if (!gameOver) {
+      console.log("gameOver");
+      endGame(false, true);
+    }
+    if (!gameOverPC) {
+      console.log("gameOverPC");
+      endGamePC(false, true);
+    }
+    if (!gameOverRoulette) {
+      console.log("gameOverRoulette");
+      endGameRoulette(false, true);
+    }
+    if (!gameOverSlotMachine) {
+      console.log("gameOverSlotMachine");
+      endGameSlotMachine(0, true);
+    }
+    if (args[1] === void 0) {
+      showHidePage(overlay, preloader, args[0]);
+    } else {
+      switch (args[1]) {
+        case "bonus":
+          navigateTo("mainPage");
+          console.log("bonus game");
+          showHidePage(overlay, preloader, "gameContainer");
+          prepareGame();
+          break;
+        case "roulette":
+          console.log("roulette game");
+          showHidePage(overlay, preloader, "rouletteContainer");
+          setupRoulette();
+          break;
+        case "planetCatcher":
+          console.log("planetCatcher game");
+          showHidePage(overlay, preloader, "gameContainer");
+          setupGamePC();
+          break;
+        case "slotMachine":
+          console.log("slotMachine game");
+          showHidePage(overlay, preloader, "slotMachineContainer");
+          setupSlotMachine();
+          break;
+        default:
+          console.log("default");
+          navigateTo("mainPage");
+      }
+    }
+  }
+  function showHidePage(overlay, preloader, page) {
+    setTimeout(() => {
+      document.querySelectorAll(".page").forEach((page2) => page2.style.display = "none");
+      document.getElementById(page).style.display = "block";
+      overlay.style.display = "none";
+      preloader.style.display = "none";
+    }, 400);
+    if (page === "slotMachine") {
+      resizeSlotCanvas();
+    }
+  }
+  function showMessage(msg) {
+    const messageElement = document.getElementById("alertMessage");
+    messageElement.classList.add("show");
+    messageElement.textContent = msg;
+    setTimeout(() => {
+      messageElement.classList.remove("show");
+    }, 2e3);
+    localStorage.clear();
+  }
+  document.getElementById("annualDataButton").addEventListener("click", () => {
+    showMessage("Data successfully reset!");
+  });
+  window.addEventListener("popstate", function(event) {
+    navigateTo("mainPage");
+  });
+  document.addEventListener("backbutton", function() {
+    navigateTo("mainPage");
+  });
+  function minusBet(elementId) {
+    let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
+    if (currentBet - 50 > 0 && deposit > currentBet - 50) {
+      document.getElementById(elementId).textContent = currentBet - 50;
+    } else {
+      showMessage("The rate cannot be less than 0.");
+    }
+  }
+  function plusBet(elementId) {
+    let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
+    if (deposit > currentBet + 50) {
+      document.getElementById(elementId).textContent = currentBet + 50;
+    } else {
+      showMessage("The bet must not exceed your deposit.");
+    }
+  }
+
+  // src/mainMenu.js
+  document.addEventListener("DOMContentLoaded", () => {
+    let isInitialLoad = true;
+    const miniRocket = document.getElementById("miniRocket");
+    const listItems = document.querySelectorAll(".levels li");
+    function onElementVisible() {
+      listItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          moveRocketToItem(item);
+        });
+      });
+      miniRocket.style.top = "0";
+      setInitialRocketPosition();
+      isInitialLoad = false;
+    }
+    function setInitialRocketPosition() {
+      if (window.innerWidth > window.innerHeight) {
+        setRocketToCenterBottom();
+      } else {
+        moveRocketToItem(listItems[listItems.length - 1], false);
+      }
+    }
+    function setRocketToCenterBottom() {
+      const centerX = window.innerWidth / 2;
+      const bottomY = window.innerHeight - miniRocket.getBoundingClientRect().height;
+      miniRocket.style.transform = `translate(${centerX - miniRocket.offsetWidth / 2}px, ${bottomY}px) rotate(0deg)`;
+    }
+    const element = document.getElementById("mainMenu");
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "attributes" && mutation.attributeName === "style") {
+          if (element.style.display !== "none") {
+            onElementVisible();
+          }
+        }
+      }
+    });
+    const config = { attributes: true };
+    observer.observe(element, config);
+    function moveRocketToItem(item, shouldNavigate = true) {
+      const rect = item.getBoundingClientRect();
+      const rocketRect = miniRocket.getBoundingClientRect();
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const isLandscape = screenWidth > screenHeight;
+      let offsetX, offsetY;
+      if (isLandscape) {
+        offsetX = rect.left + rect.width / 2 - rocketRect.height / 2;
+        offsetY = rect.top + rect.height / 2 - rocketRect.width / 2;
+      } else {
+        offsetX = rect.left + rect.width / 2 - rocketRect.width / 2;
+        offsetY = rect.top + rect.height / 2 - rocketRect.height / 2;
+      }
+      miniRocket.style.transform = `translate(${offsetX}px, ${offsetY}px)${isLandscape ? " rotate(90deg)" : " rotate(0deg)"}`;
+      listItems.forEach((li) => li.classList.remove("active"));
+      item.classList.add("active");
+      if (!isInitialLoad && shouldNavigate) {
+        setTimeout(() => {
+          const levelNumber = item.getAttribute("value");
+          navigateTo("gameContainer", levelNumber);
+          isInitialLoad = true;
+        }, 350);
+      }
+    }
+    window.addEventListener("resize", setInitialRocketPosition);
+    window.addEventListener("orientationchange", setInitialRocketPosition);
+  });
 })();

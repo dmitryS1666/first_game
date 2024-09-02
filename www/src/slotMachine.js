@@ -1,13 +1,26 @@
-// Инициализация объекта для хранения последовательностей вращений
+import {bet, checkFirstRun, navigateTo, saveScore} from "./main";
 let rotationSequences = {};
 
 // Переменная для отслеживания количества начатых вращений
 let rotationCount = 0;
 let result;
+let score = 0;
+export let gameOverSlotMachine = false; // Флаг для отслеживания состояния игры
+
+export function setupSlotMachine() {
+    document.getElementById('currentBetSlot').textContent = bet;
+    document.getElementById('scoreValueSlot').textContent = score || 0;
+    checkFirstRun();
+    document.getElementById('balanceValueSlot').textContent = localStorage.getItem('currentScore') || 0;
+    setTimeout(() => {
+        resizeSlotCanvas();
+    }, 450);
+}
 
 // jQuery метод для запуска анимации вращения
 $.fn.startSpin = function (options) {
     result = {};
+    gameOverSlotMachine = false;
 
     const listItems = document.querySelectorAll('li');
     listItems.forEach(li => li.classList.remove('flash_ball'));
@@ -211,18 +224,27 @@ let SlotMachine = function (element, options, rotationData) {
 
                     // Вызов функции calculateMultiplier
                     let multiplier = calculateMultiplier(result);
-                    console.log('Коэффициент умножения:', multiplier);
 
                     if (multiplier > 0) {
-                        flashResult(result);
+                        let currentBet = parseFloat(document.getElementById('currentBetSlot').innerText);
+                        addFlashResult(result);
                         // добавить рзмер ставки х multiplier
-                        showPopupMessage(multiplier);
+                        showPopupMessage(multiplier, currentBet);
+                        setTimeout(() => {
+                            if(!gameOverSlotMachine) {
+                                endGameSlotMachine(multiplier)
+                            }
+                        }, 2500);
+                    } else {
+                        if(!gameOverSlotMachine) {
+                            endGameSlotMachine(0)
+                        }
                     }
                 }
             });
     };
 
-    slot.completeAnimation = function (targetNum) {
+    slot.completeAnimation = function() {
         if (slot.options.stopOrder === 'leftToRight' && rotationData.total !== rotationData.rotationId) {
             rotationSequences['sequence' + rotationData.sequenceId]['rotation' + (rotationData.rotationId + 1)]['spinning'] = false;
         } else if (slot.options.stopOrder === 'rightToLeft' && rotationData.rotationId !== 1) {
@@ -243,8 +265,6 @@ let SlotMachine = function (element, options, rotationData) {
 function calculateMultiplier(balls) {
     let multiplier = 0;
     let ballCounts = transformHashToCount(balls);
-    console.log('ballCounts: ');
-    console.log(ballCounts);
 
     // Проверяем количество видимых шаров и считаем коэффициент умножения
     Object.values(ballCounts).forEach(count => {
@@ -271,10 +291,24 @@ function calculateMultiplier(balls) {
     return multiplier;
 }
 
-function flashResult(resultLine) {
+function addFlashResult(resultLine) {
     for (let key in resultLine) {
         let item = document.getElementById(key);
         item.classList.add('flash_ball');
+    }
+}
+
+function removeFlashResult(liList) {
+    liList.forEach(item => {
+        let li = document.getElementById(item.id);
+        if (li && li.classList) {
+            li.classList.remove('flash_ball');
+        }
+    });
+
+    const popup = document.getElementById('popup-message');
+    if (popup && popup.classList) {
+        popup.style.opacity = '0';
     }
 }
 
@@ -292,13 +326,52 @@ function transformHashToCount(hash) {
 }
 
 // Функция для отображения всплывающего текста
-function showPopupMessage(message) {
+function showPopupMessage(message, result) {
     const popup = document.getElementById('popup-message');
-    popup.textContent = 'X' + message;
-    popup.classList.add('show');
+    popup.textContent = 'X' + message + '\n' + (message * result).toString();
+    popup.style.opacity = '1';
 
     // Убираем сообщение через 2 секунды
     setTimeout(() => {
         popup.classList.remove('show');
+        popup.style.opacity = '0';
     }, 2000); // Удаляем через 2 секунды
 }
+
+export function resizeSlotCanvas() {
+    console.log('exec resize slotCanvas');
+    let el = document.getElementById('fonSlotMachine');
+    let ulDiv = document.getElementById('slotMachine');
+    let liChild = ulDiv.querySelectorAll('li');
+
+    ulDiv.style.height = (el.offsetHeight - 20).toString() + 'px';
+
+    removeFlashResult(liChild);
+}
+
+export function endGameSlotMachine(result, isInterrupted = false) {
+    if (isInterrupted) {
+        gameOverSlotMachine = true;
+        return;
+    }
+    let currentBet = parseFloat(document.getElementById('currentBetSlot').innerText);
+
+    if (result > 0) {
+        let multiplier = parseFloat(result);
+        let newScore = parseInt(localStorage.getItem("currentScore")) + currentBet * multiplier;
+
+        const finalScore = document.getElementById('finalScore');
+        finalScore.textContent = `+${currentBet * multiplier}`;
+
+        saveScore(newScore);
+        navigateTo("winPage");
+    } else {
+        let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
+        saveScore(newScore);
+        navigateTo("failPage");
+    }
+    gameOverSlotMachine = true; // Игра завершена
+}
+
+window.addEventListener('resize', resizeSlotCanvas);
+window.addEventListener('orientationchange', resizeSlotCanvas);

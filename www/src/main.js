@@ -7,6 +7,7 @@ import {gameOverRoulette, setupRoulette} from './roulette'
 import {endGame, gameOver, prepareGame, startGame} from "./bonus";
 import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {endGameRoulette} from "./roulette";
+import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMachine} from "./slotMachine";
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -172,6 +173,11 @@ export function navigateTo(...args) {
         endGameRoulette(false, true);
     }
 
+    if (!gameOverSlotMachine) {
+        console.log('gameOverSlotMachine');
+        endGameSlotMachine(0, true);
+    }
+
     if (args[1] === undefined) {
         showHidePage(overlay, preloader, args[0]);
     } else {
@@ -195,7 +201,7 @@ export function navigateTo(...args) {
             case 'slotMachine':
                 console.log('slotMachine game');
                 showHidePage(overlay, preloader, 'slotMachineContainer');
-                // initSlotMachine();
+                setupSlotMachine();
                 break;
             default:
                 console.log('default')
@@ -216,6 +222,9 @@ function showHidePage(overlay, preloader, page) {
         overlay.style.display = 'none';
         preloader.style.display = 'none';
     }, 400);
+    if (page === 'slotMachine') {
+        resizeSlotCanvas();
+    }
 }
 
 function showMessage(msg) {
@@ -253,7 +262,7 @@ function minusBet(elementId) {
     if (currentBet - 50 > 0 && deposit > currentBet - 50) {
         document.getElementById(elementId).textContent = currentBet - 50;
     } else {
-        showMessage('The rate must be lower than your deposit.')
+        showMessage('The rate cannot be less than 0.')
     }
 }
 
