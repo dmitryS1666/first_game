@@ -1690,6 +1690,8 @@
   }
   function endGameSlotMachine(result2, isInterrupted = false) {
     if (isInterrupted) {
+      console.log("isInterrupted");
+      console.log(isInterrupted);
       gameOverSlotMachine = true;
       isGameRunning = false;
       stopSlotMachineAnimation();
@@ -1916,7 +1918,11 @@
     navigateTo("privacyPolicePage");
   });
   document.getElementById("privatePolicyRead").addEventListener("click", async () => {
-    await Browser2.open({ url: "https://policies.google.com/privacy?hl=en-US" });
+    try {
+      await Browser2.open({ url: "https://policies.google.com/privacy?hl=en-US" });
+    } catch (e) {
+      console.error("Error opening browser:", e);
+    }
   });
   document.getElementById("privatePolicyAccept").addEventListener("click", () => {
     let acceptPolicy = localStorage.getItem("acceptPolicy");

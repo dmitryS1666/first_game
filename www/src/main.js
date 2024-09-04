@@ -8,6 +8,7 @@ import {endGame, gameOver, prepareGame, startGame} from "./bonus";
 import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {endGameRoulette} from "./roulette";
 import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMachine} from "./slotMachine";
+import { StatusBar } from '@capacitor/status-bar';
 import { Browser } from '@capacitor/browser';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -265,7 +266,11 @@ document.getElementById('privatePolicyButton').addEventListener('click', () => {
 
 // читать политику
 document.getElementById('privatePolicyRead').addEventListener('click', async () => {
-    await Browser.open({ url: 'https://policies.google.com/privacy?hl=en-US' });
+    try {
+        await Browser.open({ url: 'https://policies.google.com/privacy?hl=en-US' });
+    } catch (e) {
+        console.error('Error opening browser:', e);
+    }
 });
 
 // подтвердить политику
