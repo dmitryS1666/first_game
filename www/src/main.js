@@ -10,6 +10,7 @@ import {endGameRoulette} from "./roulette";
 import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMachine} from "./slotMachine";
 import { StatusBar } from '@capacitor/status-bar';
 import { Browser } from '@capacitor/browser';
+import { App } from '@capacitor/app';
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -289,7 +290,7 @@ window.addEventListener('popstate', function(event) {
     navigateTo('mainPage');
 });
 
-document.addEventListener('backbutton', function() {
+App.addListener('backButton', ({ canGoBack }) => {
     navigateTo('mainPage');
 });
 
