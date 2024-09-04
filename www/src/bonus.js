@@ -3,7 +3,7 @@
 // --------------- Бонусная игра --------------- //
 // --------------------------------------------- //
 
-import {checkFirstRun, navigateTo, saveScore} from "./main";
+import {checkFirstRun, currentGame, navigateTo, saveScore} from "./main";
 import { bet } from './main'
 
 // Game state
@@ -238,11 +238,13 @@ export function endGame(isVictory, isInterrupted = false) {
         const finalScore = document.getElementById('finalScore');
         finalScore.textContent = `+${score}`;
 
+        currentGame = 'bonus';
         navigateTo('winPage'); // Перенаправляем на страницу победы
     } else {
         let newScore = parseInt(localStorage.getItem('currentScore')) - currentBet; // Сохраняем текущий результат
         saveScore(newScore);
 
+        currentGame = 'bonus';
         navigateTo('failPage'); // Перенаправляем на страницу поражения
     }
 }

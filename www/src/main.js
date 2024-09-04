@@ -8,9 +8,11 @@ import {endGame, gameOver, prepareGame, startGame} from "./bonus";
 import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {endGameRoulette} from "./roulette";
 import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMachine} from "./slotMachine";
-import { StatusBar } from '@capacitor/status-bar';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { Browser } from '@capacitor/browser';
 import { App } from '@capacitor/app';
+
+export let currentGame = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -96,9 +98,11 @@ document.getElementById('menuButton')
     );
 
 document.getElementById('winMenuButton')
-    .addEventListener('click', () =>
-        navigateTo('mainMenu')
-    );
+    .addEventListener('click', () => {
+        console.log('last game');
+        console.log(currentGame);
+        navigateTo('mainMenu');
+});
 
 document.getElementById('failMenuButton')
     .addEventListener('click', () =>
@@ -186,25 +190,28 @@ export function navigateTo(...args) {
     } else {
         switch (args[1]) {
             case 'bonus':
-                navigateTo('mainPage');
                 console.log('bonus game');
                 showHidePage(overlay, preloader, 'gameContainer');
                 prepareGame();
+                currentGame = '';
                 break;
             case 'roulette':
                 console.log('roulette game');
                 showHidePage(overlay, preloader, 'rouletteContainer');
                 setupRoulette();
+                currentGame = '';
                 break;
             case 'planetCatcher':
                 console.log('planetCatcher game');
                 showHidePage(overlay, preloader, 'gameContainer');
                 setupGamePC();
+                currentGame = '';
                 break;
             case 'slotMachine':
                 console.log('slotMachine game');
                 showHidePage(overlay, preloader, 'slotMachineContainer');
                 setupSlotMachine();
+                currentGame = '';
                 break;
             default:
                 console.log('default')

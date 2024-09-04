@@ -3,7 +3,7 @@
 // ------------------ Рулетка ------------------ //
 // --------------------------------------------- //
 
-import { bet, checkFirstRun, navigateTo, saveScore } from "./main";
+import {bet, checkFirstRun, currentGame, navigateTo, saveScore} from "./main";
 
 const rouletteSegments = [2, 200, 5000, 400, 500, 600, 1.5, 800];
 let rouletteCanvas, rouletteCtx;
@@ -176,5 +176,6 @@ export function endGameRoulette(winningSegment, isInterrupted = false) {
     finalScore.textContent = `+${result}`;
 
     gameOverRoulette = true; // Игра завершена
+    currentGame = 'roulette';
     navigateTo('winPage'); // Перенаправляем на страницу победы
 }

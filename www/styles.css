@@ -634,7 +634,7 @@ html, body {
         text-align: center;
         font-weight: 900;
         font-size: 3em;
-        line-height: 0;
+        line-height: 1;
     }
 
     /*==============================*/
@@ -1530,7 +1530,7 @@ html, body {
         text-align: center;
         font-weight: 900;
         font-size: 3em;
-        line-height: 0;
+        line-height: 1;
     }
 
     /*==============================*/

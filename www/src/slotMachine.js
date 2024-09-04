@@ -1,4 +1,4 @@
-import {bet, checkFirstRun, navigateTo, saveScore} from "./main";
+import {bet, checkFirstRun, currentGame, navigateTo, saveScore} from "./main";
 let rotationSequences = {};
 
 // Переменная для отслеживания количества начатых вращений
@@ -386,6 +386,7 @@ export function endGameSlotMachine(result, isInterrupted = false) {
         finalScore.textContent = `+${currentBet * multiplier}`;
 
         saveScore(newScore);
+        currentGame = 'slotMachine';
         navigateTo("winPage");
     } else {
         let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;

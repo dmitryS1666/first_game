@@ -3,7 +3,7 @@
 // --------------- Ловец планет ---------------- //
 // --------------------------------------------- //
 
-import {checkFirstRun, navigateTo, saveScore} from "./main";
+import {checkFirstRun, currentGame, navigateTo, saveScore} from "./main";
 import {bet} from './main';
 
 // Game state
@@ -271,11 +271,13 @@ export function endGamePC(isVictory, isInterrupted = false) {
         const finalScore = document.getElementById('finalScore');
         finalScore.textContent = `+${score}`;
 
+        currentGame = 'planetCatcher';
         navigateTo('winPage');
     } else {
         let newScore = parseInt(localStorage.getItem('currentScore')) - currentBet;
         saveScore(newScore);
 
+        currentGame = 'planetCatcher';
         navigateTo('failPage');
     }
 
