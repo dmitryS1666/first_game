@@ -3,6 +3,7 @@
     "build": "esbuild src/index.js --bundle --outfile=dist/index.js"
   },
   "dependencies": {
+    "@capacitor/browser": "^6.0.2",
     "@capacitor/screen-orientation": "^6.0.2",
     "@capacitor/status-bar": "^6.0.1"
   }

@@ -8,6 +8,7 @@ import {endGame, gameOver, prepareGame, startGame} from "./bonus";
 import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {endGameRoulette} from "./roulette";
 import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMachine} from "./slotMachine";
+import { Browser } from '@capacitor/browser';
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -221,9 +222,18 @@ function showHidePage(overlay, preloader, page) {
         // Скрыть затемнитель и прелоадер
         overlay.style.display = 'none';
         preloader.style.display = 'none';
+        showHideHomeButton(page);
     }, 400);
     if (page === 'slotMachine') {
         resizeSlotCanvas();
+    }
+}
+
+function showHideHomeButton(page) {
+    if (page === 'mainPage') {
+        document.getElementById('homeButton').style.display = 'none';
+    } else {
+        document.getElementById('homeButton').style.display = 'block';
     }
 }
 
@@ -238,14 +248,35 @@ function showMessage(msg) {
     setTimeout(() => {
         messageElement.classList.remove('show');
     }, 2000); // 2 секунды
-
-    // Очищаем localStorage
-    localStorage.clear();
 }
 
-// Пример вызова функции, например, при нажатии на кнопку
+// очистка данных
 document.getElementById('annualDataButton').addEventListener('click', () => {
+    // Очищаем localStorage
+    localStorage.clear();
+
     showMessage('Data successfully reset!');
+});
+
+// открыть политику
+document.getElementById('privatePolicyButton').addEventListener('click', () => {
+    navigateTo('privacyPolicePage');
+});
+
+// читать политику
+document.getElementById('privatePolicyRead').addEventListener('click', async () => {
+    await Browser.open({ url: 'https://policies.google.com/privacy?hl=en-US' });
+});
+
+// подтвердить политику
+document.getElementById('privatePolicyAccept').addEventListener('click', () => {
+    let acceptPolicy = localStorage.getItem("acceptPolicy");
+    if (!acceptPolicy) {
+        localStorage.setItem('acceptPolicy', 'true');
+        showMessage('Policy successfully accept!');
+    } else {
+        showMessage('Policy already accept!');
+    }
 });
 
 // Проверка состояния и переход на главный экран

@@ -418,14 +418,19 @@ html, body {
         padding: 0;
     }
 
-    #annualDataButton, #privatePolicyButton {
+    #annualDataButton,
+    #privatePolicyButton,
+    #privatePolicyAccept,
+    #privatePolicyRead {
         background: none;
         border: none;
         padding: 0;
     }
 
     #annualDataButton img,
-    #privatePolicyButton img {
+    #privatePolicyButton img,
+    #privatePolicyAccept img,
+    #privatePolicyRead img {
         width: 70%;
     }
 
@@ -588,12 +593,6 @@ html, body {
         z-index: 1;
         position: absolute;
         transition: transform 1.3s ease; /* Плавное перемещение */
-    }
-
-    #mainPage .shinePlanet {
-        position: relative;
-        overflow: hidden; /* Обеспечивает, что круги не будут выходить за пределы элемента */
-        z-index: 0;
     }
 
     /*==============================*/
@@ -1283,14 +1282,19 @@ html, body {
         margin-left: 15px;
     }
 
-    #annualDataButton, #privatePolicyButton {
+    #annualDataButton,
+    #privatePolicyButton,
+    #privatePolicyAccept,
+    #privatePolicyRead {
         background: none;
         border: none;
         padding: 0;
     }
 
     #annualDataButton img,
-    #privatePolicyButton img {
+    #privatePolicyButton img,
+    #privatePolicyAccept img,
+    #privatePolicyRead img {
         width: 70%;
     }
 
@@ -1407,6 +1411,7 @@ html, body {
         float: right;
         margin-right: 3%;
         width: 22%;
+        height: 22%;
     }
 
     #mainMenu .levels li:nth-child(odd) {
@@ -1468,27 +1473,6 @@ html, body {
         transition: transform 1.3s ease; /* Плавное перемещение */
     }
 
-    #mainPage .shinePlanet {
-        position: relative;
-        overflow: hidden; /* Обеспечивает, что круги не будут выходить за пределы элемента */
-        z-index: 0;
-    }
-
-    /*.shinePlanet::before {*/
-    /*    content: '';*/
-    /*    position: absolute;*/
-    /*    top: 50%;*/
-    /*    left: 50%;*/
-    /*    width: 200%; !* Размер круга для создания эффекта затухания *!*/
-    /*    height: 200%;*/
-    /*    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 215, 0, 0) 100%);*/
-    /*    border-radius: 50%;*/
-    /*    transform: translate(-50%, -50%);*/
-    /*    opacity: 0;*/
-    /*    z-index: -1; !* Помещает псевдоэлемент на задний план *!*/
-    /*    filter: blur(15px); !* Добавляет размытие для мягких краев *!*/
-    /*    animation: shine-animation 1.5s ease-out infinite;*/
-    /*}*/
     /*==============================*/
     /* SETTINGS */
     /*==============================*/
@@ -1507,7 +1491,26 @@ html, body {
         font-weight: 900;
         font-size: 3em;
         line-height: 0;
+    }
 
+    /*==============================*/
+    /* SETTINGS */
+    /*==============================*/
+    #privacyPolicePage {
+        display: block;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+    }
+
+    #privacyPolicePage .content {
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+
+        text-align: center;
+        font-weight: 900;
+        font-size: 3em;
+        line-height: 0;
     }
 
     /*==============================*/

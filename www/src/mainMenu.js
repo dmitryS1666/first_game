@@ -22,13 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Функция для установки начальной позиции ракеты в зависимости от ориентации экрана
     function setInitialRocketPosition() {
-        if (window.innerWidth > window.innerHeight) {
+        // if (window.innerWidth > window.innerHeight) {
             // Горизонтальная ориентация: центрировать внизу экрана
-            setRocketToCenterBottom();
-        } else {
+            // setRocketToCenterBottom();
+        // } else {
             // Вертикальная ориентация: установить на последнем элементе
             moveRocketToItem(listItems[listItems.length - 1], false); // false чтобы не вызвать navigateTo
-        }
+        // }
     }
 
     // Устанавливает ракету в центр нижней части экрана
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             offsetY = rect.top + (rect.height / 2) - (rocketRect.width / 2);
         } else {
             // Вертикальная ориентация
-            offsetX = rect.left + (rect.width / 2) - (rocketRect.width / 2);
+            offsetX = rect.left + (rect.width / 2) - rocketRect.width / 2;
             offsetY = rect.top + (rect.height / 2) - (rocketRect.height / 2);
         }
 
