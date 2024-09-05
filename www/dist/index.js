@@ -569,6 +569,50 @@
     }
   });
 
+  // node_modules/@capacitor/app/dist/esm/web.js
+  var web_exports2 = {};
+  __export(web_exports2, {
+    AppWeb: () => AppWeb
+  });
+  var AppWeb;
+  var init_web2 = __esm({
+    "node_modules/@capacitor/app/dist/esm/web.js"() {
+      init_dist();
+      AppWeb = class extends WebPlugin {
+        constructor() {
+          super();
+          this.handleVisibilityChange = () => {
+            const data = {
+              isActive: document.hidden !== true
+            };
+            this.notifyListeners("appStateChange", data);
+            if (document.hidden) {
+              this.notifyListeners("pause", null);
+            } else {
+              this.notifyListeners("resume", null);
+            }
+          };
+          document.addEventListener("visibilitychange", this.handleVisibilityChange, false);
+        }
+        exitApp() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async getInfo() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async getLaunchUrl() {
+          return { url: "" };
+        }
+        async getState() {
+          return { isActive: document.hidden !== true };
+        }
+        async minimizeApp() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+      };
+    }
+  });
+
   // src/roulette.js
   var rouletteSegments = [2, 200, 5e3, 400, 500, 600, 1.5, 800];
   var rouletteCanvas;
@@ -693,6 +737,7 @@
     const finalScore = document.getElementById("finalScore");
     finalScore.textContent = `+${result2}`;
     gameOverRoulette = true;
+    setCurrentGame("roulette");
     navigateTo("winPage");
   }
 
@@ -842,7 +887,6 @@
   }
   function startGame() {
     if (gameOver === false) {
-      console.log("\u0418\u0433\u0440\u0430 \u0443\u0436\u0435 \u0430\u043A\u0442\u0438\u0432\u043D\u0430.");
       return;
     }
     const startButton = document.getElementById("play");
@@ -878,10 +922,12 @@
       saveScore(newScore);
       const finalScore = document.getElementById("finalScore");
       finalScore.textContent = `+${score2}`;
+      setCurrentGame("bonus");
       navigateTo("winPage");
     } else {
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
+      setCurrentGame("bonus");
       navigateTo("failPage");
     }
   }
@@ -1228,10 +1274,12 @@
       saveScore(newScore);
       const finalScore = document.getElementById("finalScore");
       finalScore.textContent = `+${score3}`;
+      setCurrentGame("planetCatcher");
       navigateTo("winPage");
     } else {
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
+      setCurrentGame("planetCatcher");
       navigateTo("failPage");
     }
     document.getElementById("seconds").textContent = gameDuration2;
@@ -1534,7 +1582,6 @@
     };
     slot.startSpin = function() {
       slot.spinSlotButton = true;
-      console.log("isAnimationStopped: ");
       console.log(isAnimationStopped);
       if (!slot.isSpinning || isAnimationStopped) return;
       slot.$element.animate({ "top": -slot.totalHeight }, slot.spinSpeed, "linear", function() {
@@ -1681,7 +1728,6 @@
     }, 2e3);
   }
   function resizeSlotCanvas() {
-    console.log("exec resize slotCanvas");
     let el = document.getElementById("fonSlotMachine");
     let ulDiv = document.getElementById("slotMachine");
     let liChild = ulDiv.querySelectorAll("li");
@@ -1690,8 +1736,6 @@
   }
   function endGameSlotMachine(result2, isInterrupted = false) {
     if (isInterrupted) {
-      console.log("isInterrupted");
-      console.log(isInterrupted);
       gameOverSlotMachine = true;
       isGameRunning = false;
       stopSlotMachineAnimation();
@@ -1705,10 +1749,12 @@
       const finalScore = document.getElementById("finalScore");
       finalScore.textContent = `+${currentBet * multiplier}`;
       saveScore(newScore);
+      setCurrentGame("slotMachine");
       navigateTo("winPage");
     } else {
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
+      setCurrentGame("slotMachine");
       navigateTo("failPage");
     }
     gameOverSlotMachine = true;
@@ -1735,10 +1781,36 @@
   window.addEventListener("resize", resizeSlotCanvas);
   window.addEventListener("orientationchange", resizeSlotCanvas);
 
+  // node_modules/@capacitor/status-bar/dist/esm/index.js
+  init_dist();
+
+  // node_modules/@capacitor/status-bar/dist/esm/definitions.js
+  var Style;
+  (function(Style2) {
+    Style2["Dark"] = "DARK";
+    Style2["Light"] = "LIGHT";
+    Style2["Default"] = "DEFAULT";
+  })(Style || (Style = {}));
+  var Animation;
+  (function(Animation2) {
+    Animation2["None"] = "NONE";
+    Animation2["Slide"] = "SLIDE";
+    Animation2["Fade"] = "FADE";
+  })(Animation || (Animation = {}));
+
+  // node_modules/@capacitor/status-bar/dist/esm/index.js
+  var StatusBar = registerPlugin("StatusBar");
+
   // node_modules/@capacitor/browser/dist/esm/index.js
   init_dist();
   var Browser2 = registerPlugin("Browser", {
     web: () => Promise.resolve().then(() => (init_web(), web_exports)).then((m) => new m.BrowserWeb())
+  });
+
+  // node_modules/@capacitor/app/dist/esm/index.js
+  init_dist();
+  var App = registerPlugin("App", {
+    web: () => Promise.resolve().then(() => (init_web2(), web_exports2)).then((m) => new m.AppWeb())
   });
 
   // src/main.js
@@ -1784,13 +1856,12 @@
     "click",
     () => navigateTo("mainMenu")
   );
-  document.getElementById("winMenuButton").addEventListener(
-    "click",
-    () => navigateTo("mainMenu")
-  );
+  document.getElementById("winMenuButton").addEventListener("click", () => {
+    navigateTo("gameContainer", getCurrentGame());
+  });
   document.getElementById("failMenuButton").addEventListener(
     "click",
-    () => navigateTo("mainMenu")
+    () => navigateTo("gameContainer", getCurrentGame())
   );
   document.getElementById("play").addEventListener(
     "click",
@@ -1831,6 +1902,12 @@
       localStorage.setItem("currentScore", deposit);
     }
   }
+  function setCurrentGame(currentGame) {
+    localStorage.setItem("currentGame", currentGame);
+  }
+  function getCurrentGame() {
+    return localStorage.getItem("currentGame");
+  }
   function navigateTo(...args) {
     const overlay = document.getElementById("overlay");
     const preloader = document.getElementById("preloader");
@@ -1852,12 +1929,14 @@
       console.log("gameOverSlotMachine");
       endGameSlotMachine(0, true);
     }
+    console.log("args: ");
+    console.log(args);
+    console.log("-------------------------------------------");
     if (args[1] === void 0) {
       showHidePage(overlay, preloader, args[0]);
     } else {
       switch (args[1]) {
         case "bonus":
-          navigateTo("mainPage");
           console.log("bonus game");
           showHidePage(overlay, preloader, "gameContainer");
           prepareGame();
@@ -1936,7 +2015,7 @@
   window.addEventListener("popstate", function(event) {
     navigateTo("mainPage");
   });
-  document.addEventListener("backbutton", function() {
+  App.addListener("backButton", ({ canGoBack }) => {
     navigateTo("mainPage");
   });
   function minusBet(elementId) {

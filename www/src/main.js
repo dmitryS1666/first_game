@@ -12,8 +12,6 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { Browser } from '@capacitor/browser';
 import { App } from '@capacitor/app';
 
-export let currentGame = '';
-
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Устанавливаем статус-бар прозрачным
@@ -99,14 +97,12 @@ document.getElementById('menuButton')
 
 document.getElementById('winMenuButton')
     .addEventListener('click', () => {
-        console.log('last game');
-        console.log(currentGame);
-        navigateTo('mainMenu');
+        navigateTo('gameContainer', getCurrentGame());
 });
 
 document.getElementById('failMenuButton')
     .addEventListener('click', () =>
-        navigateTo('mainMenu')
+        navigateTo('gameContainer', getCurrentGame())
     );
 
 document.getElementById('play')
@@ -158,6 +154,14 @@ export function checkFirstRun() {
     }
 }
 
+export function setCurrentGame(currentGame) {
+    localStorage.setItem('currentGame', currentGame);
+}
+
+export function getCurrentGame() {
+    return localStorage.getItem("currentGame");
+}
+
 export function navigateTo(...args) {
     const overlay = document.getElementById('overlay');
     const preloader = document.getElementById('preloader');
@@ -193,25 +197,21 @@ export function navigateTo(...args) {
                 console.log('bonus game');
                 showHidePage(overlay, preloader, 'gameContainer');
                 prepareGame();
-                currentGame = '';
                 break;
             case 'roulette':
                 console.log('roulette game');
                 showHidePage(overlay, preloader, 'rouletteContainer');
                 setupRoulette();
-                currentGame = '';
                 break;
             case 'planetCatcher':
                 console.log('planetCatcher game');
                 showHidePage(overlay, preloader, 'gameContainer');
                 setupGamePC();
-                currentGame = '';
                 break;
             case 'slotMachine':
                 console.log('slotMachine game');
                 showHidePage(overlay, preloader, 'slotMachineContainer');
                 setupSlotMachine();
-                currentGame = '';
                 break;
             default:
                 console.log('default')

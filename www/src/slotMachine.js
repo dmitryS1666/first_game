@@ -1,4 +1,4 @@
-import {bet, checkFirstRun, currentGame, navigateTo, saveScore} from "./main";
+import {bet, checkFirstRun, navigateTo, saveScore, setCurrentGame} from "./main";
 let rotationSequences = {};
 
 // Переменная для отслеживания количества начатых вращений
@@ -151,7 +151,6 @@ let SlotMachine = function (element, options, rotationData) {
 
     slot.startSpin = function () {
         slot.spinSlotButton = true;  // Устанавливаем флаг вращения
-        console.log('isAnimationStopped: ');
         console.log(isAnimationStopped);
 
         if (!slot.isSpinning || isAnimationStopped) return;  // Проверяем, вращается ли элемент
@@ -354,7 +353,6 @@ function showPopupMessage(message, result) {
 }
 
 export function resizeSlotCanvas() {
-    console.log('exec resize slotCanvas');
     let el = document.getElementById('fonSlotMachine');
     let ulDiv = document.getElementById('slotMachine');
     let liChild = ulDiv.querySelectorAll('li');
@@ -366,8 +364,6 @@ export function resizeSlotCanvas() {
 
 export function endGameSlotMachine(result, isInterrupted = false) {
     if (isInterrupted) {
-        console.log('isInterrupted');
-        console.log(isInterrupted);
         gameOverSlotMachine = true;
         isGameRunning = false;
         stopSlotMachineAnimation();
@@ -386,11 +382,12 @@ export function endGameSlotMachine(result, isInterrupted = false) {
         finalScore.textContent = `+${currentBet * multiplier}`;
 
         saveScore(newScore);
-        currentGame = 'slotMachine';
+        setCurrentGame('slotMachine');
         navigateTo("winPage");
     } else {
         let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
         saveScore(newScore);
+        setCurrentGame('slotMachine');
         navigateTo("failPage");
     }
     gameOverSlotMachine = true;
