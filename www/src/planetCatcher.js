@@ -2,7 +2,7 @@
 // --------------- Ловец планет ---------------- //
 // --------------------------------------------- //
 
-import {checkFirstRun, navigateTo, saveScore, setCurrentGame, vibrate} from "./main";
+import {catchSound, checkFirstRun, failSound, navigateTo, saveScore, setCurrentGame, vibrate, winSound} from "./main";
 import {bet} from './main';
 
 // Game state
@@ -16,7 +16,7 @@ let basketSpeed, eggSpeedBase, eggSpeedVariance;
 let leftPipeWidth, leftPipeHeight;
 let rightPipeWidth, rightPipeHeight;
 const eggInterval = 2200; // milliseconds
-const gameDuration = 15; // seconds
+const gameDuration = 30; // seconds
 let basketPosition = 'left'; // Начальное положение корзины (слева или справа)
 let eggs = [];
 let score = 0;
@@ -271,12 +271,14 @@ export function endGamePC(isVictory, isInterrupted = false) {
         finalScore.textContent = `+${score}`;
 
         setCurrentGame('planetCatcher');
+        winSound.play();
         navigateTo('winPage');
     } else {
         let newScore = parseInt(localStorage.getItem('currentScore')) - currentBet;
         saveScore(newScore);
 
         setCurrentGame('planetCatcher');
+        failSound.play();
         navigateTo('failPage');
     }
 
@@ -516,6 +518,7 @@ function handleCollision() {
 
             // Вызов функции вибрации при касании платформы
             vibrate(100); // Вибрация длительностью 100 миллисекунд
+            catchSound.play();
 
             // Добавляем всплывающее сообщение с текстом
             let scoreVal = properties.score
@@ -546,7 +549,7 @@ function updateScoreDisplay() {
 function addEgg() {
     if (gameOverPC) return;
 
-    if (eggs.length < 3) {
+    if (eggs.length < 5) {
         // Определяем случайный интервал для появления нового шара
         setTimeout(() => {
             const fromLeft = Math.random() > 0.5;

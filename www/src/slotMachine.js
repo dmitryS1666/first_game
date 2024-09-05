@@ -1,4 +1,14 @@
-import {bet, checkFirstRun, navigateTo, saveScore, setCurrentGame} from "./main";
+import {
+    bet,
+    checkFirstRun,
+    failSound,
+    navigateTo,
+    saveScore,
+    setCurrentGame,
+    wheelSpinSound,
+    wheelSpinSound_2,
+    winSound
+} from "./main";
 let rotationSequences = {};
 
 // Переменная для отслеживания количества начатых вращений
@@ -151,7 +161,7 @@ let SlotMachine = function (element, options, rotationData) {
 
     slot.startSpin = function () {
         slot.spinSlotButton = true;  // Устанавливаем флаг вращения
-        console.log(isAnimationStopped);
+        wheelSpinSound_2.play();
 
         if (!slot.isSpinning || isAnimationStopped) return;  // Проверяем, вращается ли элемент
 
@@ -383,11 +393,13 @@ export function endGameSlotMachine(result, isInterrupted = false) {
 
         saveScore(newScore);
         setCurrentGame('slotMachine');
+        winSound.play();
         navigateTo("winPage");
     } else {
         let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
         saveScore(newScore);
         setCurrentGame('slotMachine');
+        failSound.play();
         navigateTo("failPage");
     }
     gameOverSlotMachine = true;
@@ -401,7 +413,6 @@ function stopSlotMachineAnimation() {
     isAnimationStopped = true;
 }
 
-// Функция для очистки клонированных элементов
 // Функция для очистки клонированных элементов, оставляя первые 9 элементов li
 function resetSlotMachine() {
     // Получаем контейнер с классом slotwrapper, содержащий все списки ul

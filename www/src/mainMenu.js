@@ -1,4 +1,4 @@
-import {isElementVisible, navigateTo} from './main';
+import {isElementVisible, navigateTo, selectGameSound, wheelSpinSound} from './main';
 
 document.addEventListener('DOMContentLoaded', () => {
     let isInitialLoad = true; // Флаг для проверки первоначальной загрузки
@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isInitialLoad && shouldNavigate) {
             setTimeout(() => {
                 const levelNumber = item.getAttribute('value');
+                selectGameSound.play();
                 navigateTo('gameContainer', levelNumber);
                 isInitialLoad = true;
             }, 350);

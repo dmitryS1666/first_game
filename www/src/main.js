@@ -5,14 +5,20 @@
 import { StatusBar } from '@capacitor/status-bar';
 import { Browser } from '@capacitor/browser';
 import { App } from '@capacitor/app';
-import { Plugins } from '@capacitor/core';
-const { Vibration } = Plugins;
 
 import {gameOverRoulette, setupRoulette} from './roulette'
 import {endGame, gameOver, prepareGame, startGame} from "./bonus";
 import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {endGameRoulette} from "./roulette";
 import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMachine} from "./slotMachine";
+
+export let catchSound = new Audio('res/sounds/catch_ball.m4r');
+export let catchSound_2 = new Audio('res/sounds/catch_ball_2.mp3');
+export let winSound = new Audio('res/sounds/win.mp3');
+export let failSound = new Audio('res/sounds/fail.mp3');
+export let selectGameSound = new Audio('res/sounds/select_game.mp3');
+export let wheelSpinSound = new Audio('res/sounds/wheel_spin.mp3');
+export let wheelSpinSound_2 = new Audio('res/sounds/wheel_spin_2.mp3');
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -162,6 +168,13 @@ export function checkFirstRun() {
         localStorage.setItem('firstRun', 'false');
         localStorage.setItem('currentScore', deposit);
     }
+
+    const acceptPrivacy = localStorage.getItem('acceptPolicy');
+    if (acceptPrivacy) {
+        document.getElementById('privatePolicyAccept').style.display = 'none';
+    } else {
+        document.getElementById('privatePolicyAccept').style.display = 'display';
+    }
 }
 
 export function setCurrentGame(currentGame) {
@@ -273,6 +286,9 @@ function showMessage(msg) {
 document.getElementById('annualDataButton').addEventListener('click', () => {
     // Очищаем localStorage
     localStorage.clear();
+    // открываем подтверждение политики
+    document.getElementById('privatePolicyAccept').style.display = 'block';
+    console.log(document.getElementById('privatePolicyAccept'));
 
     showMessage('Data successfully reset!');
 });
@@ -297,8 +313,8 @@ document.getElementById('privatePolicyAccept').addEventListener('click', () => {
     if (!acceptPolicy) {
         localStorage.setItem('acceptPolicy', 'true');
         showMessage('Policy successfully accept!');
-    } else {
-        showMessage('Policy already accept!');
+
+        document.getElementById('privatePolicyAccept').style.display = 'none';
     }
 });
 

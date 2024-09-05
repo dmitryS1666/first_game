@@ -645,9 +645,6 @@
     web: () => Promise.resolve().then(() => (init_web2(), web_exports2)).then((m) => new m.AppWeb())
   });
 
-  // src/main.js
-  init_dist();
-
   // src/roulette.js
   var rouletteSegments = [2, 200, 5e3, 400, 500, 600, 1.5, 800];
   var rouletteCanvas;
@@ -723,7 +720,8 @@
     if (isSpinning) return;
     isSpinning = true;
     gameOverRoulette = false;
-    const spinDuration = 3e3;
+    wheelSpinSound_2.play();
+    const spinDuration = 4e3;
     const segmentAngle = 360 / rouletteSegments.length;
     const winningSegment = Math.floor(Math.random() * rouletteSegments.length);
     const targetAngle = winningSegment * segmentAngle;
@@ -773,7 +771,10 @@
     finalScore.textContent = `+${result2}`;
     gameOverRoulette = true;
     setCurrentGame("roulette");
-    navigateTo("winPage");
+    setTimeout(() => {
+      winSound.play();
+      navigateTo("winPage");
+    }, 800);
   }
 
   // src/bonus.js
@@ -789,7 +790,7 @@
   var eggSpeedBase;
   var eggSpeedVariance;
   var eggInterval = 2100;
-  var gameDuration = 15;
+  var gameDuration = 30;
   var tracks = [];
   var basketX;
   var eggs = [];
@@ -958,11 +959,13 @@
       const finalScore = document.getElementById("finalScore");
       finalScore.textContent = `+${score2}`;
       setCurrentGame("bonus");
+      winSound.play();
       navigateTo("winPage");
     } else {
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
       setCurrentGame("bonus");
+      failSound.play();
       navigateTo("failPage");
     }
   }
@@ -1041,6 +1044,8 @@
       if (egg.y > canvasHeight - basketHeight - 150 && egg.x > basketX && egg.x < basketX + basketWidth) {
         const properties = colorProperties[egg.color];
         score2 += properties.score;
+        vibrate(100);
+        catchSound_2.play();
         updateScoreDisplay();
         if ("vibrate" in navigator) {
           navigator.vibrate(100);
@@ -1121,7 +1126,7 @@
   var rightPipeWidth;
   var rightPipeHeight;
   var eggInterval2 = 2200;
-  var gameDuration2 = 15;
+  var gameDuration2 = 30;
   var basketPosition = "left";
   var eggs2 = [];
   var score3 = 0;
@@ -1312,11 +1317,13 @@
       const finalScore = document.getElementById("finalScore");
       finalScore.textContent = `+${score3}`;
       setCurrentGame("planetCatcher");
+      winSound.play();
       navigateTo("winPage");
     } else {
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
       setCurrentGame("planetCatcher");
+      failSound.play();
       navigateTo("failPage");
     }
     document.getElementById("seconds").textContent = gameDuration2;
@@ -1443,6 +1450,7 @@
         score3 += properties.score;
         updateScoreDisplay2();
         vibrate(100);
+        catchSound.play();
         let scoreVal = properties.score;
         addTextDisplay2(egg.x, egg.y, scoreVal > 0 ? "+" + scoreVal.toString() : scoreVal.toString());
         if (properties.gameOverPC) {
@@ -1462,7 +1470,7 @@
   }
   function addEgg2() {
     if (gameOverPC) return;
-    if (eggs2.length < 3) {
+    if (eggs2.length < 5) {
       setTimeout(() => {
         const fromLeft = Math.random() > 0.5;
         const color = colors2[Math.floor(Math.random() * colors2.length)];
@@ -1622,7 +1630,7 @@
     };
     slot.startSpin = function() {
       slot.spinSlotButton = true;
-      console.log(isAnimationStopped);
+      wheelSpinSound_2.play();
       if (!slot.isSpinning || isAnimationStopped) return;
       slot.$element.animate({ "top": -slot.totalHeight }, slot.spinSpeed, "linear", function() {
         slot.$element.css("top", 0);
@@ -1672,6 +1680,7 @@
           if (multiplier > 0) {
             let currentBet = parseFloat(document.getElementById("currentBetSlot").innerText);
             addFlashResult(result);
+            winSound.play();
             showPopupMessage(multiplier, currentBet);
             setTimeout(() => {
               if (!gameOverSlotMachine) {
@@ -1795,6 +1804,7 @@
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
       saveScore(newScore);
       setCurrentGame("slotMachine");
+      failSound.play();
       navigateTo("failPage");
     }
     gameOverSlotMachine = true;
@@ -1822,7 +1832,13 @@
   window.addEventListener("orientationchange", resizeSlotCanvas);
 
   // src/main.js
-  var { Vibration } = Plugins;
+  var catchSound = new Audio("res/sounds/catch_ball.m4r");
+  var catchSound_2 = new Audio("res/sounds/catch_ball_2.mp3");
+  var winSound = new Audio("res/sounds/win.mp3");
+  var failSound = new Audio("res/sounds/fail.mp3");
+  var selectGameSound = new Audio("res/sounds/select_game.mp3");
+  var wheelSpinSound = new Audio("res/sounds/wheel_spin.mp3");
+  var wheelSpinSound_2 = new Audio("res/sounds/wheel_spin_2.mp3");
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       await StatusBar.setBackgroundColor({ color: "transparent" });
@@ -1918,6 +1934,12 @@
       localStorage.setItem("firstRun", "false");
       localStorage.setItem("currentScore", deposit);
     }
+    const acceptPrivacy = localStorage.getItem("acceptPolicy");
+    if (acceptPrivacy) {
+      document.getElementById("privatePolicyAccept").style.display = "none";
+    } else {
+      document.getElementById("privatePolicyAccept").style.display = "display";
+    }
   }
   function setCurrentGame(currentGame) {
     localStorage.setItem("currentGame", currentGame);
@@ -2005,6 +2027,8 @@
   }
   document.getElementById("annualDataButton").addEventListener("click", () => {
     localStorage.clear();
+    document.getElementById("privatePolicyAccept").style.display = "block";
+    console.log(document.getElementById("privatePolicyAccept"));
     showMessage("Data successfully reset!");
   });
   document.getElementById("privatePolicyButton").addEventListener("click", () => {
@@ -2022,8 +2046,7 @@
     if (!acceptPolicy) {
       localStorage.setItem("acceptPolicy", "true");
       showMessage("Policy successfully accept!");
-    } else {
-      showMessage("Policy already accept!");
+      document.getElementById("privatePolicyAccept").style.display = "none";
     }
   });
   window.addEventListener("popstate", function(event) {
@@ -2104,6 +2127,7 @@
       if (!isInitialLoad && shouldNavigate) {
         setTimeout(() => {
           const levelNumber = item.getAttribute("value");
+          selectGameSound.play();
           navigateTo("gameContainer", levelNumber);
           isInitialLoad = true;
         }, 350);

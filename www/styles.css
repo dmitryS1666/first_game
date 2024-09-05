@@ -52,7 +52,7 @@ html, body {
         display: block;
         width: 100%;
         height: 100%;
-        margin-top: 25%;
+        margin-top: 50%;
         text-align: center;
         position: relative;
     }
@@ -425,6 +425,8 @@ html, body {
         background: none;
         border: none;
         padding: 0;
+        display: block;
+        margin: auto;
     }
 
     #annualDataButton img,
@@ -576,6 +578,7 @@ html, body {
 
     #mainMenu .levels ul li img {
         width: 100%;
+        height: 100%;
         z-index: 1;
     }
 
@@ -613,7 +616,7 @@ html, body {
         text-align: center;
         font-weight: 900;
         font-size: 3em;
-        line-height: 0;
+        line-height: 1;
     }
 
     /*==============================*/
@@ -1309,6 +1312,8 @@ html, body {
         background: none;
         border: none;
         padding: 0;
+        display: block;
+        margin: auto;
     }
 
     #annualDataButton img,
@@ -1475,6 +1480,7 @@ html, body {
 
     #mainMenu .levels ul li img {
         width: 80%;
+        height: 80%;
         z-index: 1;
     }
 
@@ -1510,7 +1516,7 @@ html, body {
         text-align: center;
         font-weight: 900;
         font-size: 3em;
-        line-height: 0;
+        line-height: 1;
     }
 
     /*==============================*/

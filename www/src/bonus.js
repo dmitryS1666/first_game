@@ -3,7 +3,17 @@
 // --------------- Бонусная игра --------------- //
 // --------------------------------------------- //
 
-import {checkFirstRun, navigateTo, saveScore, setCurrentGame} from "./main";
+import {
+    catchSound,
+    catchSound_2,
+    checkFirstRun,
+    failSound,
+    navigateTo,
+    saveScore,
+    setCurrentGame,
+    vibrate,
+    winSound
+} from "./main";
 import { bet } from './main'
 
 // Game state
@@ -15,7 +25,7 @@ let canvasWidth, canvasHeight;
 let basketWidth, basketHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
 const eggInterval = 2100; // milliseconds
-const gameDuration = 15; // seconds
+const gameDuration = 30; // seconds
 let tracks = []; // Массив для хранения следов
 
 let basketX;
@@ -238,12 +248,14 @@ export function endGame(isVictory, isInterrupted = false) {
         finalScore.textContent = `+${score}`;
 
         setCurrentGame('bonus');
+        winSound.play();
         navigateTo('winPage'); // Перенаправляем на страницу победы
     } else {
         let newScore = parseInt(localStorage.getItem('currentScore')) - currentBet; // Сохраняем текущий результат
         saveScore(newScore);
 
         setCurrentGame('bonus');
+        failSound.play();
         navigateTo('failPage'); // Перенаправляем на страницу поражения
     }
 }
@@ -334,6 +346,10 @@ function handleCollision() {
         if (egg.y > canvasHeight - basketHeight - 150 && egg.x > basketX && egg.x < basketX + basketWidth) {
             const properties = colorProperties[egg.color];
             score += properties.score;
+            // Вызов функции вибрации при касании платформы
+            vibrate(100); // Вибрация длительностью 100 миллисекунд
+            catchSound_2.play();
+
             updateScoreDisplay();
 
             // Вызов функции вибрации при касании платформы

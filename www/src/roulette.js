@@ -3,7 +3,16 @@
 // ------------------ Рулетка ------------------ //
 // --------------------------------------------- //
 
-import {bet, checkFirstRun, navigateTo, saveScore, setCurrentGame} from "./main";
+import {
+    bet,
+    checkFirstRun,
+    navigateTo,
+    saveScore,
+    setCurrentGame,
+    wheelSpinSound,
+    wheelSpinSound_2,
+    winSound
+} from "./main";
 
 const rouletteSegments = [2, 200, 5000, 400, 500, 600, 1.5, 800];
 let rouletteCanvas, rouletteCtx;
@@ -102,7 +111,9 @@ function spinRoulette() {
     isSpinning = true;
     gameOverRoulette = false;
 
-    const spinDuration = 3000; // Время вращения в миллисекундах
+    wheelSpinSound_2.play();
+
+    const spinDuration = 4000; // Время вращения в миллисекундах
     const segmentAngle = 360 / rouletteSegments.length; // Угол одного сектора
 
     // Выбираем случайный выигрышный сегмент
@@ -177,5 +188,8 @@ export function endGameRoulette(winningSegment, isInterrupted = false) {
 
     gameOverRoulette = true; // Игра завершена
     setCurrentGame('roulette');
-    navigateTo('winPage'); // Перенаправляем на страницу победы
+    setTimeout(() => {
+        winSound.play();
+        navigateTo('winPage'); // Перенаправляем на страницу победы
+    }, 800);
 }
