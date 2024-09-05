@@ -717,6 +717,7 @@
     }
   }
   function spinRoulette() {
+    selectItemSound.play();
     if (isSpinning) return;
     isSpinning = true;
     gameOverRoulette = false;
@@ -925,6 +926,7 @@
     if (gameOver === false) {
       return;
     }
+    selectItemSound.play();
     const startButton = document.getElementById("play");
     if (startButton) {
       startButton.disabled = true;
@@ -1280,6 +1282,7 @@
   }
   function startGamePC() {
     gameOverPC = false;
+    selectItemSound.play();
     setupGamePC();
     score3 = 0;
     eggs2 = [];
@@ -1533,6 +1536,7 @@
     gameOverSlotMachine = false;
     if (isGameRunning) return;
     updateStartButtonState();
+    selectItemSound.play();
     const listItems = document.querySelectorAll("li");
     listItems.forEach((li) => li.classList.remove("flash_ball"));
     if (this.length) {
@@ -1680,7 +1684,6 @@
           if (multiplier > 0) {
             let currentBet = parseFloat(document.getElementById("currentBetSlot").innerText);
             addFlashResult(result);
-            winSound.play();
             showPopupMessage(multiplier, currentBet);
             setTimeout(() => {
               if (!gameOverSlotMachine) {
@@ -1799,6 +1802,7 @@
       finalScore.textContent = `+${currentBet * multiplier}`;
       saveScore(newScore);
       setCurrentGame("slotMachine");
+      winSound.play();
       navigateTo("winPage");
     } else {
       let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
@@ -1839,6 +1843,7 @@
   var selectGameSound = new Audio("res/sounds/select_game.mp3");
   var wheelSpinSound = new Audio("res/sounds/wheel_spin.mp3");
   var wheelSpinSound_2 = new Audio("res/sounds/wheel_spin_2.mp3");
+  var selectItemSound = new Audio("res/sounds/select_item_menu.mp3");
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       await StatusBar.setBackgroundColor({ color: "transparent" });
@@ -1896,38 +1901,38 @@
     "click",
     () => navigateTo("gameContainer", getCurrentGame())
   );
-  document.getElementById("play").addEventListener(
-    "click",
-    () => startGame()
-  );
-  document.getElementById("playPC").addEventListener(
-    "click",
-    () => startGamePC()
-  );
-  document.getElementById("minusBet").addEventListener(
-    "click",
-    () => minusBet("currentBet")
-  );
-  document.getElementById("plusBet").addEventListener(
-    "click",
-    () => plusBet("currentBet")
-  );
-  document.getElementById("minusBetRoulette").addEventListener(
-    "click",
-    () => minusBet("currentBetRoulette")
-  );
-  document.getElementById("plusBetRoulette").addEventListener(
-    "click",
-    () => plusBet("currentBetRoulette")
-  );
-  document.getElementById("minusBetSlot").addEventListener(
-    "click",
-    () => minusBet("currentBetSlot")
-  );
-  document.getElementById("plusBetSlot").addEventListener(
-    "click",
-    () => plusBet("currentBetSlot")
-  );
+  document.getElementById("play").addEventListener("click", () => {
+    selectItemSound.play();
+    startGame();
+  });
+  document.getElementById("playPC").addEventListener("click", () => {
+    selectItemSound.play();
+    startGamePC();
+  });
+  document.getElementById("minusBet").addEventListener("click", () => {
+    selectItemSound.play();
+    minusBet("currentBet");
+  });
+  document.getElementById("plusBet").addEventListener("click", () => {
+    selectItemSound.play();
+    plusBet("currentBet");
+  });
+  document.getElementById("minusBetRoulette").addEventListener("click", () => {
+    selectItemSound.play();
+    minusBet("currentBetRoulette");
+  });
+  document.getElementById("plusBetRoulette").addEventListener("click", () => {
+    selectItemSound.play();
+    plusBet("currentBetRoulette");
+  });
+  document.getElementById("minusBetSlot").addEventListener("click", () => {
+    selectItemSound.play();
+    minusBet("currentBetSlot");
+  });
+  document.getElementById("plusBetSlot").addEventListener("click", () => {
+    selectItemSound.play();
+    plusBet("currentBetSlot");
+  });
   function checkFirstRun() {
     const isFirstRun = localStorage.getItem("firstRun");
     if (!isFirstRun) {
@@ -1948,6 +1953,7 @@
     return localStorage.getItem("currentGame");
   }
   function navigateTo(...args) {
+    selectItemSound.play();
     const overlay = document.getElementById("overlay");
     const preloader = document.getElementById("preloader");
     overlay.style.display = "block";
@@ -2026,15 +2032,18 @@
     }, 2e3);
   }
   document.getElementById("annualDataButton").addEventListener("click", () => {
+    selectItemSound.play();
     localStorage.clear();
     document.getElementById("privatePolicyAccept").style.display = "block";
     console.log(document.getElementById("privatePolicyAccept"));
     showMessage("Data successfully reset!");
   });
   document.getElementById("privatePolicyButton").addEventListener("click", () => {
+    selectItemSound.play();
     navigateTo("privacyPolicePage");
   });
   document.getElementById("privatePolicyRead").addEventListener("click", async () => {
+    selectItemSound.play();
     try {
       await Browser2.open({ url: "https://policies.google.com/privacy?hl=en-US" });
     } catch (e) {
@@ -2042,6 +2051,7 @@
     }
   });
   document.getElementById("privatePolicyAccept").addEventListener("click", () => {
+    selectItemSound.play();
     let acceptPolicy = localStorage.getItem("acceptPolicy");
     if (!acceptPolicy) {
       localStorage.setItem("acceptPolicy", "true");

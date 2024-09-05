@@ -2,7 +2,17 @@
 // --------------- Ловец планет ---------------- //
 // --------------------------------------------- //
 
-import {catchSound, checkFirstRun, failSound, navigateTo, saveScore, setCurrentGame, vibrate, winSound} from "./main";
+import {
+    catchSound,
+    checkFirstRun,
+    failSound,
+    navigateTo,
+    saveScore,
+    selectItemSound,
+    setCurrentGame,
+    vibrate,
+    winSound
+} from "./main";
 import {bet} from './main';
 
 // Game state
@@ -216,6 +226,7 @@ function drawPipes() {
 // Начало игры
 export function startGamePC() {
     gameOverPC = false;
+    selectItemSound.play();
 
     setupGamePC();
     score = 0;

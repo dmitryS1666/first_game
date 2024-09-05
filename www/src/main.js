@@ -19,6 +19,7 @@ export let failSound = new Audio('res/sounds/fail.mp3');
 export let selectGameSound = new Audio('res/sounds/select_game.mp3');
 export let wheelSpinSound = new Audio('res/sounds/wheel_spin.mp3');
 export let wheelSpinSound_2 = new Audio('res/sounds/wheel_spin_2.mp3');
+export let selectItemSound = new Audio('res/sounds/select_item_menu.mp3');
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -122,44 +123,52 @@ document.getElementById('failMenuButton')
     );
 
 document.getElementById('play')
-    .addEventListener('click', () =>
-        startGame()
-    );
+    .addEventListener('click', () => {
+        selectItemSound.play();
+        startGame();
+    });
 
 document.getElementById('playPC')
-    .addEventListener('click', () =>
-        startGamePC()
-    );
+    .addEventListener('click', () => {
+        selectItemSound.play();
+        startGamePC();
+    });
 
 document.getElementById('minusBet')
-    .addEventListener('click', () =>
-        minusBet('currentBet')
-    );
+    .addEventListener('click', () => {
+        selectItemSound.play();
+        minusBet('currentBet');
+    });
 
 document.getElementById('plusBet')
-    .addEventListener('click', () =>
+    .addEventListener('click', () => {
+        selectItemSound.play();
         plusBet('currentBet')
-    );
+    });
 
 document.getElementById('minusBetRoulette')
-    .addEventListener('click', () =>
+    .addEventListener('click', () => {
+        selectItemSound.play();
         minusBet('currentBetRoulette')
-    );
+    });
 
 document.getElementById('plusBetRoulette')
-    .addEventListener('click', () =>
+    .addEventListener('click', () => {
+        selectItemSound.play();
         plusBet('currentBetRoulette')
-    );
+    });
 
 document.getElementById('minusBetSlot')
-    .addEventListener('click', () =>
-        minusBet('currentBetSlot')
-    );
+    .addEventListener('click', () => {
+        selectItemSound.play();
+        minusBet('currentBetSlot');
+    });
 
 document.getElementById('plusBetSlot')
-    .addEventListener('click', () =>
-        plusBet('currentBetSlot')
-    );
+    .addEventListener('click', () => {
+        selectItemSound.play();
+        plusBet('currentBetSlot');
+    });
 
 export function checkFirstRun() {
     const isFirstRun = localStorage.getItem('firstRun');
@@ -186,6 +195,7 @@ export function getCurrentGame() {
 }
 
 export function navigateTo(...args) {
+    selectItemSound.play();
     const overlay = document.getElementById('overlay');
     const preloader = document.getElementById('preloader');
     overlay.style.display = 'block';
@@ -284,6 +294,7 @@ function showMessage(msg) {
 
 // очистка данных
 document.getElementById('annualDataButton').addEventListener('click', () => {
+    selectItemSound.play();
     // Очищаем localStorage
     localStorage.clear();
     // открываем подтверждение политики
@@ -295,11 +306,13 @@ document.getElementById('annualDataButton').addEventListener('click', () => {
 
 // открыть политику
 document.getElementById('privatePolicyButton').addEventListener('click', () => {
+    selectItemSound.play();
     navigateTo('privacyPolicePage');
 });
 
 // читать политику
 document.getElementById('privatePolicyRead').addEventListener('click', async () => {
+    selectItemSound.play();
     try {
         await Browser.open({ url: 'https://policies.google.com/privacy?hl=en-US' });
     } catch (e) {
@@ -309,6 +322,7 @@ document.getElementById('privatePolicyRead').addEventListener('click', async () 
 
 // подтвердить политику
 document.getElementById('privatePolicyAccept').addEventListener('click', () => {
+    selectItemSound.play();
     let acceptPolicy = localStorage.getItem("acceptPolicy");
     if (!acceptPolicy) {
         localStorage.setItem('acceptPolicy', 'true');

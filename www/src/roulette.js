@@ -7,7 +7,7 @@ import {
     bet,
     checkFirstRun,
     navigateTo,
-    saveScore,
+    saveScore, selectItemSound,
     setCurrentGame,
     wheelSpinSound,
     wheelSpinSound_2,
@@ -107,6 +107,7 @@ function drawPointer() {
 
 // Функция для запуска вращения рулетки
 function spinRoulette() {
+    selectItemSound.play();
     if (isSpinning) return; // Блокируем повторное вращение
     isSpinning = true;
     gameOverRoulette = false;

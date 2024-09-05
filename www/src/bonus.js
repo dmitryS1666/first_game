@@ -9,7 +9,7 @@ import {
     checkFirstRun,
     failSound,
     navigateTo,
-    saveScore,
+    saveScore, selectItemSound,
     setCurrentGame,
     vibrate,
     winSound
@@ -201,6 +201,7 @@ export function startGame() {
     if (gameOver === false) {
         return;
     }
+    selectItemSound.play();
 
     // Деактивируем кнопку "Старт" после начала игры
     const startButton = document.getElementById('play');

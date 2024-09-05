@@ -3,7 +3,7 @@ import {
     checkFirstRun,
     failSound,
     navigateTo,
-    saveScore,
+    saveScore, selectItemSound,
     setCurrentGame,
     wheelSpinSound,
     wheelSpinSound_2,
@@ -35,6 +35,7 @@ $.fn.startSpin = function (options) {
     gameOverSlotMachine = false;
     if (isGameRunning) return; // Если игра уже идет, не начинаем новую
     updateStartButtonState(); // Обновляем состояние кнопки перед запуском
+    selectItemSound.play();
 
     const listItems = document.querySelectorAll('li');
     listItems.forEach(li => li.classList.remove('flash_ball'));
