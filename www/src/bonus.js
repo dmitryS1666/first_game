@@ -383,12 +383,17 @@ function gameLoop() {
 // Add a new egg with random properties
 function addEgg() {
     if (gameOver) return;
-    const x = Math.random() * canvasWidth;
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const speed = eggSpeedBase + Math.random() * eggSpeedVariance;
-    eggs.push({x, y: 0, color, speed});
-    // Добавляем трек за шаром
-    tracks.push({x, y: 75, startTime: Date.now()});
+
+    // Проверяем, что на экране меньше двух шаров
+    if (eggs.length < 2) {
+        const x = Math.random() * canvasWidth;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const speed = eggSpeedBase + Math.random() * eggSpeedVariance;
+        eggs.push({x, y: 0, color, speed});
+
+        // Добавляем трек за шаром
+        tracks.push({x, y: 75, startTime: Date.now()});
+    }
 }
 
 

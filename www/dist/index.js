@@ -613,6 +613,41 @@
     }
   });
 
+  // node_modules/@capacitor/status-bar/dist/esm/index.js
+  init_dist();
+
+  // node_modules/@capacitor/status-bar/dist/esm/definitions.js
+  var Style;
+  (function(Style2) {
+    Style2["Dark"] = "DARK";
+    Style2["Light"] = "LIGHT";
+    Style2["Default"] = "DEFAULT";
+  })(Style || (Style = {}));
+  var Animation;
+  (function(Animation2) {
+    Animation2["None"] = "NONE";
+    Animation2["Slide"] = "SLIDE";
+    Animation2["Fade"] = "FADE";
+  })(Animation || (Animation = {}));
+
+  // node_modules/@capacitor/status-bar/dist/esm/index.js
+  var StatusBar = registerPlugin("StatusBar");
+
+  // node_modules/@capacitor/browser/dist/esm/index.js
+  init_dist();
+  var Browser2 = registerPlugin("Browser", {
+    web: () => Promise.resolve().then(() => (init_web(), web_exports)).then((m) => new m.BrowserWeb())
+  });
+
+  // node_modules/@capacitor/app/dist/esm/index.js
+  init_dist();
+  var App = registerPlugin("App", {
+    web: () => Promise.resolve().then(() => (init_web2(), web_exports2)).then((m) => new m.AppWeb())
+  });
+
+  // src/main.js
+  init_dist();
+
   // src/roulette.js
   var rouletteSegments = [2, 200, 5e3, 400, 500, 600, 1.5, 800];
   var rouletteCanvas;
@@ -1042,11 +1077,13 @@
   }
   function addEgg() {
     if (gameOver) return;
-    const x = Math.random() * canvasWidth;
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const speed = eggSpeedBase + Math.random() * eggSpeedVariance;
-    eggs.push({ x, y: 0, color, speed });
-    tracks.push({ x, y: 75, startTime: Date.now() });
+    if (eggs.length < 2) {
+      const x = Math.random() * canvasWidth;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const speed = eggSpeedBase + Math.random() * eggSpeedVariance;
+      eggs.push({ x, y: 0, color, speed });
+      tracks.push({ x, y: 75, startTime: Date.now() });
+    }
   }
   function setupTouchControls() {
     canvas.addEventListener("touchmove", (event) => {
@@ -1314,38 +1351,42 @@
     }
     ctxPC.restore();
   }
-  function calculateParabola(egg) {
+  function calculateTrajectory(egg) {
     let time = egg.time;
     let isLandscape = window.innerWidth > window.innerHeight;
     let xStart = egg.startX;
     let yStart = egg.startY;
-    let xEnd = egg.fromLeft ? canvasPCWidth / 8 : canvasPCWidth - 60;
-    let horizontalRange = canvasPCWidth * 0.08;
+    let fallStartTime = 45;
+    let fallSpeed = 1;
     if (isLandscape) {
-      xEnd = egg.fromLeft ? xEnd + horizontalRange : xEnd - horizontalRange;
-    } else {
-      xEnd = egg.fromLeft ? xEnd + horizontalRange + 20 : xEnd - horizontalRange - 20;
+      xStart = egg.startX;
+      yStart = egg.startY - 200;
+      fallStartTime = 80;
     }
-    let yEnd = canvasPCHeight * 0.3;
-    let transitionTime = 40;
-    let totalDuration = 140;
-    let speedMultiplier = isLandscape ? 0.5 : 1;
-    let initialSpeedMultiplier = isLandscape ? 0.33 : 1;
-    if (time < transitionTime) {
-      let t = time / transitionTime * initialSpeedMultiplier;
-      egg.x = xStart + (xEnd - xStart) * t;
-      egg.y = yStart - (yStart - yEnd) * (1 - t * t);
-    } else {
-      let t = (time - transitionTime) / (totalDuration - transitionTime);
-      egg.x = xEnd;
-      if (isLandscape) {
-        let yPos = yEnd + (canvasPCHeight - yEnd - 100) * t;
-        egg.y = yPos > 0 ? yPos : yPos * -1;
+    let diagonalSpeed = 1;
+    if (time < fallStartTime) {
+      if (egg.fromLeft) {
+        egg.x = xStart + diagonalSpeed * time;
+        egg.y = yStart + diagonalSpeed * time;
       } else {
-        egg.y = yEnd + (canvasPCHeight - yEnd - basketPCHeight - 100) * t;
+        egg.x = xStart - diagonalSpeed * time;
+        egg.y = yStart + diagonalSpeed * time;
       }
+    } else {
+      let fallTime = time - fallStartTime;
+      if (egg.fromLeft) {
+        egg.x = xStart + diagonalSpeed * fallStartTime;
+      } else {
+        egg.x = xStart - diagonalSpeed * fallStartTime;
+      }
+      egg.y = yStart + diagonalSpeed * fallStartTime + fallSpeed * fallTime;
     }
-    egg.time += speedMultiplier;
+    const rotationDirection = egg.fromLeft ? 1 : -1;
+    ctxPC.save();
+    ctxPC.translate(egg.x, egg.y);
+    ctxPC.rotate(rotationDirection * egg.time * Math.PI / 180);
+    ctxPC.restore();
+    egg.time++;
   }
   function drawEggs2() {
     eggs2.forEach((egg) => {
@@ -1358,7 +1399,7 @@
         ctxPC.drawImage(img, -35, -35, 70, 70);
         ctxPC.restore();
       }
-      calculateParabola(egg);
+      calculateTrajectory(egg);
       egg.time++;
     });
     flashes.forEach((flash) => {
@@ -1396,14 +1437,12 @@
       } else {
         basketTop = canvasPCHeight - basketPCHeight - 50;
       }
-      if (egg.y > basketTop && egg.y < basketTop + 50 && // Проверяем, находится ли яйцо в пределах верхней части корзины
+      if (egg.y > basketTop && egg.y < basketTop + 20 && // Проверяем, находится ли яйцо в пределах верхней части корзины
       egg.x > basketX2 - basketPCWidth / 2 && egg.x < basketX2 + basketPCWidth / 2) {
         const properties = colorProperties2[egg.color];
         score3 += properties.score;
         updateScoreDisplay2();
-        if ("vibrate" in navigator) {
-          navigator.vibrate(100);
-        }
+        vibrate(100);
         let scoreVal = properties.score;
         addTextDisplay2(egg.x, egg.y, scoreVal > 0 ? "+" + scoreVal.toString() : scoreVal.toString());
         if (properties.gameOverPC) {
@@ -1423,32 +1462,33 @@
   }
   function addEgg2() {
     if (gameOverPC) return;
-    setTimeout(() => {
-      const fromLeft = Math.random() > 0.5;
-      const color = colors2[Math.floor(Math.random() * colors2.length)];
-      const startX = fromLeft ? 70 : canvasPCWidth - 65;
-      const startY = 265;
-      const isOverlapping = eggs2.some(
-        (egg) => Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
-      );
-      if (!isOverlapping) {
-        eggs2.push({
-          x: startX,
-          y: startY,
-          startX,
-          // Сохраняем начальную позицию по X
-          startY,
-          // Сохраняем начальную позицию по Y
-          color,
-          fromLeft,
-          time: 0,
-          // Время траектории
-          rotationSpeed: Math.random() * 2 + 1
-          // Случайная скорость вращения
-        });
-      }
-      setTimeout(addEgg2, eggInterval2 + Math.random() * 2e3);
-    }, Math.random() * 2e3);
+    if (eggs2.length < 3) {
+      setTimeout(() => {
+        const fromLeft = Math.random() > 0.5;
+        const color = colors2[Math.floor(Math.random() * colors2.length)];
+        const startX = fromLeft ? 70 : canvasPCWidth - 65;
+        const startY = 265;
+        const isOverlapping = eggs2.some(
+          (egg) => Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
+        );
+        if (!isOverlapping) {
+          eggs2.push({
+            x: startX,
+            y: startY,
+            startX,
+            // Сохраняем начальную позицию по X
+            startY,
+            // Сохраняем начальную позицию по Y
+            color,
+            fromLeft,
+            time: 0,
+            // Время траектории
+            rotationSpeed: Math.random() * 2 + 1
+            // Случайная скорость вращения
+          });
+        }
+      }, Math.random() * 1e3);
+    }
   }
   document.addEventListener("keydown", (event) => {
     if (gameOverPC) return;
@@ -1781,39 +1821,8 @@
   window.addEventListener("resize", resizeSlotCanvas);
   window.addEventListener("orientationchange", resizeSlotCanvas);
 
-  // node_modules/@capacitor/status-bar/dist/esm/index.js
-  init_dist();
-
-  // node_modules/@capacitor/status-bar/dist/esm/definitions.js
-  var Style;
-  (function(Style2) {
-    Style2["Dark"] = "DARK";
-    Style2["Light"] = "LIGHT";
-    Style2["Default"] = "DEFAULT";
-  })(Style || (Style = {}));
-  var Animation;
-  (function(Animation2) {
-    Animation2["None"] = "NONE";
-    Animation2["Slide"] = "SLIDE";
-    Animation2["Fade"] = "FADE";
-  })(Animation || (Animation = {}));
-
-  // node_modules/@capacitor/status-bar/dist/esm/index.js
-  var StatusBar = registerPlugin("StatusBar");
-
-  // node_modules/@capacitor/browser/dist/esm/index.js
-  init_dist();
-  var Browser2 = registerPlugin("Browser", {
-    web: () => Promise.resolve().then(() => (init_web(), web_exports)).then((m) => new m.BrowserWeb())
-  });
-
-  // node_modules/@capacitor/app/dist/esm/index.js
-  init_dist();
-  var App = registerPlugin("App", {
-    web: () => Promise.resolve().then(() => (init_web2(), web_exports2)).then((m) => new m.AppWeb())
-  });
-
   // src/main.js
+  var { Vibration } = Plugins;
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       await StatusBar.setBackgroundColor({ color: "transparent" });
@@ -1837,6 +1846,14 @@
       } catch (error) {
         console.error("Error fetching data:", error);
       }
+    }
+  }
+  function vibrate(duration) {
+    if (navigator.vibrate) {
+      navigator.vibrate(duration);
+      console.log("Vibration API is supported.");
+    } else {
+      console.log("Vibration API is not supported.");
     }
   }
   var deposit = 1e3;
@@ -1929,9 +1946,6 @@
       console.log("gameOverSlotMachine");
       endGameSlotMachine(0, true);
     }
-    console.log("args: ");
-    console.log(args);
-    console.log("-------------------------------------------");
     if (args[1] === void 0) {
       showHidePage(overlay, preloader, args[0]);
     } else {

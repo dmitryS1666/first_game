@@ -2,15 +2,17 @@
 // --------------------------------------------- //
 // --------------- Общие функции --------------- //
 // --------------------------------------------- //
+import { StatusBar } from '@capacitor/status-bar';
+import { Browser } from '@capacitor/browser';
+import { App } from '@capacitor/app';
+import { Plugins } from '@capacitor/core';
+const { Vibration } = Plugins;
 
 import {gameOverRoulette, setupRoulette} from './roulette'
 import {endGame, gameOver, prepareGame, startGame} from "./bonus";
 import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
 import {endGameRoulette} from "./roulette";
 import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMachine} from "./slotMachine";
-import { StatusBar, Style } from '@capacitor/status-bar';
-import { Browser } from '@capacitor/browser';
-import { App } from '@capacitor/app';
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -68,6 +70,14 @@ function showWelcomeScreen(imageUrl, hyperlink) {
     };
 }
 
+export function vibrate(duration) {
+    if (navigator.vibrate) {
+        navigator.vibrate(duration);
+        console.log('Vibration API is supported.');
+    } else {
+        console.log('Vibration API is not supported.');
+    }
+}
 
 // Configuration
 export let deposit = 1000; // Начальный депозит игрока
