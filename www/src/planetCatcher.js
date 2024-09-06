@@ -4,7 +4,7 @@
 
 import {
     catchSound,
-    checkFirstRun,
+    // checkFirstRun,
     failSound,
     navigateTo,
     saveScore,
@@ -169,7 +169,7 @@ export function setupGamePC() {
 
     document.getElementById('currentBet').textContent = bet;
     document.getElementById('scoreValue').textContent = 0;
-    checkFirstRun();
+    // checkFirstRun();
     document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
 
     document.getElementById('pipe').style.display = 'block';

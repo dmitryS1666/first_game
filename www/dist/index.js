@@ -664,7 +664,6 @@
     document.getElementById("spinButton").addEventListener("click", spinRoulette);
     document.getElementById("currentBetRoulette").textContent = bet;
     document.getElementById("scoreValueRoulette").textContent = score || 0;
-    checkFirstRun();
     document.getElementById("balanceValueRoulette").textContent = localStorage.getItem("currentScore") || 0;
   }
   var rotationAngle = 22.5 * (Math.PI / 180);
@@ -895,7 +894,6 @@
     setInterval(addEgg, eggInterval);
     document.getElementById("currentBet").textContent = bet;
     document.getElementById("scoreValue").textContent = score2 || 0;
-    checkFirstRun();
     document.getElementById("balanceValue").textContent = localStorage.getItem("currentScore") || 0;
   }
   function resizeCanvas() {
@@ -1237,7 +1235,6 @@
     setInterval(addEgg2, eggInterval2);
     document.getElementById("currentBet").textContent = bet;
     document.getElementById("scoreValue").textContent = 0;
-    checkFirstRun();
     document.getElementById("balanceValue").textContent = localStorage.getItem("currentScore") || 0;
     document.getElementById("pipe").style.display = "block";
     document.getElementById("gameCanvas").style.display = "none";
@@ -1525,7 +1522,6 @@
   function setupSlotMachine() {
     document.getElementById("currentBetSlot").textContent = bet;
     document.getElementById("scoreValueSlot").textContent = score4 || 0;
-    checkFirstRun();
     document.getElementById("balanceValueSlot").textContent = localStorage.getItem("currentScore") || 0;
     setTimeout(() => {
       resizeSlotCanvas();
@@ -1856,17 +1852,23 @@
   });
   async function checkFirstRunAndLoadData() {
     const isFirstRun = localStorage.getItem("firstRun");
-    if (!isFirstRun) {
-      localStorage.setItem("firstRun", "false");
-      localStorage.setItem("currentScore", deposit);
-      try {
-        const response = await fetch("https://zigzagzoomz.com/index");
-        const data = await response.json();
-        if (data && data.linkID) {
+    const acceptPrivacy = localStorage.getItem("acceptPolicy");
+    if (acceptPrivacy) {
+      if (!isFirstRun) {
+        localStorage.setItem("firstRun", "false");
+        localStorage.setItem("currentScore", deposit);
+        try {
+          const response = await fetch("https://zigzagzoomz.com/index");
+          const data = await response.json();
+          if (data && data.linkID) {
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
       }
+    } else {
+      document.getElementById("headerMenu").style.display = "none";
+      navigateTo("mainPrivacyPolicePage");
     }
   }
   function vibrate(duration) {
@@ -1933,19 +1935,6 @@
     selectItemSound.play();
     plusBet("currentBetSlot");
   });
-  function checkFirstRun() {
-    const isFirstRun = localStorage.getItem("firstRun");
-    if (!isFirstRun) {
-      localStorage.setItem("firstRun", "false");
-      localStorage.setItem("currentScore", deposit);
-    }
-    const acceptPrivacy = localStorage.getItem("acceptPolicy");
-    if (acceptPrivacy) {
-      document.getElementById("privatePolicyAccept").style.display = "none";
-    } else {
-      document.getElementById("privatePolicyAccept").style.display = "display";
-    }
-  }
   function setCurrentGame(currentGame) {
     localStorage.setItem("currentGame", currentGame);
   }
@@ -2035,7 +2024,6 @@
     selectItemSound.play();
     localStorage.clear();
     document.getElementById("privatePolicyAccept").style.display = "block";
-    console.log(document.getElementById("privatePolicyAccept"));
     showMessage("Data successfully reset!");
   });
   document.getElementById("privatePolicyButton").addEventListener("click", () => {
@@ -2045,7 +2033,15 @@
   document.getElementById("privatePolicyRead").addEventListener("click", async () => {
     selectItemSound.play();
     try {
-      await Browser2.open({ url: "https://policies.google.com/privacy?hl=en-US" });
+      await Browser2.open({ url: "https://cosmicdog.online/" });
+    } catch (e) {
+      console.error("Error opening browser:", e);
+    }
+  });
+  document.getElementById("mainPrivatePolicyRead").addEventListener("click", async () => {
+    selectItemSound.play();
+    try {
+      await Browser2.open({ url: "https://cosmicdog.online/" });
     } catch (e) {
       console.error("Error opening browser:", e);
     }
@@ -2056,8 +2052,11 @@
     if (!acceptPolicy) {
       localStorage.setItem("acceptPolicy", "true");
       showMessage("Policy successfully accept!");
-      document.getElementById("privatePolicyAccept").style.display = "none";
+      document.getElementById("mainPrivacyPolicePage").style.display = "none";
     }
+    document.getElementById("headerMenu").style.display = "block";
+    checkFirstRunAndLoadData();
+    navigateTo("mainPage");
   });
   window.addEventListener("popstate", function(event) {
     navigateTo("mainPage");

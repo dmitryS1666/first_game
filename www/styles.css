@@ -421,18 +421,38 @@ html, body {
     #annualDataButton,
     #privatePolicyButton,
     #privatePolicyAccept,
-    #privatePolicyRead {
+    #privatePolicyRead,
+    #mainPrivatePolicyRead {
         background: none;
         border: none;
         padding: 0;
         display: block;
         margin: auto;
+        font-family: Montserrat, serif;
+        color: white;
+        font-weight: 400;
+        font-size: 17pt;
+        text-decoration: underline;
+    }
+
+    #privatePolicyRead, #mainPrivatePolicyRead {
+        position: absolute;
+        bottom: 200px;
+        transform: translateX(-50%);
+        left: 50%;
+    }
+
+    #privatePolicyAccept {
+        bottom: 20px;
+        position: absolute;
+        transform: translateX(-50%);
+        left: 50%;
+        width: 100%;
     }
 
     #annualDataButton img,
     #privatePolicyButton img,
-    #privatePolicyAccept img,
-    #privatePolicyRead img {
+    #privatePolicyAccept img {
         width: 70%;
     }
 
@@ -628,6 +648,7 @@ html, body {
         position: absolute;
         width: 100%;
         text-align: center;
+        height: 80vh;
     }
 
     #privacyPolicePage .content {
@@ -638,6 +659,76 @@ html, body {
         font-weight: 900;
         font-size: 3em;
         line-height: 1;
+    }
+
+    #privacyPolicePage .content .text {
+        font-weight: 400;
+        font-size: 17pt;
+        line-height: 1;
+        width: 50%;
+        transform: translateX(50%);
+        margin-bottom: 150px;
+    }
+
+    #privacyPolicePage .content textarea {
+        font-weight: 400;
+        font-size: 15pt;
+        width: 90%;
+        margin-bottom: 50px;
+        overflow-y: scroll;
+        background: transparent;
+        color: white;
+        text-align: justify;
+        border: none;
+        padding-left: 15px;
+        padding-right: 15px;
+        max-height: 35vh;
+    }
+
+    /*==============================*/
+    /* PRIVACY PAGE */
+    /*==============================*/
+    #mainPrivacyPolicePage {
+        display: block;
+        top: 150px;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        height: 80vh;
+    }
+
+    #mainPrivacyPolicePage .content {
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+
+        text-align: center;
+        font-weight: 900;
+        font-size: 3em;
+        line-height: 1;
+    }
+
+    #mainPrivacyPolicePage .content .text {
+        font-weight: 400;
+        font-size: 17pt;
+        line-height: 1;
+        width: 50%;
+        transform: translateX(50%);
+        margin-bottom: 150px;
+    }
+
+    #mainPrivacyPolicePage .content textarea {
+        font-weight: 400;
+        font-size: 15pt;
+        width: 90%;
+        margin-bottom: 50px;
+        overflow-y: scroll;
+        background: transparent;
+        color: white;
+        text-align: justify;
+        border: none;
+        padding-left: 15px;
+        padding-right: 15px;
+        max-height: 35vh;
     }
 
     /*==============================*/
@@ -1308,18 +1399,56 @@ html, body {
     #annualDataButton,
     #privatePolicyButton,
     #privatePolicyAccept,
-    #privatePolicyRead {
+    #privatePolicyRead,
+    #mainPrivatePolicyRead {
         background: none;
         border: none;
         padding: 0;
         display: block;
         margin: auto;
+        font-family: Montserrat, serif;
+        color: white;
+        font-weight: 400;
+        font-size: 17pt;
+        text-decoration: underline;
+    }
+
+    #privatePolicyAccept {
+        bottom: 0;
+        position: absolute;
+        transform: translateX(-50%);
+        left: 50%;
+    }
+
+    #privatePolicyRead, #mainPrivatePolicyRead {
+        position: absolute;
+        bottom: 160px;
+        transform: translateX(-50%);
+        left: 50%;;
+    }
+
+
+    #privacyPolicePage .content textarea {
+        font-weight: 400;
+        font-size: 15pt;
+        width: 70%;
+        margin-bottom: 50px;
+        overflow-y: scroll;
+        background: transparent;
+        color: white;
+        text-align: justify;
+        border: none;
+        transform: translateX(-50%);
+        left: 50%;
+        position: absolute;
+        height: 95px;
+        padding-left: 15px;
+        padding-right: 15px;
     }
 
     #annualDataButton img,
     #privatePolicyButton img,
-    #privatePolicyAccept img,
-    #privatePolicyRead img {
+    #privatePolicyAccept img {
         width: 70%;
     }
 
@@ -1381,7 +1510,6 @@ html, body {
         font-family: 'SpaceAge', sans-serif;
         font-size: 24px;
     }
-
 
     /*==============================*/
     /*MENU PAGE*/
@@ -1527,6 +1655,7 @@ html, body {
         position: absolute;
         width: 100%;
         text-align: center;
+        height: 95vh;
     }
 
     #privacyPolicePage .content {
@@ -1537,6 +1666,15 @@ html, body {
         font-weight: 900;
         font-size: 3em;
         line-height: 1;
+    }
+
+    #privacyPolicePage .content .text {
+        font-weight: 400;
+        font-size: 17pt;
+        line-height: 1;
+        width: 50%;
+        transform: translateX(50%);
+        margin-bottom: 150px;
     }
 
     /*==============================*/

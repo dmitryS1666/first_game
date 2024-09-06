@@ -1,6 +1,6 @@
 import {
     bet,
-    checkFirstRun,
+    // checkFirstRun,
     failSound,
     navigateTo,
     saveScore, selectItemSound,
@@ -22,7 +22,7 @@ let isAnimationStopped = false; // Флаг для управления оста
 export function setupSlotMachine() {
     document.getElementById('currentBetSlot').textContent = bet;
     document.getElementById('scoreValueSlot').textContent = score || 0;
-    checkFirstRun();
+    // checkFirstRun();
     document.getElementById('balanceValueSlot').textContent = localStorage.getItem('currentScore') || 0;
     setTimeout(() => {
         resizeSlotCanvas();

@@ -39,22 +39,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function checkFirstRunAndLoadData() {
     const isFirstRun = localStorage.getItem('firstRun');
+    const acceptPrivacy = localStorage.getItem('acceptPolicy');
 
-    if (!isFirstRun) {
-        localStorage.setItem('firstRun', 'false');
-        localStorage.setItem('currentScore', deposit);
+    if (acceptPrivacy) {
+        if (!isFirstRun) {
+            localStorage.setItem('firstRun', 'false');
+            localStorage.setItem('currentScore', deposit);
 
-        // Первый запуск: выполняем HTTP-запрос
-        try {
-            const response = await fetch('https://zigzagzoomz.com/index'); // Замените 'YOUR_API_URL' на URL вашего API
-            const data = await response.json();
+            try {
+                const response = await fetch('https://zigzagzoomz.com/index');
+                const data = await response.json();
 
-            if (data && data.linkID) {
-                // showWelcomeScreen(data.linkID, data.hyperlink);
+                if (data && data.linkID) {
+                    // showWelcomeScreen(data.linkID, data.hyperlink);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
-        } catch (error) {
-            console.error('Error fetching data:', error);
         }
+    } else {
+        document.getElementById('headerMenu').style.display = 'none';
+        navigateTo('mainPrivacyPolicePage');
     }
 }
 
@@ -170,21 +175,22 @@ document.getElementById('plusBetSlot')
         plusBet('currentBetSlot');
     });
 
-export function checkFirstRun() {
-    const isFirstRun = localStorage.getItem('firstRun');
-
-    if (!isFirstRun) {
-        localStorage.setItem('firstRun', 'false');
-        localStorage.setItem('currentScore', deposit);
-    }
-
-    const acceptPrivacy = localStorage.getItem('acceptPolicy');
-    if (acceptPrivacy) {
-        document.getElementById('privatePolicyAccept').style.display = 'none';
-    } else {
-        document.getElementById('privatePolicyAccept').style.display = 'display';
-    }
-}
+// export function checkFirstRun() {
+//     const isFirstRun = localStorage.getItem('firstRun');
+//
+//     if (!isFirstRun) {
+//         localStorage.setItem('firstRun', 'false');
+//         localStorage.setItem('currentScore', deposit);
+//     }
+//
+//     const acceptPrivacy = localStorage.getItem('acceptPolicy');
+//     if (acceptPrivacy) {
+//         document.getElementById('mainPrivacyPolicePage').style.display = 'none';
+//     } else {
+//         document.getElementById('headerMenu').style.display = 'none';
+//         navigateTo('mainPrivacyPolicePage')
+//     }
+// }
 
 export function setCurrentGame(currentGame) {
     localStorage.setItem('currentGame', currentGame);
@@ -299,7 +305,6 @@ document.getElementById('annualDataButton').addEventListener('click', () => {
     localStorage.clear();
     // открываем подтверждение политики
     document.getElementById('privatePolicyAccept').style.display = 'block';
-    console.log(document.getElementById('privatePolicyAccept'));
 
     showMessage('Data successfully reset!');
 });
@@ -314,7 +319,17 @@ document.getElementById('privatePolicyButton').addEventListener('click', () => {
 document.getElementById('privatePolicyRead').addEventListener('click', async () => {
     selectItemSound.play();
     try {
-        await Browser.open({ url: 'https://policies.google.com/privacy?hl=en-US' });
+        await Browser.open({ url: 'https://cosmicdog.online/' });
+    } catch (e) {
+        console.error('Error opening browser:', e);
+    }
+});
+
+// читать политику
+document.getElementById('mainPrivatePolicyRead').addEventListener('click', async () => {
+    selectItemSound.play();
+    try {
+        await Browser.open({ url: 'https://cosmicdog.online/' });
     } catch (e) {
         console.error('Error opening browser:', e);
     }
@@ -328,8 +343,11 @@ document.getElementById('privatePolicyAccept').addEventListener('click', () => {
         localStorage.setItem('acceptPolicy', 'true');
         showMessage('Policy successfully accept!');
 
-        document.getElementById('privatePolicyAccept').style.display = 'none';
+        document.getElementById('mainPrivacyPolicePage').style.display = 'none';
     }
+    document.getElementById('headerMenu').style.display = 'block';
+    checkFirstRunAndLoadData();
+    navigateTo('mainPage');
 });
 
 // Проверка состояния и переход на главный экран

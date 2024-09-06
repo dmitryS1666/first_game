@@ -4,9 +4,9 @@
 // --------------------------------------------- //
 
 import {
-    catchSound,
+    // catchSound,
     catchSound_2,
-    checkFirstRun,
+    // checkFirstRun,
     failSound,
     navigateTo,
     saveScore, selectItemSound,
@@ -162,7 +162,7 @@ function setupGame() {
 
     document.getElementById('currentBet').textContent = bet;
     document.getElementById('scoreValue').textContent = score || 0;
-    checkFirstRun();
+    // checkFirstRun();
     document.getElementById('balanceValue').textContent = localStorage.getItem('currentScore') || 0;
 }
 

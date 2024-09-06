@@ -5,7 +5,7 @@
 
 import {
     bet,
-    checkFirstRun,
+    // checkFirstRun,
     navigateTo,
     saveScore, selectItemSound,
     setCurrentGame,
@@ -39,7 +39,7 @@ export function setupRoulette() {
 
     document.getElementById('currentBetRoulette').textContent = bet;
     document.getElementById('scoreValueRoulette').textContent = score || 0;
-    checkFirstRun();
+    // checkFirstRun();
     document.getElementById('balanceValueRoulette').textContent = localStorage.getItem('currentScore') || 0;
 }
 
