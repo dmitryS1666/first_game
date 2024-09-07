@@ -25,7 +25,7 @@ let basketPCWidth, basketPCHeight;
 let basketSpeed, eggSpeedBase, eggSpeedVariance;
 let leftPipeWidth, leftPipeHeight;
 let rightPipeWidth, rightPipeHeight;
-const eggInterval = 2200; // milliseconds
+const eggInterval = 3300; // milliseconds
 const gameDuration = 30; // seconds
 let basketPosition = 'left'; // Начальное положение корзины (слева или справа)
 let eggs = [];
@@ -42,7 +42,8 @@ const colorProperties = {
     orange: {score: -5},
     purple: {score: -10},
     pink: {score: -2},
-    red: {score: 0, gameOverPC: true}
+    red: {score: 0}
+    // red: {score: 0, gameOverPC: true}
 };
 
 const ballImages = {};
@@ -186,7 +187,7 @@ export function setupGamePC() {
 
 export function resizeCanvasPC() {
     let isLandscape = window.innerWidth > window.innerHeight;
-    if (isLandscape > 0) {
+    if (isLandscape) {
         canvasPCWidth = window.innerWidth - 200;
         canvasPC.style.transform = 'translateX(100px)';
 
@@ -335,60 +336,6 @@ function drawBasket() {
     ctxPC.restore(); // Восстанавливаем исходное состояние контекста
 }
 
-// Параболическая траектория шаров
-// function calculateParabola(egg) {
-//     let time = egg.time;
-//     // Определение ориентации экрана и установка коэффициентов скорости
-//     let isLandscape = window.innerWidth > window.innerHeight;
-//
-//     // Начальные позиции
-//     let xStart = egg.startX;
-//     let yStart = egg.startY;
-//
-//     // Конечная точка по X (центр экрана) и Y (высота горки)
-//     let xEnd = egg.fromLeft ? canvasPCWidth / 8 : canvasPCWidth - 60; // Центр экрана
-//
-//     // Уменьшаем ширину горизонтального движения
-//     let horizontalRange = canvasPCWidth * 0.08;
-//     if (isLandscape) {
-//         xEnd = egg.fromLeft ? xEnd + horizontalRange : xEnd - horizontalRange;
-//     } else {
-//         xEnd = egg.fromLeft ? xEnd + horizontalRange + 20 : xEnd - horizontalRange - 20;
-//     }
-//
-//     let yEnd = canvasPCHeight * 0.3; // Высота горки
-//
-//     // Время перехода от параболы к вертикальному падению
-//     let transitionTime = 40;
-//     let totalDuration = 140;
-//
-//     let speedMultiplier = isLandscape ? 0.5 : 1; // Уменьшаем общую скорость падения в 2 раза при горизонтальной ориентации
-//     let initialSpeedMultiplier = isLandscape ? 0.33 : 1; // Уменьшаем начальную скорость выкатывания в 3 раза при горизонтальной ориентации
-//
-//     if (time < transitionTime) {
-//         // Параболическое движение (спуск по горке)
-//         let t = (time / transitionTime) * initialSpeedMultiplier; // Используем initialSpeedMultiplier для замедления начальной скорости
-//         egg.x = xStart + (xEnd - xStart) * t;
-//         egg.y = yStart - (yStart - yEnd) * (1 - t * t); // Спуск по горке
-//     } else {
-//         // Вертикальное падение после "горки"
-//         let t = (time - transitionTime) / (totalDuration - transitionTime);
-//
-//         // Зафиксированная конечная точка по x и плавное снижение по y
-//         egg.x = xEnd; // Зафиксированная x после "горки"
-//
-//         if (isLandscape) {
-//             let yPos = yEnd + (canvasPCHeight - yEnd - 100) * t; // Плавное вертикальное падение вниз
-//             egg.y = yPos > 0 ? yPos : yPos * -1;
-//         } else {
-//             egg.y = yEnd + (canvasPCHeight - yEnd - basketPCHeight - 100) * t; // Плавное вертикальное падение вниз
-//         }
-//     }
-//
-//     // Умножаем прирост времени на коэффициент скорости для падения
-//     egg.time += speedMultiplier; // Увеличиваем время для движения
-// }
-
 function calculateTrajectory(egg) {
     let time = egg.time;
     let isLandscape = window.innerWidth > window.innerHeight;
@@ -402,8 +349,6 @@ function calculateTrajectory(egg) {
     let fallSpeed = 1; // Скорость падения
 
     if (isLandscape) {
-        xStart = egg.startX;
-        yStart = egg.startY - 200;
         fallStartTime = 80;
     }
 
@@ -560,38 +505,38 @@ function updateScoreDisplay() {
 function addEgg() {
     if (gameOverPC) return;
 
-    if (eggs.length < 5) {
-        // Определяем случайный интервал для появления нового шара
-        setTimeout(() => {
-            const fromLeft = Math.random() > 0.5;
-            const color = colors[Math.floor(Math.random() * colors.length)];
+    // Определяем случайный интервал для появления нового шара
+    setTimeout(() => {
+        let isLandscape = window.innerWidth > window.innerHeight;
 
-            // Устанавливаем начальную позицию для яиц в зависимости от стороны
-            const startX = fromLeft ? 70 : canvasPCWidth - 65; // Отступ 30px от краев
-            const startY = 265; // Сдвигаем на 50px от верха
+        const fromLeft = Math.random() > 0.5;
+        const color = colors[Math.floor(Math.random() * colors.length)];
 
-            // Проверяем, нет ли уже шары в этой области
-            const isOverlapping = eggs.some(egg =>
-                Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
-            );
+        // Устанавливаем начальную позицию для яиц в зависимости от стороны
+        const startX = fromLeft ? 70 : canvasPCWidth - 65; // Отступ 30px от краев
+        const startY = isLandscape ? 65 : 265; // Сдвигаем на 50px от верха
 
-            if (!isOverlapping) {
-                eggs.push({
-                    x: startX,
-                    y: startY,
-                    startX: startX, // Сохраняем начальную позицию по X
-                    startY: startY, // Сохраняем начальную позицию по Y
-                    color: color,
-                    fromLeft: fromLeft,
-                    time: 0, // Время траектории
-                    rotationSpeed: Math.random() * 2 + 1 // Случайная скорость вращения
-                });
-            }
+        // Проверяем, нет ли уже шары в этой области
+        const isOverlapping = eggs.some(egg =>
+            Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
+        );
 
-            // Устанавливаем следующий случайный интервал
-            // setTimeout(addEgg, eggInterval + Math.random() * 2000); // Интервал от 1 до 3 секунд
-        }, Math.random() * 1000); // Задержка перед добавлением шара от 0 до 2 секунд
-    }
+        if (!isOverlapping) {
+            eggs.push({
+                x: startX,
+                y: startY,
+                startX: startX, // Сохраняем начальную позицию по X
+                startY: startY, // Сохраняем начальную позицию по Y
+                color: color,
+                fromLeft: fromLeft,
+                time: 0, // Время траектории
+                rotationSpeed: Math.random() * 2 + 1 // Случайная скорость вращения
+            });
+        }
+
+        // Устанавливаем следующий случайный интервал
+        // setTimeout(addEgg, eggInterval + Math.random() * 3300); // Интервал от 1 до 3 секунд
+    }, Math.random() * 1000); // Задержка перед добавлением шара от 0 до 2 секунд
 }
 
 // Управление движением корзины

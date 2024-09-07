@@ -368,6 +368,7 @@ export function resizeSlotCanvas() {
     let ulDiv = document.getElementById('slotMachine');
     let liChild = ulDiv.querySelectorAll('li');
 
+    // Устанавливаем высоту контейнера с учетом отступов
     ulDiv.style.height = (el.offsetHeight - 20).toString() + 'px';
 
     removeFlashResult(liChild);

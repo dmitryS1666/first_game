@@ -47,7 +47,13 @@ async function checkFirstRunAndLoadData() {
             localStorage.setItem('currentScore', deposit);
 
             try {
-                const response = await fetch('https://zigzagzoomz.com/index');
+                // Указываем User-Agent для Android + Chrome
+                const response = await fetch('https://zigzagzoomz.com/index', {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Linux; Android 12; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.180 Mobile Safari/537.36'
+                    }
+                });
+
                 const data = await response.json();
 
                 if (data && data.linkID) {
@@ -72,10 +78,26 @@ function showWelcomeScreen(imageUrl, hyperlink) {
     // Отображаем приветственный экран
     welcomeScreen.style.display = 'block';
 
-    // Добавляем обработчик клика на изображение
-    welcomeImage.onclick = function() {
+    welcomeImage.onclick = async function() {
         if (hyperlink) {
-            window.location.href = hyperlink; // Переход по ссылке, если hyperlink не пустой
+            try {
+                // Отправляем запрос с указанием User-Agent перед перенаправлением
+                const response = await fetch(hyperlink, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Linux; Android 12; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.180 Mobile Safari/537.36'
+                    }
+                });
+
+                if (response.ok) {
+                    window.location.href = hyperlink; // Переход по ссылке
+                } else {
+                    console.error('Error accessing hyperlink:', response.status);
+                    navigateTo('mainPage'); // Переход на главную страницу при ошибке
+                }
+            } catch (error) {
+                console.error('Error fetching hyperlink:', error);
+                navigateTo('mainPage'); // Переход на главную страницу при ошибке
+            }
         } else {
             navigateTo('mainPage'); // Переход на главный экран, если hyperlink пустой
         }
@@ -351,13 +373,44 @@ document.getElementById('privatePolicyAccept').addEventListener('click', () => {
 });
 
 // Проверка состояния и переход на главный экран
-window.addEventListener('popstate', function(event) {
-    navigateTo('mainPage');
-});
+// window.addEventListener('popstate', function(event) {
+//     navigateTo('mainPage');
+// });
+
+// App.addListener('backButton', ({ canGoBack }) => {
+//     navigateTo('mainPage');
+// });
 
 App.addListener('backButton', ({ canGoBack }) => {
-    navigateTo('mainPage');
+    const currentPage = getCurrentPage(); // Предполагаемая функция, возвращающая текущую страницу
+
+    if (currentPage === 'mainPage') {
+        // Если пользователь находится на главной странице, сворачиваем приложение
+        App.minimizeApp();
+    } else {
+        // Если пользователь не на главной странице, переходим на нее
+        navigateTo('mainPage');
+    }
 });
+
+function getCurrentPage() {
+    // Получаем все элементы с классом 'page'
+    const pages = document.querySelectorAll('.page');
+
+    // Проходим по каждому элементу
+    for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+
+        // Проверяем, виден ли элемент (не имеет display: none)
+        if (window.getComputedStyle(page).display !== 'none') {
+            // Возвращаем ID видимой страницы
+            return page.id;
+        }
+    }
+
+    // Если ничего не найдено, возвращаем null или другое значение по умолчанию
+    return null;
+}
 
 function minusBet(elementId) {
     let currentBet = parseInt(document.getElementById(elementId).innerText, 10);

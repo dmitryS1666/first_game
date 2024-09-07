@@ -1125,7 +1125,7 @@
   var leftPipeHeight;
   var rightPipeWidth;
   var rightPipeHeight;
-  var eggInterval2 = 2200;
+  var eggInterval2 = 3300;
   var gameDuration2 = 30;
   var basketPosition = "left";
   var eggs2 = [];
@@ -1141,7 +1141,8 @@
     orange: { score: -5 },
     purple: { score: -10 },
     pink: { score: -2 },
-    red: { score: 0, gameOverPC: true }
+    red: { score: 0 }
+    // red: {score: 0, gameOverPC: true}
   };
   var ballImages2 = {};
   var ballImageNames2 = [
@@ -1248,7 +1249,7 @@
   }
   function resizeCanvasPC() {
     let isLandscape = window.innerWidth > window.innerHeight;
-    if (isLandscape > 0) {
+    if (isLandscape) {
       canvasPCWidth = window.innerWidth - 200;
       canvasPC.style.transform = "translateX(100px)";
       basketPCWidth = 313;
@@ -1366,8 +1367,6 @@
     let fallStartTime = 45;
     let fallSpeed = 1;
     if (isLandscape) {
-      xStart = egg.startX;
-      yStart = egg.startY - 200;
       fallStartTime = 80;
     }
     let diagonalSpeed = 1;
@@ -1470,33 +1469,32 @@
   }
   function addEgg2() {
     if (gameOverPC) return;
-    if (eggs2.length < 5) {
-      setTimeout(() => {
-        const fromLeft = Math.random() > 0.5;
-        const color = colors2[Math.floor(Math.random() * colors2.length)];
-        const startX = fromLeft ? 70 : canvasPCWidth - 65;
-        const startY = 265;
-        const isOverlapping = eggs2.some(
-          (egg) => Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
-        );
-        if (!isOverlapping) {
-          eggs2.push({
-            x: startX,
-            y: startY,
-            startX,
-            // Сохраняем начальную позицию по X
-            startY,
-            // Сохраняем начальную позицию по Y
-            color,
-            fromLeft,
-            time: 0,
-            // Время траектории
-            rotationSpeed: Math.random() * 2 + 1
-            // Случайная скорость вращения
-          });
-        }
-      }, Math.random() * 1e3);
-    }
+    setTimeout(() => {
+      let isLandscape = window.innerWidth > window.innerHeight;
+      const fromLeft = Math.random() > 0.5;
+      const color = colors2[Math.floor(Math.random() * colors2.length)];
+      const startX = fromLeft ? 70 : canvasPCWidth - 65;
+      const startY = isLandscape ? 65 : 265;
+      const isOverlapping = eggs2.some(
+        (egg) => Math.abs(egg.x - startX) < 70 && Math.abs(egg.y - startY) < 70
+      );
+      if (!isOverlapping) {
+        eggs2.push({
+          x: startX,
+          y: startY,
+          startX,
+          // Сохраняем начальную позицию по X
+          startY,
+          // Сохраняем начальную позицию по Y
+          color,
+          fromLeft,
+          time: 0,
+          // Время траектории
+          rotationSpeed: Math.random() * 2 + 1
+          // Случайная скорость вращения
+        });
+      }
+    }, Math.random() * 1e3);
   }
   document.addEventListener("keydown", (event) => {
     if (gameOverPC) return;
@@ -1828,8 +1826,18 @@
     }
     isAnimationStopped = false;
   }
-  window.addEventListener("resize", resizeSlotCanvas);
-  window.addEventListener("orientationchange", resizeSlotCanvas);
+  window.addEventListener("orientationchange", () => {
+    lockScreenOrientation();
+  });
+  function lockScreenOrientation() {
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock("portrait").catch(function(error) {
+        console.log("\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u0440\u0438 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0435 \u043E\u0440\u0438\u0435\u043D\u0442\u0430\u0446\u0438\u0438: ", error);
+      });
+    } else {
+      console.log("\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430 \u043E\u0440\u0438\u0435\u043D\u0442\u0430\u0446\u0438\u0438 \u043D\u0435 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442\u0441\u044F \u044D\u0442\u0438\u043C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E\u043C");
+    }
+  }
 
   // src/main.js
   var catchSound = new Audio("res/sounds/catch_ball.m4r");
@@ -1858,7 +1866,11 @@
         localStorage.setItem("firstRun", "false");
         localStorage.setItem("currentScore", deposit);
         try {
-          const response = await fetch("https://zigzagzoomz.com/index");
+          const response = await fetch("https://zigzagzoomz.com/index", {
+            headers: {
+              "User-Agent": "Mozilla/5.0 (Linux; Android 12; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.180 Mobile Safari/537.36"
+            }
+          });
           const data = await response.json();
           if (data && data.linkID) {
           }
@@ -2058,12 +2070,24 @@
     checkFirstRunAndLoadData();
     navigateTo("mainPage");
   });
-  window.addEventListener("popstate", function(event) {
-    navigateTo("mainPage");
-  });
   App.addListener("backButton", ({ canGoBack }) => {
-    navigateTo("mainPage");
+    const currentPage = getCurrentPage();
+    if (currentPage === "mainPage") {
+      App.minimizeApp();
+    } else {
+      navigateTo("mainPage");
+    }
   });
+  function getCurrentPage() {
+    const pages = document.querySelectorAll(".page");
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      if (window.getComputedStyle(page).display !== "none") {
+        return page.id;
+      }
+    }
+    return null;
+  }
   function minusBet(elementId) {
     let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
     if (currentBet - 50 > 0 && deposit > currentBet - 50) {
