@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>CosmoDog</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+</head>
+<body id="pageBody">
+<div id="welcomeScreen">
+    <a id="bannerLink" href=""><img id="welcomeImage" src="../res/test.png" alt="Welcome"></a>
+</div>
+<div id="headerMenu">
+    <button id="homeButton" class="homeButton" style="display: none;">
+        <img src="../res/home_button.png">
+    </button>
+    <button id="settingButton" class="settingButton">
+        <img src="../res/setting_button.png">
+    </button>
+</div>
+
+<div id="overlay" style="display: none;"></div>
+<div id="preloader" style="display: none;">
+    <img src="res/preloader.png">
+    <p class="text">LOADING</p>
+</div>
+
+<div id="mainPage" class="page">
+    <div id="dogWithRocket">
+        <img class="dogWithRocket" src="../res/dog_with_rocket.png">
+    </div>
+    <div class="startButton">
+        <button id="menuButton">
+            <img src="../res/main_play_button.png">
+        </button>
+    </div>
+</div>
+
+<!-- Main Menu Page -->
+<div id="mainMenu" class="page" style="display: none;">
+    <div class="levels">
+        <ul>
+            <li value="bonus">
+                <img src="../res/levels/bonus.png">
+            </li>
+            <li data-number="3" value="roulette">
+                <img src="../res/levels/third.png">
+            </li>
+            <li data-number="2" value="planetCatcher">
+                <img src="../res/levels/second.png">
+            </li>
+            <li data-number="1" value="slotMachine">
+                <img src="../res/levels/first.png">
+            </li>
+        </ul>
+    </div>
+
+    <div id="miniRocket">
+        <img class="miniRocket" src="../res/levels/mini_rocket.png">
+    </div>
+
+    <div class="goldImage goldMenu">
+        <img class="flash" src="../res/big_flash.png">
+        <img class="gold" src="../res/gold_price.png">
+    </div>
+</div>
+
+<!-- Game Page -->
+<div id="slotMachineContainer" class="page" style="display: none;">
+    <div id="popup-message" class="popup-message"></div>
+    <div id="slotCanvas">
+        <img src="res/slotBg.png" class="fon" id="fonSlotMachine">
+        <div class="slotwrapper" id="slotMachine">
+            <ul>
+                <li value="blue"><img src="res/balls/blue_ball.png"/></li>
+                <li value="brown"><img src="res/balls/brown_ball.png"/></li>
+                <li value="earth"><img src="res/balls/earth_ball.png"/></li>
+                <li value="green"><img src="res/balls/green_ball.png"/></li>
+                <li value="indigo"><img src="res/balls/indigo_ball.png"/></li>
+                <li value="orange"><img src="res/balls/orange_ball.png"/></li>
+                <li value="pink"><img src="res/balls/pink_ball.png"/></li>
+                <li value="red"><img src="res/balls/red_ball.png"/></li>
+                <li value="yellow"><img src="res/balls/yellow_ball.png"/></li>
+            </ul>
+            <ul>
+                <li value="brown"><img src="res/balls/brown_ball.png"/></li>
+                <li value="blue"><img src="res/balls/blue_ball.png"/></li>
+                <li value="green"><img src="res/balls/green_ball.png"/></li>
+                <li value="earth"><img src="res/balls/earth_ball.png"/></li>
+                <li value="orange"><img src="res/balls/orange_ball.png"/></li>
+                <li value="red"><img src="res/balls/red_ball.png"/></li>
+                <li value="pink"><img src="res/balls/pink_ball.png"/></li>
+                <li value="indigo"><img src="res/balls/indigo_ball.png"/></li>
+                <li value="yellow"><img src="res/balls/yellow_ball.png"/></li>
+            </ul>
+            <ul>
+                <li value="green"><img src="res/balls/green_ball.png"/></li>
+                <li value="earth"><img src="res/balls/earth_ball.png"/></li>
+                <li value="blue"><img src="res/balls/blue_ball.png"/></li>
+                <li value="pink"><img src="res/balls/pink_ball.png"/></li>
+                <li value="indigo"><img src="res/balls/indigo_ball.png"/></li>
+                <li value="brown"><img src="res/balls/brown_ball.png"/></li>
+                <li value="red"><img src="res/balls/red_ball.png"/></li>
+                <li value="yellow"><img src="res/balls/yellow_ball.png"/></li>
+                <li value="orange"><img src="res/balls/orange_ball.png"/></li>
+            </ul>
+            <ul>
+                <li value="green"><img src="res/balls/green_ball.png"/></li>
+                <li value="brown"><img src="res/balls/brown_ball.png"/></li>
+                <li value="blue"><img src="res/balls/blue_ball.png"/></li>
+                <li value="indigo"><img src="res/balls/indigo_ball.png"/></li>
+                <li value="yellow"><img src="res/balls/yellow_ball.png"/></li>
+                <li value="orange"><img src="res/balls/orange_ball.png"/></li>
+                <li value="pink"><img src="res/balls/pink_ball.png"/></li>
+                <li value="red"><img src="res/balls/red_ball.png"/></li>
+                <li value="earth"><img src="res/balls/earth_ball.png"/></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="gameScoreSlot">
+        <div class="scoreSlot">
+            <div class="text">
+                <span>Balance</span>
+            </div>
+            <div class="value">
+                <span id="balanceValueSlot"></span>
+            </div>
+            <div class="text">
+                <span>WIN</span>
+            </div>
+            <div class="value">
+                <span id="scoreValueSlot"></span>
+            </div>
+        </div>
+        <div class="playButton">
+            <button id="spinSlotButton">
+                <img src="res/go_button.png">
+            </button>
+        </div>
+        <div class="betControlSlot">
+            <button id="minusBetSlot">
+                <img src="res/minusBit.png">
+            </button>
+            <span id="currentBetSlot"></span>
+            <button id="plusBetSlot">
+                <img src="res/plusBit.png">
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="rouletteContainer" class="page" style="display:none;">
+    <canvas id="rouletteCanvas" width="600" height="600"></canvas>
+
+    <div id="gameScoreRoulette">
+        <div class="scoreRoulette">
+            <span class="text">Balance</span>
+            <span id="balanceValueRoulette" class="value"></span>
+            <span class="text">WIN</span>
+            <span id="scoreValueRoulette" class="value"></span>
+        </div>
+        <div class="playButton">
+            <button id="spinButton">
+                <img src="res/go_button.png">
+            </button>
+        </div>
+        <div class="betsRoulette">
+            <div class="betControlRoulette">
+                <button id="minusBetRoulette">
+                    <img src="res/minusBit.png">
+                </button>
+                <span id="currentBetRoulette">150</span>
+                <button id="plusBetRoulette">
+                    <img src="res/plusBit.png">
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Game Page -->
+<div id="gameContainer" class="page" style="display: none;">
+    <div id="pipe">
+        <img id="pipeLeft" src="res/l_pipe.png">
+        <img id="pipeRight" src="res/r_pipe.png">
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <canvas id="planetCatcherCanvas"></canvas>
+    <div id="timer">
+        <img src="../res/timer.png">
+        <span id="min">00</span>
+        <span id="dots">:</span>
+        <span id="seconds"></span>
+    </div>
+
+    <div id="gameScore">
+        <div id="failPlatformBlock" style="display: none;">
+            <img id="failPlatform" src="res/new_platform.png">
+            <img src="res/line.png">
+        </div>
+        <div id="failPlatformAstroBlock" style="display: none;">
+            <img id="failPlatformAstro" src="res/astro_left.png">
+        </div>
+        <div class="statistics">
+            <div class="score">
+                <div class="text">
+                    <span>Balance</span>
+                    <span>WIN</span>
+                </div>
+                <div class="value">
+                    <span id="balanceValue"></span>
+                    <span id="scoreValue"></span>
+                </div>
+            </div>
+            <div class="playButton">
+                <button id="play" style="display: none;">
+                    <img src="res/play_bautton.png">
+                </button>
+                <button id="playPC" style="display: none;">
+                    <img src="res/play_bautton.png">
+                </button>
+            </div>
+            <div class="bets">
+                <div class="bet">
+                    <span id="currentBet"></span>
+                </div>
+                <div class="betControl">
+                    <button id="minusBet">
+                        <img src="res/minusBit.png">
+                    </button>
+                    <button id="plusBet">
+                        <img src="res/plusBit.png">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Win Screen -->
+<div id="winPage" class="page" style="display: none;">
+    <div class="blur"></div>
+    <div id="rocket">
+        <img class="flash" src="../res/rocket.png">
+    </div>
+    <div class="result">
+        <p class="finalText">WIN</p>
+        <p id="finalScore" class="finalScore"></p>
+    </div>
+
+    <div class="goldImage goldWin">
+        <img class="flash" src="../res/big_flash.png">
+        <img class="gold" src="../res/gold_price.png">
+    </div>
+    <div class="button">
+        <button id="winMenuButton">
+            <img src="../res/continue_button.png">
+        </button>
+    </div>
+</div>
+
+<!-- Fail Screen -->
+<div id="failPage" class="page" style="display: none;">
+    <div class="blur"></div>
+    <div class="result">
+        <p class="finalText">LOSE</p>
+        <p class="finalScore">0</p>
+    </div>
+
+    <div class="goldImage">
+        <img src="../res/gold_price.png" alt="Gold Price">
+    </div>
+    <div class="button">
+        <button id="failMenuButton">
+            <img src="../res/continue_button.png" alt="Continue">
+        </button>
+    </div>
+</div>
+
+<!-- Fail Screen -->
+<div id="alertMessage"></div>
+<div id="settingsPage" class="page" style="display: none;">
+    <div class="content">
+        <p>SETTINGS</p>
+        <button id="annualDataButton">
+            <img src="../res/annual_data_button.png" alt="annual data">
+        </button>
+        <button id="privatePolicyButton">
+            <img src="../res/privacy_police_button.png" alt="privacy policy">
+        </button>
+    </div>
+</div>
+<div id="privacyPolicePage" class="page" style="display: none;">
+    <div class="content">
+        <p class="title">Privacy Policy</p>
+        <p class="text" id="youCanRead">you can read our privacy policy</p>
+
+        <button id="privatePolicyRead">
+            Read privacy
+        </button>
+    </div>
+</div>
+<div id="mainPrivacyPolicePage" class="page" style="display: none;">
+    <div class="content">
+        <p class="title">Privacy Policy</p>
+        <p class="text">you can read our privacy policy</p>
+
+        <button id="mainPrivatePolicyRead">
+            Read privacy
+        </button>
+        <button id="privatePolicyAccept">
+            <img src="../res/privacy_police_accept_button.png" alt="privacy policy">
+        </button>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+
+<script src="dist/index.js"></script>
+<script>
+    $('#spinSlotButton').click(function () {
+        $('#slotMachine ul').startSpin();
+    });
+</script>
+</body>
+</html>
