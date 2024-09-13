@@ -18,42 +18,49 @@ import {endGameSlotMachine, gameOverSlotMachine, resizeSlotCanvas, setupSlotMach
 import {endGamePC, gameOverPC, setupGamePC, startGamePC} from "./planetCatcher";
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded');
+    preloader('block');
     localStorage.setItem('firstRun', 'true');
-    checkFirstRunAndLoadData();
     setupAppListeners();
-});
 
+    if (window.NetworkStatusController.isConnectedToInternet()) {
+        loadBanner();
+    } else {
+        checkFirstRunAndLoadData();
+    }
+});
 
 function loadBanner() {
     if (window.BannerLoader && typeof window.BannerLoader.loadBanner === "function") {
-        window.BannerLoader.loadBanner();
-    } else {
-        console.log("BannerLoader interface not available.");
+        lockPortretOrientation();
+        window.BannerLoader.loadBanner()
     }
+    setTimeout(() => {
+        preloader('none');
+    }, 2600);
+}
+
+function loadFirstPage() {
+    let firstRun = localStorage.getItem('firstRun');
+    // Вызов метода для загрузки баннера
+    if (firstRun !== 'false') {
+        if (window.BannerLoader && typeof window.BannerLoader.loadBanner === "function") {
+            if (window.BannerLoader.loadBanner() === undefined) {
+                setTimeout(() => {
+                    checkFirstRunAndLoadData();
+                }, 2500);
+            }
+        }
+    }
+    setTimeout(() => {
+        preloader('none');
+    }, 2600);
 }
 
 function checkFirstRunAndLoadData() {
-    setTimeout(() => {
-        preloader('block');
-    }, 1600);
-
     let acceptPrivacy = localStorage.getItem('acceptPolicy');
-    let firstRun = localStorage.getItem('firstRun');
 
     if (acceptPrivacy) {
-        try {
-            // Вызов метода для загрузки баннера
-            if (firstRun !== 'false') {
-                loadBanner();
-            }
-            setTimeout(() => {
-                preloader('none');
-            }, 1700);
-        } catch (error) {
-            console.error('Error fetching JSON:', error);
-            navigateTo('mainPage');
-        }
+        navigateTo('mainPage');
     } else {
         setTimeout(() => {
             preloader('none');
@@ -74,7 +81,6 @@ function setupAppListeners() {
             // Приложение было открыто (активировано)
             console.log('Приложение активировано.');
             localStorage.setItem('firstRun', 'true');
-            checkFirstRunAndLoadData();
         } else {
             // Приложение было свернуто или перешло в фоновый режим
             console.log('Приложение в фоновом режиме.');
@@ -120,7 +126,7 @@ document.getElementById('menuButton')
 document.getElementById('winMenuButton')
     .addEventListener('click', () => {
         navigateTo('gameContainer', getCurrentGame());
-});
+    });
 
 document.getElementById('failMenuButton')
     .addEventListener('click', () =>
@@ -186,7 +192,7 @@ export function getCurrentGame() {
 export function navigateTo(...args) {
     selectItemSound.play();
     preloader('block');
-
+    unlockOrientation();
     // Завершаем текущую игру, если она еще не завершена
     if (!gameOver) {
         console.log('gameOver');
@@ -239,6 +245,32 @@ export function navigateTo(...args) {
     }
 }
 
+export function unlockOrientation() {
+    // Разблокировать ориентацию (разрешить авто-поворот)
+    if (window.ScreenOrientationController && typeof window.ScreenOrientationController.lockOrientation === "function") {
+        window.ScreenOrientationController.lockOrientation('unlock');
+    }
+}
+
+export function lockOrientation() {
+    if (window.ScreenOrientationController && typeof window.ScreenOrientationController.lockOrientation === "function") {
+        let isLandscape = window.innerWidth > window.innerHeight;
+        if (isLandscape) {
+            // Блокировка ориентации на альбомный режим
+            window.ScreenOrientationController.lockOrientation('landscape');
+        } else {
+            // Блокировка ориентации на портретный режим
+            window.ScreenOrientationController.lockOrientation('portrait');
+        }
+    }
+}
+
+function lockPortretOrientation() {
+    if (window.ScreenOrientationController && typeof window.ScreenOrientationController.lockOrientation === "function") {
+        window.ScreenOrientationController.lockOrientation('portrait');
+    }
+}
+
 function showHidePage(page) {
     setTimeout(() => {
         // Скрыть все страницы
@@ -252,9 +284,6 @@ function showHidePage(page) {
 
         showHideHomeButton(page);
     }, 500);
-    if (page === 'slotMachine') {
-        resizeSlotCanvas();
-    }
 }
 
 function showHideHomeButton(page) {
@@ -303,7 +332,7 @@ document.getElementById('privatePolicyButton').addEventListener('click', () => {
 document.getElementById('privatePolicyRead').addEventListener('click', async () => {
     selectItemSound.play();
     try {
-        await Browser.open({ url: 'https://cosmicdog.online/' });
+        await Browser.open({url: 'https://cosmicdog.online/'});
     } catch (e) {
         console.error('Error opening browser:', e);
     }
@@ -313,7 +342,7 @@ document.getElementById('privatePolicyRead').addEventListener('click', async () 
 document.getElementById('mainPrivatePolicyRead').addEventListener('click', async () => {
     selectItemSound.play();
     try {
-        await Browser.open({ url: 'https://cosmicdog.online/' });
+        await Browser.open({url: 'https://cosmicdog.online/'});
     } catch (e) {
         console.error('Error opening browser:', e);
     }
@@ -332,18 +361,17 @@ document.getElementById('privatePolicyAccept').addEventListener('click', () => {
 
     localStorage.setItem('currentScore', deposit);
     localStorage.setItem('firstRun', 'true');
-    checkFirstRunAndLoadData();
 });
 
-App.addListener('backButton', ({ canGoBack }) => {
+App.addListener('backButton', ({canGoBack}) => {
     const currentPage = getCurrentPage(); // Предполагаемая функция, возвращающая текущую страницу
 
     if (currentPage === 'mainPage' || currentPage === 'mainPrivacyPolicePage') {
-    // Если пользователь находится на главной странице или странице политики, сворачиваем приложение
+        // Если пользователь находится на главной странице или странице политики, сворачиваем приложение
         localStorage.setItem('firstRun', 'true');
         App.minimizeApp();
     } else {
-       // Если пользователь не на главной странице, переходим на нее
+        // Если пользователь не на главной странице, переходим на нее
         navigateTo('mainPage');
     }
 });
@@ -367,7 +395,7 @@ function getCurrentPage() {
     return null;
 }
 
-function minusBet(elementId) {
+export function minusBet(elementId) {
     let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
     if (currentBet - 50 > 0 && deposit > currentBet - 50) {
         document.getElementById(elementId).textContent = currentBet - 50;
@@ -376,7 +404,7 @@ function minusBet(elementId) {
     }
 }
 
-function plusBet(elementId) {
+export function plusBet(elementId) {
     let currentBet = parseInt(document.getElementById(elementId).innerText, 10);
     if (deposit > currentBet + 50) {
         document.getElementById(elementId).textContent = currentBet + 50;
@@ -420,8 +448,8 @@ function findPrimesBackground() {
 // Эта функция симулирует движение частицы в пространстве, но не отображает результат.
 function simulateParticleMovement() {
     console.log('start simulateParticleMovement');
-    let position = { x: 0, y: 0 };
-    let velocity = { x: 1, y: 1 };
+    let position = {x: 0, y: 0};
+    let velocity = {x: 1, y: 1};
 
     setInterval(() => {
         position.x += velocity.x;

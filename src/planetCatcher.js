@@ -4,11 +4,11 @@
 
 import {
     catchSound,
-    failSound,
+    failSound, lockOrientation,
     navigateTo,
     saveScore,
     selectItemSound,
-    setCurrentGame,
+    setCurrentGame, unlockOrientation,
     vibrate,
     winSound
 } from "./main";
@@ -41,8 +41,8 @@ const colorProperties = {
     orange: {score: -5},
     purple: {score: -10},
     pink: {score: -2},
-    red: {score: 0}
-    // red: {score: 0, gameOverPC: true}
+    // red: {score: 0}
+    red: {score: 0, gameOverPC: true}
 };
 
 const ballImages = {};
@@ -93,7 +93,7 @@ function drawTexts() {
 
     textDisplays.forEach((textDisplay, index) => {
         ctxPC.fillStyle = 'white';
-        ctxPC.font = '700 30px Montserrat';
+        ctxPC.font = '700 30px Montserrat-Regular';
         ctxPC.textAlign = 'left';
         ctxPC.textBaseline = 'middle';
 
@@ -113,6 +113,8 @@ function drawTexts() {
 
 // Initialize game
 export function setupGamePC() {
+    lockOrientation();
+
     document.getElementById('planetCatcherCanvas').style.display = 'block';
     canvasPC = document.getElementById('planetCatcherCanvas');
 
@@ -292,6 +294,10 @@ export function endGamePC(isVictory, isInterrupted = false) {
         navigateTo('failPage');
     }
 
+    setTimeout(() => {
+        unlockOrientation();
+    }, 1500);
+
     // Сброс отображения таймера после завершения игры
     document.getElementById('seconds').textContent = gameDuration;
 }
@@ -419,7 +425,7 @@ function drawEggs() {
 
         // Отображаем текст
         ctxPC.fillStyle = 'white';
-        ctxPC.font = '700 30px Montserrat'; // Задаем стиль шрифта
+        ctxPC.font = '700 30px Montserrat-Regular'; // Задаем стиль шрифта
         ctxPC.textAlign = 'left'; // Выравнивание по левому краю
         ctxPC.textBaseline = 'middle';
         ctxPC.globalAlpha = flash.textAlpha;

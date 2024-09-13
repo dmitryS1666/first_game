@@ -5,10 +5,10 @@
 
 import {
     catchSound_2,
-    failSound,
+    failSound, lockOrientation,
     navigateTo,
     saveScore, selectItemSound,
-    setCurrentGame,
+    setCurrentGame, unlockOrientation,
     vibrate,
     winSound
 } from "./main";
@@ -93,7 +93,7 @@ function drawTexts() {
 
     textDisplays.forEach((textDisplay, index) => {
         ctx.fillStyle = 'white';
-        ctx.font = '700 30px Montserrat';
+        ctx.font = '700 30px Montserrat-Regular';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
 
@@ -113,6 +113,8 @@ function drawTexts() {
 
 // Initialize game
 function setupGame() {
+    lockOrientation();
+
     document.getElementById('gameCanvas').style.display = 'block';
     canvas = document.getElementById('gameCanvas');
 
@@ -170,6 +172,11 @@ function resizeCanvas() {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     basketSpeed = canvasWidth * 0.02;
+
+    // Проверка текущей позиции корзины при изменении размеров экрана
+    if (basketX + basketWidth > canvasWidth) {
+        basketX = canvasWidth - basketWidth;
+    }
 }
 
 // Start a new game
@@ -209,11 +216,10 @@ export function startGame() {
     basketX = (canvasWidth - basketWidth) / 2;
     document.getElementById('failPlatform').style.display = 'none';
     startTimer();
-    if (canvas) {
-        canvas.style.display = 'block';
-        gameOver = false;
-        gameLoop();
-    }
+
+    canvas.style.display = 'block';
+    gameOver = false;
+    gameLoop();
 }
 
 // End the game
@@ -256,6 +262,10 @@ export function endGame(isVictory, isInterrupted = false) {
         failSound.play();
         navigateTo('failPage'); // Перенаправляем на страницу поражения
     }
+
+    setTimeout(() => {
+        unlockOrientation();
+    }, 1500);
 }
 
 function startTimer() {
@@ -279,6 +289,7 @@ function addTrack(x, y) {
 }
 
 function drawBasket() {
+    // ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight - 130, basketWidth, basketHeight);
     ctx.drawImage(basketImage, basketX, canvasHeight - basketHeight - 130, basketWidth, basketHeight);
 }
 

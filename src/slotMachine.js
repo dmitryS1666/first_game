@@ -1,12 +1,14 @@
 import {
     bet,
-    failSound,
+    failSound, lockOrientation,
     navigateTo,
-    saveScore, selectItemSound,
-    setCurrentGame,
+    saveScore,
+    selectItemSound,
+    setCurrentGame, unlockOrientation,
     wheelSpinSound_2,
     winSound
 } from "./main";
+
 let rotationSequences = {};
 
 // Переменная для отслеживания количества начатых вращений
@@ -18,12 +20,13 @@ let isGameRunning = false; // Флаг для отслеживания сост�
 let isAnimationStopped = false; // Флаг для управления остановкой
 
 export function setupSlotMachine() {
-    document.getElementById('currentBetSlot').textContent = bet;
-    document.getElementById('scoreValueSlot').textContent = score || 0;
-    document.getElementById('balanceValueSlot').textContent = localStorage.getItem('currentScore') || 0;
+    resetGameState();
     setTimeout(() => {
+        document.getElementById('currentBetSlot').textContent = bet;
+        document.getElementById('scoreValueSlot').textContent = score || 0;
+        document.getElementById('balanceValueSlot').textContent = localStorage.getItem('currentScore') || 0;
         resizeSlotCanvas();
-    }, 450);
+    }, 550);
 }
 
 // jQuery метод для запуска анимации вращения
@@ -31,7 +34,6 @@ $.fn.startSpin = function (options) {
     result = {};
     gameOverSlotMachine = false;
     if (isGameRunning) return; // Если игра уже идет, не начинаем новую
-    updateStartButtonState(); // Обновляем состояние кнопки перед запуском
     selectItemSound.play();
 
     const listItems = document.querySelectorAll('li');
@@ -113,7 +115,7 @@ let SlotMachine = function (element, options, rotationData) {
         duration: 2500,        // Продолжительность одного цикла вращения
         cycles: 3,             // Количество циклов вращения
         manualStop: false,     // Остановка по запросу пользователя
-        useCustomStopTime: false, // Использовать пользовательское время остановки
+        useCustomStopTime: true, // Использовать пользовательское время остановки
         customStopTime: 4500,  // Пользовательское время остановки
         stopOrder: 'random',   // Порядок остановки анимации
         targetNum: 0,          // Целевое число/позиция для остановки
@@ -129,6 +131,7 @@ let SlotMachine = function (element, options, rotationData) {
         slot.options = $.extend({}, slot.defaultOptions, options);
         slot.setup();
         slot.startSpin();
+        resizeSlotCanvas();
     };
 
     slot.setup = function () {
@@ -158,9 +161,13 @@ let SlotMachine = function (element, options, rotationData) {
     };
 
     slot.startSpin = function () {
+        if (!isGameRunning) {
+            lockOrientation();
+        }
         slot.spinSlotButton = true;  // Устанавливаем флаг вращения
         wheelSpinSound_2.play();
 
+        updateStartButtonState(true);
         if (!slot.isSpinning || isAnimationStopped) return;  // Проверяем, вращается ли элемент
 
         slot.$element
@@ -176,8 +183,28 @@ let SlotMachine = function (element, options, rotationData) {
             });
     };
 
-    // Обновите функцию `stopSpin` для вызова всплывающего сообщения
+    slot.resizeSlotElements = function () {
+        let $listItem = slot.$element.find('li').first();
+        if ($listItem.length === 0) {
+            console.warn('No list items found for resizing.');
+            return;
+        }
+
+        slot.itemHeight = $listItem.outerHeight();
+        slot.itemCount = slot.$element.children().length;
+        slot.totalHeight = slot.itemHeight * slot.itemCount;
+
+        // Обновляем высоту контейнера
+        slot.$element.css({
+            position: 'relative',
+            top: 0,
+            height: slot.totalHeight // Устанавливаем высоту контейнера
+        });
+    };
+
     slot.stopSpin = function () {
+        // slot.resizeSlotElements();
+
         if (slot.options.targetNum === 0) {
             slot.options.targetNum = slot.getRandomNumber(1, slot.itemCount);
         }
@@ -187,7 +214,7 @@ let SlotMachine = function (element, options, rotationData) {
             slot.options.targetNum = 1;
         }
 
-        // Рассчитываем конечную позицию так, чтобы вторая строка была в центре
+        // Рассчитываем конечную позицию так, чтобы элемент был в центре
         let finalPosition = -((slot.itemHeight * (slot.options.targetNum - 2)) + slot.itemHeight);
 
         let finalDuration = ((slot.spinSpeed * 1.5) * (slot.itemCount)) / slot.options.targetNum;
@@ -199,12 +226,17 @@ let SlotMachine = function (element, options, rotationData) {
             .animate({'top': finalPosition}, parseInt(finalDuration), slot.options.easing, function () {
                 slot.$element.css('top', finalPosition);
 
-                let el = slot.$element.children('li').eq(slot.options.targetNum);
-                let endValue = el.attr('value');
-                let endId = el.attr('id');
+                let targetElement = slot.$element.children('li').eq(slot.options.targetNum);
+                if (targetElement.length === 0) {
+                    return;
+                }
+
+                let endValue = targetElement.attr('value');
+                let endId = targetElement.attr('id');
+
 
                 result[endId] = endValue;
-                slot.completeAnimation(el);
+                slot.completeAnimation(targetElement);
 
                 if ($.isFunction(slot.options.onElementEnd)) {
                     slot.options.onElementEnd(endValue);
@@ -219,7 +251,7 @@ let SlotMachine = function (element, options, rotationData) {
 
                     // Подсчитываем количество каждого шара во второй строке
                     $.each(rotationSequences['sequence' + rotationData.sequenceId], function (index, subRotation) {
-                        if (typeof subRotation == 'object') {
+                        if (typeof subRotation === 'object') {
                             let ballName = subRotation['targetNum']; // Имя шара
 
                             // Получаем индекс шара
@@ -238,7 +270,6 @@ let SlotMachine = function (element, options, rotationData) {
                     if (multiplier > 0) {
                         let currentBet = parseFloat(document.getElementById('currentBetSlot').innerText);
                         addFlashResult(result);
-                        // добавить рзмер ставки х multiplier
                         showPopupMessage(multiplier, currentBet);
                         setTimeout(() => {
                             if (!gameOverSlotMachine) {
@@ -254,7 +285,7 @@ let SlotMachine = function (element, options, rotationData) {
             });
     };
 
-    slot.completeAnimation = function() {
+    slot.completeAnimation = function () {
         if (slot.options.stopOrder === 'leftToRight' && rotationData.total !== rotationData.rotationId) {
             rotationSequences['sequence' + rotationData.sequenceId]['rotation' + (rotationData.rotationId + 1)]['spinning'] = false;
         } else if (slot.options.stopOrder === 'rightToLeft' && rotationData.rotationId !== 1) {
@@ -336,15 +367,10 @@ function transformHashToCount(hash) {
 }
 
 // Функция для управления состоянием кнопки
-function updateStartButtonState() {
-    const startButton = document.getElementById('spinSlotButton'); // Замените на ID вашей кнопки старта
-    const minusBetSlot = document.getElementById('minusBetSlot'); // Замените на ID вашей кнопки старта
-    const plusBetSlot = document.getElementById('plusBetSlot'); // Замените на ID вашей кнопки старта
-    if (startButton) {
-        startButton.disabled = isGameRunning; // Блокируем кнопку, если игра идет
-        minusBetSlot.disabled = isGameRunning; // Блокируем кнопку, если игра идет
-        plusBetSlot.disabled = isGameRunning; // Блокируем кнопку, если игра идет
-    }
+function updateStartButtonState(status) {
+    document.getElementById('minusBetSlot').disabled = status;
+    document.getElementById('plusBetSlot').disabled = status;
+    document.getElementById('spinSlotButton').disabled = status;
 }
 
 // Функция для отображения всплывающего текста
@@ -365,6 +391,14 @@ export function resizeSlotCanvas() {
     let ulDiv = document.getElementById('slotMachine');
     let liChild = ulDiv.querySelectorAll('li');
 
+    let ulElements = ulDiv.querySelectorAll('ul');
+
+    // Задаём высоту для каждого ul
+    ulElements.forEach(ul => {
+        ul.style.display = 'block';
+        ul.style.height = (el.offsetHeight - 40).toString() + 'px';
+    });
+
     // Устанавливаем высоту контейнера с учетом отступов
     ulDiv.style.height = (el.offsetHeight - 20).toString() + 'px';
 
@@ -377,7 +411,8 @@ export function endGameSlotMachine(result, isInterrupted = false) {
         isGameRunning = false;
         stopSlotMachineAnimation();
         // Очистка клонированных элементов
-        resetSlotMachine();
+        resetGameState();
+        wheelSpinSound_2.pause();
         return;
     }
 
@@ -393,23 +428,47 @@ export function endGameSlotMachine(result, isInterrupted = false) {
         saveScore(newScore);
         setCurrentGame('slotMachine');
         winSound.play();
-        navigateTo("winPage");
+        setTimeout(() => {
+            navigateTo("winPage");
+        }, 1500);
     } else {
         let newScore = parseInt(localStorage.getItem("currentScore")) - currentBet;
         saveScore(newScore);
         setCurrentGame('slotMachine');
         failSound.play();
-        navigateTo("failPage");
+        setTimeout(() => {
+            navigateTo("failPage");
+        }, 1500);
     }
-    gameOverSlotMachine = true;
-    isGameRunning = false;
 
-    // Очистка клонированных элементов
-    resetSlotMachine();
+    setTimeout(() => {
+        resetGameState();
+    }, 2000);
+
+    setTimeout(() => {
+        unlockOrientation();
+    }, 2100);
+
+    gameOverSlotMachine = true;
 }
 
 function stopSlotMachineAnimation() {
     isAnimationStopped = true;
+}
+
+function resetGameState() {
+    // Сброс переменных состояния
+    rotationCount = 0;
+    result = {};
+    score = 0;
+    // gameOverSlotMachine = false;
+    isGameRunning = false;
+    isAnimationStopped = false;
+
+    // Очистка и восстановление DOM
+    resetSlotMachine();
+
+    updateStartButtonState(false); // Разблокировать кнопку
 }
 
 // Функция для очистки клонированных элементов, оставляя первые 9 элементов li
